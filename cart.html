@@ -216,7 +216,6 @@
       .send-whatsapp-btn:hover {
         background-color: #1da851;
       }
-      /* New style for the share image button */
       .share-image-btn {
         background-color: #007bff;
         color: white;
@@ -248,15 +247,72 @@
         font-weight: bold;
         color: #111;
         font-size: 1.2rem;
-        /* border-top: 1px solid #eee; */ /* We move border-top to other elements */
         padding-top: 10px;
         margin-top: 10px;
       }
 
-      /* !!! STEP 1 (CSS): ADD PREMIUM TEXT STYLE !!! */
       .premium-text {
-        color: #b28900; /* 一个更深、更易读的金色/棕色 */
+        color: #b28900;
         font-weight: 700;
+      }
+
+      /* !!! NEW: Discount Tiers Styles !!! */
+      .discount-tiers-container {
+        margin: 20px 0 0 0;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e0e0e0;
+      }
+      .discount-tiers-container h3 {
+        margin-top: 0;
+        text-align: center;
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: #333;
+      }
+      #tiers-list {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fit,
+          minmax(150px, 1fr)
+        ); /* Responsive columns */
+        gap: 10px;
+        font-size: 0.95rem;
+      }
+      .tier-item {
+        padding: 10px;
+        border: 1px solid #eee;
+        border-radius: 6px;
+        background-color: #f9f9f9;
+        text-align: center;
+        transition: all 0.2s ease-in-out;
+      }
+      .tier-item span {
+        display: block;
+      }
+      .tier-item .tier-qty {
+        font-weight: bold;
+        color: #555;
+        margin-bottom: 5px;
+      }
+      .tier-item .tier-discount {
+        font-weight: bold;
+        color: #28a745; /* Green for discount */
+      }
+      /* Style for the current active tier */
+      .tier-item.current-tier {
+        background-color: #d4edda; /* Light green background */
+        border-color: #c3e6cb; /* Darker green border */
+        transform: scale(1.05); /* Slightly enlarge */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .tier-item.current-tier .tier-qty {
+        color: #155724; /* Darker green text */
+      }
+      .tier-item.current-tier .tier-discount {
+        color: #155724; /* Darker green text */
       }
     </style>
   </head>
@@ -302,8 +358,31 @@
           <span id="total-price">$0.00</span>
         </p>
       </div>
-    </div>
 
+      <div
+        id="upsell-message"
+        style="
+          margin: 15px 0 0 0;
+          padding: 15px;
+          background-color: #e7f3ff; /* Light blue background */
+          border: 1px solid #b3d7ff; /* Blue border */
+          color: #004085; /* Dark blue text */
+          border-radius: 8px;
+          text-align: center;
+          font-weight: bold;
+          display: none; /* Hidden by default */
+        "
+      ></div>
+
+      <div
+        id="discount-tiers"
+        class="discount-tiers-container"
+        style="display: none"
+      >
+        <h3>Volume Discounts</h3>
+        <div id="tiers-list"></div>
+      </div>
+    </div>
     <div class="cart-actions">
       <button id="clear-cart-btn" class="clear-cart-btn">Clear Cart</button>
       <button id="send-whatsapp-btn" class="send-whatsapp-btn">
@@ -315,23 +394,27 @@
     </div>
 
     <script>
-      // --- 必要的元素 ---
+      // --- Necessary Elements ---
       const cartItemsList = document.getElementById("cart-items-list");
       const clearCartBtn = document.getElementById("clear-cart-btn");
       const sendWhatsappBtn = document.getElementById("send-whatsapp-btn");
       const shareImageBtn = document.getElementById("share-image-btn");
 
-      // 摘要元素
+      // Summary Elements
       const totalCountEl = document.getElementById("total-count");
       const lvCountEl = document.getElementById("lv-count");
       const otherBrandsCountEl = document.getElementById("other-brands-count");
       const subtotalPriceEl = document.getElementById("subtotal-price");
       const discountAmountEl = document.getElementById("discount-amount");
       const totalPriceEl = document.getElementById("total-price");
+      const upsellMessageEl = document.getElementById("upsell-message");
+      // !! NEW: Discount Tiers Element !!
+      const tiersListEl = document.getElementById("tiers-list");
+      const discountTiersContainer = document.getElementById("discount-tiers");
 
       const whatsappNumber = "16232027321";
 
-      // 品牌列表 (用于getShortCaption)
+      // Brand List (for getShortCaption)
       const BRANDS = [
         "Dior",
         "Chanel",
@@ -363,7 +446,21 @@
         "Jo Malone",
       ];
 
-      // --- 购物车核心功能 (localStorage) ---
+      // --- !!! MOVED: Tiers Definition (Global Scope) !!! ---
+      const tiers = [
+        { tierName: "A", min: 1, max: 1, percent: 0, next: 2 },
+        { tierName: "B", min: 2, max: 2, percent: 0.03, next: 3 },
+        { tierName: "C", min: 3, max: 4, percent: 0.05, next: 5 },
+        { tierName: "D", min: 5, max: 9, percent: 0.08, next: 10 },
+        { tierName: "E", min: 10, max: 19, percent: 0.14, next: 20 },
+        { tierName: "F", min: 20, max: 29, percent: 0.24, next: 30 },
+        { tierName: "G", min: 30, max: 49, percent: 0.26, next: 50 },
+        { tierName: "H", min: 50, max: 79, percent: 0.29, next: 80 },
+        { tierName: "I", min: 80, max: 100, percent: 0.35, next: 101 },
+        { tierName: "J", min: 101, max: Infinity, percent: 0.37, next: -1 },
+      ];
+
+      // --- Cart Core Functions (localStorage) ---
       function loadCartFromLocalStorage() {
         const storedCart = localStorage.getItem("perfumeCart");
         return storedCart ? JSON.parse(storedCart) : [];
@@ -374,39 +471,35 @@
         window.dispatchEvent(new Event("storage"));
       }
 
-      // --- !! STEP 2 (JS): UPDATE getShortCaption FUNCTION !! ---
+      // --- Helper Function (getShortCaption - includes premium text styling) ---
       function getShortCaption(fullCaption) {
         const captionParts = fullCaption.split(" - ");
         if (captionParts.length < 2) return fullCaption;
-        const itemNumber = captionParts[0]; // e.g., "A01-P"
-        const fullName = captionParts.slice(1).join(" - "); // e.g., "Valentino... - Premium (Luxe)"
+        const itemNumber = captionParts[0];
+        const fullName = captionParts.slice(1).join(" - ");
 
         const sortedBrands = [...BRANDS].sort((a, b) => b.length - a.length);
         const foundBrand = sortedBrands.find((brand) =>
           fullName.toLowerCase().includes(brand.toLowerCase())
         );
 
-        // e.g., "A01-P - Valentino"
         const shortName = foundBrand
           ? `${itemNumber} - ${foundBrand}`
           : `${itemNumber} - ${fullName.split(" ")[0]}`;
 
-        // Find tier info
         const tierMatch = fullName.match(/Premium \(Luxe\)|Standard/);
         if (tierMatch) {
           const tierText = tierMatch[0];
           if (tierText === "Premium (Luxe)") {
-            // !!! APPLY THE STYLE !!!
             return `${shortName} (<span class="premium-text">Premium (Luxe)</span>)`;
           } else {
-            // Standard text remains normal
             return `${shortName} (Standard)`;
           }
         }
         return shortName;
       }
 
-      // --- 购物车渲染 ---
+      // --- Render Cart Items ---
       function renderCartItems() {
         let cartItems = loadCartFromLocalStorage();
         cartItemsList.innerHTML = "";
@@ -423,9 +516,13 @@
           cartItemsList.innerHTML =
             "<p class='empty-cart-message'>Your cart is empty.</p>";
           document.getElementById("cart-summary").style.display = "none";
+          if (upsellMessageEl) upsellMessageEl.style.display = "none";
+          if (discountTiersContainer)
+            discountTiersContainer.style.display = "none"; // Hide tiers if cart empty
         } else {
           document.getElementById("cart-summary").style.display = "block";
-          // Sort by the number in the ID (e.g., A01, A02)
+          if (discountTiersContainer)
+            discountTiersContainer.style.display = "block"; // Show tiers if cart has items
           cartItems.sort((a, b) => {
             const getNumber = (str) =>
               parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
@@ -435,14 +532,14 @@
           cartItems.forEach((item, index) => {
             const li = document.createElement("li");
             li.className = "cart-item";
-            // getShortCaption 现在会返回带 <span> 的HTML
             const displayCaption = getShortCaption(item.caption);
             li.innerHTML = `
               <img src="${item.img}" alt="${item.name}" loading="lazy">
               <div class="item-details">
-                <h3>${displayCaption}</h3> <p style="margin: 5px 0; font-weight: bold;">Original Price: $${
-              item.price || "N/A"
-            }</p> 
+                <h3>${displayCaption}</h3>
+                <p style="margin: 5px 0; font-weight: bold;">Original Price: $${
+                  item.price || "N/A"
+                }</p>
                 <div class="quantity-control">
                   <button class="decrease-quantity" data-index="${index}">-</button>
                   <span>${item.quantity}</span>
@@ -454,21 +551,90 @@
             cartItemsList.appendChild(li);
           });
         }
-        updateCartSummary();
+        updateCartSummary(); // This also calls renderDiscountTiers now
       }
 
-      // --- 折扣逻辑 (保持不变) ---
-      function getDiscountPercent(qty) {
-        if (qty >= 10) return 0.2; // 10+ 瓶, 20% off
-        if (qty >= 5) return 0.15; // 5-9 瓶, 15% off
-        if (qty >= 3) return 0.1; // 3-4 瓶, 10% off
-        return 0; // 1-2 瓶, 0% off
+      // --- Discount Calculation Function ---
+      function calculateDiscountInfo(qty) {
+        let discountPercent = 0;
+        let nextTierStart = -1;
+        let currentTier = tiers.find(
+          (tier) => qty >= tier.min && qty <= tier.max
+        );
+
+        if (currentTier) {
+          discountPercent = currentTier.percent;
+          nextTierStart = currentTier.next;
+        } else {
+          discountPercent = 0;
+          nextTierStart = 1;
+        }
+
+        let upsellMessage = "";
+        if (
+          currentTier &&
+          qty >= 5 &&
+          nextTierStart > 0 &&
+          nextTierStart <= 80
+        ) {
+          const diff = nextTierStart - qty;
+          if (diff > 0 && diff <= 3) {
+            const nextTierInfo = tiers.find(
+              (tier) => tier.min === nextTierStart
+            );
+            const nextDiscountFormatted = nextTierInfo
+              ? (nextTierInfo.percent * 100).toFixed(0) + "%"
+              : "a better";
+            upsellMessage = `✨ Add ${diff} more item${
+              diff > 1 ? "s" : ""
+            } (total ${nextTierStart}) to get ${nextDiscountFormatted} discount!`;
+          }
+        }
+
+        return {
+          discountPercent: discountPercent,
+          upsellMessage: upsellMessage,
+          currentTier: currentTier, // Return the current tier object
+        };
       }
 
-      // --- 价格计算逻辑 (保持不变) ---
+      // --- !!! NEW: Render Discount Tiers Function !!! ---
+      function renderDiscountTiers(currentQty) {
+        if (!tiersListEl) return; // Exit if the element doesn't exist
+        tiersListEl.innerHTML = ""; // Clear previous tiers
+
+        tiers.forEach((tier) => {
+          const tierDiv = document.createElement("div");
+          tierDiv.classList.add("tier-item");
+
+          // Format quantity range string
+          let qtyString = "";
+          if (tier.min === tier.max) {
+            qtyString = `${tier.min} Item${tier.min > 1 ? "s" : ""}`;
+          } else if (tier.max === Infinity) {
+            qtyString = `${tier.min}+ Items`;
+          } else {
+            qtyString = `${tier.min}-${tier.max} Items`;
+          }
+
+          // Check if this is the current tier
+          if (currentQty >= tier.min && currentQty <= tier.max) {
+            tierDiv.classList.add("current-tier");
+          }
+
+          tierDiv.innerHTML = `
+                  <span class="tier-qty">${qtyString}</span>
+                  <span class="tier-discount">${(tier.percent * 100).toFixed(
+                    0
+                  )}% Off</span>
+              `;
+          tiersListEl.appendChild(tierDiv);
+        });
+      }
+
+      // --- Core Price Logic ---
       function updateCartSummary() {
         let cartItems = loadCartFromLocalStorage();
-
         let totalCount = 0;
         let subtotal = 0;
         let lvCount = 0;
@@ -487,24 +653,38 @@
           }
         });
 
-        const discountPercent = getDiscountPercent(totalCount);
-        const discountAmount = subtotal * discountPercent;
-        const finalTotal = subtotal - discountAmount;
+        const discountInfo = calculateDiscountInfo(totalCount);
+        const discountPercent = discountInfo.discountPercent;
+        const finalTotalBeforeRounding = subtotal * (1 - discountPercent);
+        const finalTotalRounded = Math.round(finalTotalBeforeRounding);
+        const discountAmount = Math.max(0, subtotal - finalTotalRounded);
 
+        // Update Summary HTML
         totalCountEl.textContent = `${totalCount}`;
         lvCountEl.textContent = `${lvCount}`;
         otherBrandsCountEl.textContent = `${otherCount}`;
-
         subtotalPriceEl.textContent = `$${subtotal.toFixed(2)}`;
-
         let discountText = `-$${discountAmount.toFixed(2)}`;
         if (discountPercent > 0) {
           discountText += ` (${(discountPercent * 100).toFixed(0)}% off)`;
         }
         discountAmountEl.textContent = discountText;
+        totalPriceEl.textContent = `$${finalTotalRounded.toFixed(2)}`;
 
-        totalPriceEl.textContent = `$${finalTotal.toFixed(2)}`;
+        // Update Upsell Message
+        if (upsellMessageEl) {
+          if (discountInfo.upsellMessage) {
+            upsellMessageEl.textContent = discountInfo.upsellMessage;
+            upsellMessageEl.style.display = "block";
+          } else {
+            upsellMessageEl.style.display = "none";
+          }
+        }
 
+        // --- !!! NEW: Call Render Discount Tiers !!! ---
+        renderDiscountTiers(totalCount);
+
+        // Return summary for WhatsApp
         return {
           totalCount,
           lvCount,
@@ -512,14 +692,14 @@
           subtotal,
           discountAmount,
           discountPercent,
-          finalTotal,
+          finalTotal: finalTotalRounded,
         };
       }
 
-      // --- 页面加载 ---
+      // --- Page Load ---
       document.addEventListener("DOMContentLoaded", renderCartItems);
 
-      // --- 按钮事件监听 (保持不变) ---
+      // --- Button Event Listeners ---
       cartItemsList.addEventListener("click", (e) => {
         const index = e.target.getAttribute("data-index");
         if (index === null) return;
@@ -580,7 +760,7 @@
         renderCartItems();
       });
 
-      // --- "SEND AS TEXT" 逻辑 (保持不变) ---
+      // --- "SEND AS TEXT" Logic ---
       sendWhatsappBtn.addEventListener("click", () => {
         const cartItems = loadCartFromLocalStorage();
         if (cartItems.length === 0) {
@@ -602,10 +782,6 @@
           return getNumber(a.caption) - getNumber(b.caption);
         });
 
-        // !! 注意：这里我们不需要做任何特殊处理，因为 item.caption
-        // 仍然是来自 localStorage 的原始文本 (e.g., "A01-P - ... Premium (Luxe)"),
-        // 它没有被 getShortCaption() 改变。
-        // WhatsApp 消息会保持纯文本，这是好的。
         const messageLines = cartItems.map(
           (item) =>
             `* ${item.caption} (${item.quantity} x $${item.price || "N/A"})`
@@ -621,8 +797,13 @@
           `Volume Discount (${(summary.discountPercent * 100).toFixed(
             0
           )}%): -$${summary.discountAmount.toFixed(2)}`,
-          `*Final Total: $${summary.finalTotal.toFixed(2)}*`,
+          `*Final Total (Rounded): $${summary.finalTotal.toFixed(2)}*`,
         ];
+
+        if (summary.upsellMessage) {
+          const textUpsellMessage = summary.upsellMessage.replace("✨ ", "");
+          summaryLines.push(`%0A${textUpsellMessage}`);
+        }
 
         const message = [
           "Hello, I am interested in the following perfumes:",
@@ -641,7 +822,7 @@
         }, 1000);
       });
 
-      // --- "SHARE AS IMAGE" 逻辑 (保持不变) ---
+      // --- "SHARE AS IMAGE" Logic ---
       shareImageBtn.addEventListener("click", () => {
         const cartItems = loadCartFromLocalStorage();
         if (cartItems.length === 0) {
@@ -656,13 +837,26 @@
         shareImageBtn.disabled = true;
 
         const captureArea = document.getElementById("capture-area");
+        // Ensure tiers are visible for screenshot if cart has items
+        if (discountTiersContainer && cartItems.length > 0)
+          discountTiersContainer.style.display = "block";
 
         html2canvas(captureArea, {
           backgroundColor: "#f4f4f4",
           useCORS: true,
+          onclone: (clonedDoc) => {
+            // Ensure tiers are visible in the clone as well
+            const clonedTiers = clonedDoc.getElementById("discount-tiers");
+            if (clonedTiers && cartItems.length > 0) {
+              clonedTiers.style.display = "block";
+            }
+          },
         })
           .then((canvas) => {
             canvas.toBlob(async (blob) => {
+              if (!blob) {
+                throw new Error("Canvas to Blob conversion failed");
+              }
               const file = new File([blob], "cart-order.png", {
                 type: "image/png",
               });
@@ -672,34 +866,57 @@
                 text: "Hello, I would like to order the items in this image.",
               };
 
-              if (navigator.share && navigator.canShare(shareData)) {
+              if (navigator.canShare && navigator.canShare(shareData)) {
                 try {
                   await navigator.share(shareData);
                 } catch (err) {
-                  console.error("Share failed:", err);
+                  console.error("Share failed:", err.name, err.message);
+                  if (err.name !== "AbortError") {
+                    alert(
+                      "Sharing failed. You can try downloading the image instead."
+                    );
+                  }
                 }
-              } else {
-                const link = document.createElement("a");
-                link.href = URL.createObjectURL(file);
-                link.download = "cart-order.png";
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                alert(
-                  "Cart image downloaded!\n\nPlease open WhatsApp and manually send the 'cart-order.png' file from your downloads."
+              } else if (navigator.share) {
+                console.warn(
+                  "Cannot share files directly, falling back to download."
                 );
+                triggerDownload(file);
+              } else {
+                console.warn(
+                  "Web Share API not supported, falling back to download."
+                );
+                triggerDownload(file);
               }
             }, "image/png");
           })
           .catch((err) => {
             console.error("Image generation failed:", err);
-            alert("Sorry, there was an error creating the image.");
+            alert(
+              "Sorry, there was an error creating the image. Please try sending as text."
+            );
           })
           .finally(() => {
             shareImageBtn.textContent = originalText;
             shareImageBtn.disabled = false;
+            // Update summary which might re-hide tiers if cart becomes empty
+            updateCartSummary();
           });
       });
+
+      // Helper function for download fallback
+      function triggerDownload(file) {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(file);
+        link.download = "cart-order.png";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+        alert(
+          "Cart image downloaded!\n\nPlease open WhatsApp and manually send the 'cart-order.png' file from your downloads."
+        );
+      }
     </script>
   </body>
 </html>
