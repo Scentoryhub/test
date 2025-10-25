@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Cart</title>
+    <link rel="icon" type="image/png" href="icon/32.png" />
+    <link rel="apple-touch-icon" href="icon/180.png" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      /* Reset and common styles */
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        background: #f4f4f4;
+        color: #111;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        position: relative;
+        min-height: 100vh;
+        padding-bottom: 120px; /* Space for footer actions */
+      }
+      .page-header {
+        position: relative;
+        text-align: center;
+        padding: 20px 15px;
+        border-bottom: 1px solid #eee;
+        background-color: #fff;
+        margin-bottom: 20px;
+      }
+      .page-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: #222;
+      }
+      .back-btn {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform 0.3s;
+        background-image: url("icon/back.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        border: none;
+        background-color: transparent;
+      }
+      .back-btn:hover {
+        transform: translateY(-50%) scale(1.1);
+      }
+      /* New container for screenshot area */
+      #capture-area {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 15px;
+        background-color: #f4f4f4; /* Ensures consistent background for the image */
+      }
+      .cart-items-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+      .cart-items-list.two-columns {
+        @media (min-width: 768px) {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      .cart-items-list.three-columns {
+        @media (min-width: 1024px) {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+      .cart-item {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        transition: transform 0.2s ease-in-out;
+        gap: 15px;
+        padding-right: 15px;
+      }
+      .cart-item:hover {
+        transform: translateY(-3px);
+      }
+
+      .cart-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        flex-shrink: 0;
+        transition: width 0.3s, height 0.3s;
+      }
+      @media (min-width: 600px) {
+        .cart-item img {
+          width: 120px;
+          height: 120px;
+        }
+      }
+
+      .item-details {
+        flex-grow: 1;
+        padding: 15px 0;
+      }
+      .item-details h3 {
+        margin: 0 0 5px 0;
+        font-size: 1.1rem;
+        color: #333;
+      }
+      .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 5px;
+      }
+      .quantity-control button {
+        background: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .quantity-control button:hover {
+        background: #ddd;
+      }
+      .quantity-control span {
+        font-size: 1rem;
+        font-weight: bold;
+      }
+      .cart-item .remove-btn {
+        margin-left: auto;
+      }
+      .remove-btn {
+        padding: 6px 10px;
+        background: #eee;
+        color: #777;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+        font-size: 0.8rem;
+      }
+      .remove-btn:hover {
+        background: #e74c3c;
+        color: #fff;
+      }
+      .empty-cart-message {
+        text-align: center;
+        color: #777;
+        font-size: 1.1rem;
+        padding: 50px 0;
+      }
+      .cart-actions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #fff;
+        padding: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        border-top: 1px solid #eee;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+      }
+      .cart-actions button {
+        padding: 12px 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem; /* Adjusted font size for three buttons */
+        font-weight: bold;
+        transition: background-color 0.2s, transform 0.2s;
+        flex-grow: 1;
+        max-width: 180px; /* Adjusted max-width */
+      }
+      @media (min-width: 600px) {
+        .cart-actions button {
+          font-size: 1rem;
+        }
+      }
+      .cart-actions button:hover {
+        transform: translateY(-2px);
+      }
+      .clear-cart-btn {
+        background-color: #e7e7e7;
+        color: #555;
+      }
+      .clear-cart-btn:hover {
+        background-color: #e74c3c;
+        color: #fff;
+      }
+      .send-whatsapp-btn {
+        background-color: #25d366;
+        color: white;
+      }
+      .send-whatsapp-btn:hover {
+        background-color: #1da851;
+      }
+      /* New style for the share image button */
+      .share-image-btn {
+        background-color: #007bff;
+        color: white;
+      }
+      .share-image-btn:hover {
+        background-color: #0056b3;
+      }
+      .cart-summary {
+        margin: 20px 0 0 0;
+        padding: 20px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e0e0e0;
+      }
+      .cart-summary h2 {
+        margin-top: 0;
+        text-align: center;
+        font-size: 1.4rem;
+      }
+      .cart-summary p {
+        margin: 8px 0;
+        font-size: 1.1rem;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+      }
+      .cart-summary .total-count {
+        font-weight: bold;
+        color: #111;
+        font-size: 1.2rem;
+        /* border-top: 1px solid #eee; */ /* We move border-top to other elements */
+        padding-top: 10px;
+        margin-top: 10px;
+      }
+
+      /* !!! STEP 1 (CSS): ADD PREMIUM TEXT STYLE !!! */
+      .premium-text {
+        color: #b28900; /* 一个更深、更易读的金色/棕色 */
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="page-header">
+      <a href="index.html" class="back-btn" aria-label="Go back"></a>
+      <h1>Your Cart</h1>
+    </header>
+
+    <div id="capture-area">
+      <ul id="cart-items-list" class="cart-items-list"></ul>
+
+      <div id="cart-summary" class="cart-summary">
+        <h2>Order Summary</h2>
+
+        <p><span>LV Quantity:</span> <span id="lv-count">0</span></p>
+        <p>
+          <span>Other Brands Quantity:</span>
+          <span id="other-brands-count">0</span>
+        </p>
+
+        <p
+          class="total-count"
+          style="
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: 10px;
+          "
+        >
+          <span>Total Quantity:</span> <span id="total-count">0</span>
+        </p>
+
+        <p style="border-top: 1px solid #eee; padding-top: 10px">
+          <span>Subtotal (Original Price):</span>
+          <span id="subtotal-price">$0.00</span>
+        </p>
+        <p style="color: #28a745">
+          <span>Volume Discount:</span>
+          <span id="discount-amount">-$0.00</span>
+        </p>
+        <p class="total-count" style="font-size: 1.3rem">
+          <span>Total Price:</span>
+          <span id="total-price">$0.00</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="cart-actions">
+      <button id="clear-cart-btn" class="clear-cart-btn">Clear Cart</button>
+      <button id="send-whatsapp-btn" class="send-whatsapp-btn">
+        Send Order (Text)
+      </button>
+      <button id="share-image-btn" class="share-image-btn">
+        Share as Image
+      </button>
+    </div>
+
+    <script>
+      // --- 必要的元素 ---
+      const cartItemsList = document.getElementById("cart-items-list");
+      const clearCartBtn = document.getElementById("clear-cart-btn");
+      const sendWhatsappBtn = document.getElementById("send-whatsapp-btn");
+      const shareImageBtn = document.getElementById("share-image-btn");
+
+      // 摘要元素
+      const totalCountEl = document.getElementById("total-count");
+      const lvCountEl = document.getElementById("lv-count");
+      const otherBrandsCountEl = document.getElementById("other-brands-count");
+      const subtotalPriceEl = document.getElementById("subtotal-price");
+      const discountAmountEl = document.getElementById("discount-amount");
+      const totalPriceEl = document.getElementById("total-price");
+
+      const whatsappNumber = "16232027321";
+
+      // 品牌列表 (用于getShortCaption)
+      const BRANDS = [
+        "Dior",
+        "Chanel",
+        "Yves Saint Laurent",
+        "Louis Vuitton",
+        "Tom Ford",
+        "Gucci",
+        "Valentino",
+        "Prada",
+        "Versace",
+        "Creed",
+        "Jean Paul Gaultier",
+        "Maison Francis Kurkdjian",
+        "Parfums de Marly",
+        "Giorgio Armani",
+        "Emporio Armani",
+        "Carolina Herrera",
+        "Lancôme",
+        "Paco Rabanne",
+        "Xerjoff",
+        "Initio",
+        "Lattafa",
+        "Ralph Lauren",
+        "Burberry",
+        "Le Labo",
+        "Hugo Boss",
+        "Hermès",
+        "Byredo",
+        "Jo Malone",
+      ];
+
+      // --- 购物车核心功能 (localStorage) ---
+      function loadCartFromLocalStorage() {
+        const storedCart = localStorage.getItem("perfumeCart");
+        return storedCart ? JSON.parse(storedCart) : [];
+      }
+
+      function saveCartToLocalStorage(cart) {
+        localStorage.setItem("perfumeCart", JSON.stringify(cart));
+        window.dispatchEvent(new Event("storage"));
+      }
+
+      // --- !! STEP 2 (JS): UPDATE getShortCaption FUNCTION !! ---
+      function getShortCaption(fullCaption) {
+        const captionParts = fullCaption.split(" - ");
+        if (captionParts.length < 2) return fullCaption;
+        const itemNumber = captionParts[0]; // e.g., "A01-P"
+        const fullName = captionParts.slice(1).join(" - "); // e.g., "Valentino... - Premium (Luxe)"
+
+        const sortedBrands = [...BRANDS].sort((a, b) => b.length - a.length);
+        const foundBrand = sortedBrands.find((brand) =>
+          fullName.toLowerCase().includes(brand.toLowerCase())
+        );
+
+        // e.g., "A01-P - Valentino"
+        const shortName = foundBrand
+          ? `${itemNumber} - ${foundBrand}`
+          : `${itemNumber} - ${fullName.split(" ")[0]}`;
+
+        // Find tier info
+        const tierMatch = fullName.match(/Premium \(Luxe\)|Standard/);
+        if (tierMatch) {
+          const tierText = tierMatch[0];
+          if (tierText === "Premium (Luxe)") {
+            // !!! APPLY THE STYLE !!!
+            return `${shortName} (<span class="premium-text">Premium (Luxe)</span>)`;
+          } else {
+            // Standard text remains normal
+            return `${shortName} (Standard)`;
+          }
+        }
+        return shortName;
+      }
+
+      // --- 购物车渲染 ---
+      function renderCartItems() {
+        let cartItems = loadCartFromLocalStorage();
+        cartItemsList.innerHTML = "";
+
+        cartItemsList.className = "cart-items-list";
+        const itemCount = cartItems.length;
+        if (itemCount > 12) {
+          cartItemsList.classList.add("three-columns");
+        } else if (itemCount > 6) {
+          cartItemsList.classList.add("two-columns");
+        }
+
+        if (cartItems.length === 0) {
+          cartItemsList.innerHTML =
+            "<p class='empty-cart-message'>Your cart is empty.</p>";
+          document.getElementById("cart-summary").style.display = "none";
+        } else {
+          document.getElementById("cart-summary").style.display = "block";
+          // Sort by the number in the ID (e.g., A01, A02)
+          cartItems.sort((a, b) => {
+            const getNumber = (str) =>
+              parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
+            return getNumber(a.caption) - getNumber(b.caption);
+          });
+
+          cartItems.forEach((item, index) => {
+            const li = document.createElement("li");
+            li.className = "cart-item";
+            // getShortCaption 现在会返回带 <span> 的HTML
+            const displayCaption = getShortCaption(item.caption);
+            li.innerHTML = `
+              <img src="${item.img}" alt="${item.name}" loading="lazy">
+              <div class="item-details">
+                <h3>${displayCaption}</h3> <p style="margin: 5px 0; font-weight: bold;">Original Price: $${
+              item.price || "N/A"
+            }</p> 
+                <div class="quantity-control">
+                  <button class="decrease-quantity" data-index="${index}">-</button>
+                  <span>${item.quantity}</span>
+                  <button class="increase-quantity" data-index="${index}">+</button>
+                </div>
+              </div>
+              <button class="remove-btn" data-index="${index}">Remove</button>
+            `;
+            cartItemsList.appendChild(li);
+          });
+        }
+        updateCartSummary();
+      }
+
+      // --- 折扣逻辑 (保持不变) ---
+      function getDiscountPercent(qty) {
+        if (qty >= 10) return 0.2; // 10+ 瓶, 20% off
+        if (qty >= 5) return 0.15; // 5-9 瓶, 15% off
+        if (qty >= 3) return 0.1; // 3-4 瓶, 10% off
+        return 0; // 1-2 瓶, 0% off
+      }
+
+      // --- 价格计算逻辑 (保持不变) ---
+      function updateCartSummary() {
+        let cartItems = loadCartFromLocalStorage();
+
+        let totalCount = 0;
+        let subtotal = 0;
+        let lvCount = 0;
+        let otherCount = 0;
+
+        cartItems.forEach((item) => {
+          const quantity = item.quantity;
+          const price = item.price || 0;
+          totalCount += quantity;
+          subtotal += price * quantity;
+
+          if (item.caption.toLowerCase().includes("louis vuitton")) {
+            lvCount += quantity;
+          } else {
+            otherCount += quantity;
+          }
+        });
+
+        const discountPercent = getDiscountPercent(totalCount);
+        const discountAmount = subtotal * discountPercent;
+        const finalTotal = subtotal - discountAmount;
+
+        totalCountEl.textContent = `${totalCount}`;
+        lvCountEl.textContent = `${lvCount}`;
+        otherBrandsCountEl.textContent = `${otherCount}`;
+
+        subtotalPriceEl.textContent = `$${subtotal.toFixed(2)}`;
+
+        let discountText = `-$${discountAmount.toFixed(2)}`;
+        if (discountPercent > 0) {
+          discountText += ` (${(discountPercent * 100).toFixed(0)}% off)`;
+        }
+        discountAmountEl.textContent = discountText;
+
+        totalPriceEl.textContent = `$${finalTotal.toFixed(2)}`;
+
+        return {
+          totalCount,
+          lvCount,
+          otherCount,
+          subtotal,
+          discountAmount,
+          discountPercent,
+          finalTotal,
+        };
+      }
+
+      // --- 页面加载 ---
+      document.addEventListener("DOMContentLoaded", renderCartItems);
+
+      // --- 按钮事件监听 (保持不变) ---
+      cartItemsList.addEventListener("click", (e) => {
+        const index = e.target.getAttribute("data-index");
+        if (index === null) return;
+
+        if (e.target.classList.contains("remove-btn")) {
+          if (!confirm("Are you sure you want to remove this item?")) return;
+          let cartItems = loadCartFromLocalStorage();
+          const sortedItems = [...cartItems].sort((a, b) => {
+            const getNumber = (str) =>
+              parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
+            return getNumber(a.caption) - getNumber(b.caption);
+          });
+          const itemToRemove = sortedItems[index];
+          if (itemToRemove) {
+            const updatedCart = cartItems.filter(
+              (item) => item.caption !== itemToRemove.caption
+            );
+            saveCartToLocalStorage(updatedCart);
+            renderCartItems();
+          }
+        } else if (e.target.classList.contains("increase-quantity")) {
+          updateQuantity(parseInt(index), 1);
+        } else if (e.target.classList.contains("decrease-quantity")) {
+          updateQuantity(parseInt(index), -1);
+        }
+      });
+
+      function updateQuantity(index, change) {
+        let cartItems = loadCartFromLocalStorage();
+        const sortedItems = [...cartItems].sort((a, b) => {
+          const getNumber = (str) =>
+            parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
+          return getNumber(a.caption) - getNumber(b.caption);
+        });
+        const itemToUpdate = sortedItems[index];
+        if (itemToUpdate) {
+          itemToUpdate.quantity = Math.max(0, itemToUpdate.quantity + change);
+          const originalItemIndex = cartItems.findIndex(
+            (item) => item.caption === itemToUpdate.caption
+          );
+          if (originalItemIndex !== -1) {
+            cartItems[originalItemIndex].quantity = itemToUpdate.quantity;
+          }
+          const updatedCart = cartItems.filter((item) => item.quantity > 0);
+          saveCartToLocalStorage(updatedCart);
+          renderCartItems();
+        }
+      }
+
+      clearCartBtn.addEventListener("click", () => {
+        if (loadCartFromLocalStorage().length === 0) {
+          alert("Your cart is already empty.");
+          return;
+        }
+        if (!confirm("Are you sure you want to clear your cart?")) return;
+        localStorage.removeItem("perfumeCart");
+        window.dispatchEvent(new Event("storage"));
+        renderCartItems();
+      });
+
+      // --- "SEND AS TEXT" 逻辑 (保持不变) ---
+      sendWhatsappBtn.addEventListener("click", () => {
+        const cartItems = loadCartFromLocalStorage();
+        if (cartItems.length === 0) {
+          alert(
+            "Your cart is empty. Please add items before sending an order."
+          );
+          return;
+        }
+
+        const originalText = sendWhatsappBtn.textContent;
+        sendWhatsappBtn.textContent = "Preparing...";
+        sendWhatsappBtn.disabled = true;
+
+        const summary = updateCartSummary();
+
+        cartItems.sort((a, b) => {
+          const getNumber = (str) =>
+            parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
+          return getNumber(a.caption) - getNumber(b.caption);
+        });
+
+        // !! 注意：这里我们不需要做任何特殊处理，因为 item.caption
+        // 仍然是来自 localStorage 的原始文本 (e.g., "A01-P - ... Premium (Luxe)"),
+        // 它没有被 getShortCaption() 改变。
+        // WhatsApp 消息会保持纯文本，这是好的。
+        const messageLines = cartItems.map(
+          (item) =>
+            `* ${item.caption} (${item.quantity} x $${item.price || "N/A"})`
+        );
+
+        const summaryLines = [
+          `---`,
+          `*Order Summary*`,
+          `Total Quantity: ${summary.totalCount} bottles`,
+          `(LV: ${summary.lvCount}, Other: ${summary.otherCount})`,
+          `---`,
+          `Subtotal (Original): $${summary.subtotal.toFixed(2)}`,
+          `Volume Discount (${(summary.discountPercent * 100).toFixed(
+            0
+          )}%): -$${summary.discountAmount.toFixed(2)}`,
+          `*Final Total: $${summary.finalTotal.toFixed(2)}*`,
+        ];
+
+        const message = [
+          "Hello, I am interested in the following perfumes:",
+          ...messageLines,
+          "%0A", // Newline
+          ...summaryLines,
+          "%0A%0APlease provide a quote. Thank you!",
+        ].join("%0A");
+
+        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
+        window.open(whatsappUrl, "_blank");
+
+        setTimeout(() => {
+          sendWhatsappBtn.textContent = originalText;
+          sendWhatsappBtn.disabled = false;
+        }, 1000);
+      });
+
+      // --- "SHARE AS IMAGE" 逻辑 (保持不变) ---
+      shareImageBtn.addEventListener("click", () => {
+        const cartItems = loadCartFromLocalStorage();
+        if (cartItems.length === 0) {
+          alert(
+            "Your cart is empty. Please add items before sharing an image."
+          );
+          return;
+        }
+
+        const originalText = shareImageBtn.textContent;
+        shareImageBtn.textContent = "Generating...";
+        shareImageBtn.disabled = true;
+
+        const captureArea = document.getElementById("capture-area");
+
+        html2canvas(captureArea, {
+          backgroundColor: "#f4f4f4",
+          useCORS: true,
+        })
+          .then((canvas) => {
+            canvas.toBlob(async (blob) => {
+              const file = new File([blob], "cart-order.png", {
+                type: "image/png",
+              });
+              const shareData = {
+                files: [file],
+                title: "My Perfume Order",
+                text: "Hello, I would like to order the items in this image.",
+              };
+
+              if (navigator.share && navigator.canShare(shareData)) {
+                try {
+                  await navigator.share(shareData);
+                } catch (err) {
+                  console.error("Share failed:", err);
+                }
+              } else {
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(file);
+                link.download = "cart-order.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                alert(
+                  "Cart image downloaded!\n\nPlease open WhatsApp and manually send the 'cart-order.png' file from your downloads."
+                );
+              }
+            }, "image/png");
+          })
+          .catch((err) => {
+            console.error("Image generation failed:", err);
+            alert("Sorry, there was an error creating the image.");
+          })
+          .finally(() => {
+            shareImageBtn.textContent = originalText;
+            shareImageBtn.disabled = false;
+          });
+      });
+    </script>
+  </body>
+</html>
