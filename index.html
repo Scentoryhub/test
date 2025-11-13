@@ -458,30 +458,6 @@
         opacity: 1;
         transform: translate(-50%, -100%);
       }
-      #new-arrival-btn {
-        display: block;
-        position: fixed;
-        bottom: 130px;
-        right: 20px;
-        background-color: #ea7a6e; /* 保持醒目的藍色 */
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 55px;
-        height: 55px;
-        font-size: 1rem; /* 為文字設定清晰的字體大小 */
-        font-weight: bold; /* 字體加粗 */
-        line-height: 55px; /* 確保文字垂直置中 */
-        text-align: center;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-        transition: all 0.3s, opacity 0.4s ease-out;
-        z-index: 1000;
-        opacity: 1;
-      }
-      #new-arrival-btn.is-scrolling {
-        opacity: 0.5;
-      }
       /* --- NEW MODAL CONTROLS STYLES --- */
       .modal-controls {
         padding: 10px 20px 20px;
@@ -581,13 +557,12 @@
 
     <div class="price-info">
       <div>
-        <p style="font-size: 1.1rem; font-weight: 500">
-          Standard Version: From $35
-        </p>
         <p style="font-size: 1.1rem; font-weight: 700">
           Premium (Luxe) Version: From $38
         </p>
-        <p>Free Shipping | Buy more save more !</p>
+        <p style="font-size: 1.1rem; font-weight: 600">
+          Free Shipping | Buy more save more !
+        </p>
         <p style="font-size: 0.9rem; color: #555">
           (Exact price is shown on each product)
         </p>
@@ -598,18 +573,8 @@
         class="tier-info"
         style="text-align: left; max-width: 350px; margin: 15px auto"
       >
-        <p style="font-weight: 700; font-size: 1.1rem">Our Collections:</p>
-        <p>
-          <strong>Premium (Luxe Version):</strong> Our highest quality.
-          <span style="color: #28a745; font-weight: bold">With Receipts</span>.
-          Look for the "★ Premium" badge!
-        </p>
-        <p>
-          <strong>Standard Version:</strong> Great for everyday use and
-          discovering new scents.
-          <span style="color: #a44025; font-weight: bold">Without Receipts</span
-          >.
-        </p>
+        <p style="font-weight: 700; font-size: 1.1rem">Our Collection:</p>
+        <p><strong>Premium (Luxe Version):</strong> Our highest quality.</p>
       </div>
 
       <div style="margin-top: 15px">
@@ -626,14 +591,6 @@
         placeholder="Search by name, brand or number..."
       />
       <button id="search-clear-btn" title="Clear search">&times;</button>
-    </div>
-
-    <div class="navbar" id="tier-navbar">
-      <button data-tier="All" class="active" aria-pressed="true">
-        All Products
-      </button>
-      <button data-tier="Premium" aria-pressed="false">★ Premium (Luxe)</button>
-      <button data-tier="Standard" aria-pressed="false">Standard</button>
     </div>
 
     <div class="navbar" id="brand-navbar">
@@ -764,6 +721,53 @@
       </div>
     </div>
 
+    <div
+      class="modal"
+      id="receipt-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="receipt-modal-caption"
+    >
+      <div
+        class="modal-close"
+        id="receipt-modal-close"
+        aria-label="Close modal"
+      >
+        &times;
+      </div>
+      <div
+        class="modal-content"
+        style="
+          max-width: 600px; /* 您可以调整图片弹窗的最大宽度 */
+          text-align: center;
+          padding: 0;
+          overflow: hidden;
+          background: #fff;
+        "
+      >
+        <img
+          src="images/receipt.webp"
+          alt="Receipt Example"
+          style="
+            max-width: 100%;
+            height: auto;
+            display: block;
+            max-height: 85vh;
+          "
+        />
+        <div
+          id="receipt-modal-caption"
+          style="
+            padding: 12px;
+            font-weight: bold;
+            background: #fff;
+            color: #222;
+          "
+        >
+          Example Receipt
+        </div>
+      </div>
+    </div>
     <footer>
       <div class="contact-info">
         <a href="https://wa.me/16232027321"
@@ -773,7 +777,7 @@
         footer
       </div>
     </footer>
-    <button id="new-arrival-btn" title="Go to New Arrivals">NEW!</button>
+
     <button id="back-to-top" class="back-to-top" aria-label="Back to top">
       &#x25B2;
     </button>
@@ -812,58 +816,13 @@
         // =================================================================
         const perfumeDB = [
           {
-            id: "A01-S",
-            name: "Valentino Donna Born in Roma Intense - Standard",
-            brand: "Valentino",
-            img: "images/perfume1.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A01-P",
-            name: "Valentino Donna Born in Roma Intense - Premium (Luxe)",
-            brand: "Valentino",
-            img: "images/perfume1.webp",
-            stock: 1,
-            tier: "Premium",
-            price: 38,
-          },
-          {
-            id: "A02-S",
-            name: "Valentino Donna Born in Roma - Standard",
-            brand: "Valentino",
-            img: "images/perfume2.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A02-P",
             name: "Valentino Donna Born in Roma - Premium (Luxe)",
             brand: "Valentino",
             img: "images/perfume2.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A03-S",
-            name: "Valentino Uomo Born in Roma - Standard",
-            brand: "Valentino",
-            img: "images/perfume3.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A04-S",
-            name: "Miss Dior Blooming Bouquet - Standard",
-            brand: "Dior",
-            img: "images/perfume4.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A04-P",
@@ -871,35 +830,17 @@
             brand: "Dior",
             img: "images/perfume4.webp",
             stock: 1,
-            tier: "Premium",
+            tier: "Standard",
             price: 38,
           },
           {
-            id: "A05-S",
-            name: "Lancôme La vie est belle - Standard",
-            brand: "Lancôme",
-            img: "images/perfume5.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A05-S",
-            name: "Lancôme La vie est belle - Standard",
+            id: "A05-P",
+            name: "Lancôme La vie est belle - Premium (Luxe)",
             brand: "Lancôme",
             img: "images/perfume5.webp",
             stock: 1,
             tier: "Premium",
-            price: 35,
-          },
-          {
-            id: "A06-S",
-            name: "Chanel Coco Mademoiselle L'eau Privee - Standard",
-            brand: "Chanel",
-            img: "images/perfume6.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
+            price: 38,
           },
           {
             id: "A06-P",
@@ -911,15 +852,6 @@
             price: 38,
           },
           {
-            id: "A07-S",
-            name: "Yves Saint Laurent Mon Paris Eau de Toilette Lumière - Standard",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume7.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A07-P",
             name: "Yves Saint Laurent Mon Paris Eau de Toilette Lumière - Premium (Luxe)",
             brand: "Yves Saint Laurent",
@@ -927,15 +859,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A08-S",
-            name: "Paco Rabanne 1 Million - Standard",
-            brand: "Paco Rabanne",
-            img: "images/perfume8.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A08-P",
@@ -947,15 +870,6 @@
             price: 38,
           },
           {
-            id: "A09-S",
-            name: "Creed Aventus - Standard",
-            brand: "Creed",
-            img: "images/perfume9.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A09-P",
             name: "Creed Aventus - Premium (Luxe)",
             brand: "Creed",
@@ -965,31 +879,13 @@
             price: 38,
           },
           {
-            id: "A10-S",
-            name: "Jean Paul Gaultier Le Male Elixir - Standard",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume10.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A10-P",
             name: "Jean Paul Gaultier Le Male Elixir - Premium (Luxe)",
             brand: "Jean Paul Gaultier",
             img: "images/perfume10.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A11-S",
-            name: "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de parfum - Standard",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume11.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A11-P",
@@ -1001,15 +897,6 @@
             price: 38,
           },
           {
-            id: "A12-S",
-            name: "Yves Saint Laurent Y Eau de Parfum - Standard",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume12.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A12-P",
             name: "Yves Saint Laurent Y Eau de Parfum - Premium (Luxe)",
             brand: "Yves Saint Laurent",
@@ -1017,15 +904,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A13-S",
-            name: "Chanel Bleu de Chanel Eau de Toilette - Standard",
-            brand: "Chanel",
-            img: "images/perfume13.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A13-P",
@@ -1037,15 +915,6 @@
             price: 38,
           },
           {
-            id: "A14-S",
-            name: "Dior Sauvage Eau de Toilette - Standard",
-            brand: "Dior",
-            img: "images/perfume14.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A14-P",
             name: "Dior Sauvage Eau de Toilette - Premium (Luxe)",
             brand: "Dior",
@@ -1053,15 +922,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A15-S",
-            name: "Versace Bright Crystal - Standard",
-            brand: "Versace",
-            img: "images/perfume15.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A15-P",
@@ -1077,18 +937,9 @@
             name: "Yves Saint Laurent Libre Le Parfum - Premium (Luxe)",
             brand: "Yves Saint Laurent",
             img: "images/perfume16.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A18-S",
-            name: "Prada Paradoxe Intense - Standard",
-            brand: "Prada",
-            img: "images/perfume18.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A18-P",
@@ -1100,15 +951,6 @@
             price: 38,
           },
           {
-            id: "A19-S",
-            name: "Tom Ford Lost Cherry - Standard",
-            brand: "Tom Ford",
-            img: "images/perfume19.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A19-P",
             name: "Tom Ford Lost Cherry - Premium (Luxe)",
             brand: "Tom Ford",
@@ -1116,24 +958,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A20-S",
-            name: "Emporio Armani Stronger With You Absolutely - Standard",
-            brand: "Giorgio Armani",
-            img: "images/perfume20.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A21-S",
-            name: "Giorgio Armani Acqua di Giò Profondo - Standard",
-            brand: "Giorgio Armani",
-            img: "images/perfume21.webp",
-            stock: 0,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A21-P",
@@ -1145,15 +969,6 @@
             price: 38,
           },
           {
-            id: "A22-S",
-            name: "Tom Ford Tobacco Vanille - Standard",
-            brand: "Tom Ford",
-            img: "images/perfume22.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A22-P",
             name: "Tom Ford Tobacco Vanille - Premium (Luxe)",
             brand: "Tom Ford",
@@ -1161,15 +976,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A23-S",
-            name: "Creed Silver Mountain Water - Standard",
-            brand: "Creed",
-            img: "images/perfume23.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A23-P",
@@ -1181,15 +987,6 @@
             price: 38,
           },
           {
-            id: "A24-S",
-            name: "Tom Ford Fucking Fabulous - Standard",
-            brand: "Tom Ford",
-            img: "images/perfume24.webp",
-            stock: 0,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A24-P",
             name: "Tom Ford Fucking Fabulous - Premium (Luxe)",
             brand: "Tom Ford",
@@ -1197,15 +994,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A25-S",
-            name: "Dior Sauvage Elixir - Standard",
-            brand: "Dior",
-            img: "images/perfume25.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A25-P",
@@ -1217,15 +1005,6 @@
             price: 38,
           },
           {
-            id: "A26-S",
-            name: "Parfums de Marly Perseus - Standard",
-            brand: "Parfums de Marly",
-            img: "images/perfume26.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A26-P",
             name: "Parfums de Marly Perseus - Premium (Luxe)",
             brand: "Parfums de Marly",
@@ -1235,22 +1014,13 @@
             price: 38,
           },
           {
-            id: "A27-S",
-            name: "Gucci Bloom - Standard",
+            id: "A27-P",
+            name: "Gucci Bloom - Premium (Luxe)",
             brand: "Gucci",
             img: "images/perfume27.webp",
             stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A28-S",
-            name: "Versace Eros Eau de Parfum - Standard",
-            brand: "Versace",
-            img: "images/perfume28.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
+            tier: "Premium",
+            price: 38,
           },
           {
             id: "A28-P",
@@ -1262,15 +1032,6 @@
             price: 38,
           },
           {
-            id: "A29-S",
-            name: "Chanel Chance Eau Splendide - Standard",
-            brand: "Chanel",
-            img: "images/perfume29.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A29-P",
             name: "Chanel Chance Eau Splendide - Premium (Luxe)",
             brand: "Chanel",
@@ -1278,24 +1039,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A30-S",
-            name: "Yves Saint Laurent Libre Eau de Parfum - Standard",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume30.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A31-S",
-            name: "Dior J'adore - Standard",
-            brand: "Dior",
-            img: "images/perfume31.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A31-P",
@@ -1307,15 +1050,6 @@
             price: 38,
           },
           {
-            id: "A32-S",
-            name: "Giorgio Armani Sì Passione - Standard",
-            brand: "Giorgio Armani",
-            img: "images/perfume32.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A32-P",
             name: "Giorgio Armani Sì Passione - Premium (Luxe)",
             brand: "Giorgio Armani",
@@ -1323,15 +1057,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A33-S",
-            name: "Louis Vuitton Pacific Chill - Standard",
-            brand: "Louis Vuitton",
-            img: "images/perfume33.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 45,
           },
           {
             id: "A33-P",
@@ -1343,15 +1068,6 @@
             price: 49,
           },
           {
-            id: "A34-S",
-            name: "Valentino Uomo Born in Roma Intense - Standard",
-            brand: "Valentino",
-            img: "images/perfume34.webp",
-            stock: 0,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A34-P",
             name: "Valentino Uomo Born in Roma Intense - Premium (Luxe)",
             brand: "Valentino",
@@ -1361,31 +1077,13 @@
             price: 38,
           },
           {
-            id: "A35-S",
-            name: "Valentino Uomo Born in Roma Coral Fantasy - Standard",
-            brand: "Valentino",
-            img: "images/perfume35.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A35-P",
             name: "Valentino Uomo Born in Roma Coral Fantasy - Premium (Luxe)",
             brand: "Valentino",
             img: "images/perfume35.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A36-S",
-            name: "Louis Vuitton City of Stars - Standard",
-            brand: "Louis Vuitton",
-            img: "images/perfume36.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 45,
           },
           {
             id: "A36-P",
@@ -1397,31 +1095,13 @@
             price: 49,
           },
           {
-            id: "A37-S",
-            name: "Carolina Herrera Very Good Girl - Standard",
-            brand: "Carolina Herrera",
-            img: "images/perfume37.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A38-S",
-            name: "Carolina Herrera Good Girl - Standard",
+            id: "A38-P",
+            name: "Carolina Herrera Good Girl - Premium (Luxe)",
             brand: "Carolina Herrera",
             img: "images/perfume38.webp",
             stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A39-S",
-            name: "Louis Vuitton Imagination - Standard",
-            brand: "Louis Vuitton",
-            img: "images/perfume39.webp",
-            stock: 0,
-            tier: "Standard",
-            price: 45,
+            tier: "Premium",
+            price: 38,
           },
           {
             id: "A39-P",
@@ -1433,15 +1113,6 @@
             price: 49,
           },
           {
-            id: "A40-S",
-            name: "Valentino Donna - Standard",
-            brand: "Valentino",
-            img: "images/perfume40.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A40-P",
             name: "Valentino Donna - Premium (Luxe)",
             brand: "Valentino",
@@ -1449,15 +1120,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A41-S",
-            name: "Xerjoff Erba Pura - Standard",
-            brand: "Xerjoff",
-            img: "images/perfume41.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A41-P",
@@ -1469,15 +1131,6 @@
             price: 38,
           },
           {
-            id: "A42-S",
-            name: "Parfums de Marly Delina - Standard",
-            brand: "Parfums de Marly",
-            img: "images/perfume42.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A42-P",
             name: "Parfums de Marly Delina - Premium (Luxe)",
             brand: "Parfums de Marly",
@@ -1485,15 +1138,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A43-S",
-            name: "Chanel Bleu de Chanel Parfum - Standard",
-            brand: "Chanel",
-            img: "images/perfume43.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A43-P",
@@ -1505,15 +1149,6 @@
             price: 38,
           },
           {
-            id: "A44-S",
-            name: "Creed Millésime Impérial - Standard",
-            brand: "Creed",
-            img: "images/perfume44.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A44-P",
             name: "Creed Millésime Impérial - Premium (Luxe)",
             brand: "Creed",
@@ -1521,15 +1156,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A45-S",
-            name: "Yves Saint Laurent MYSLF - Standard",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume45.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A45-P",
@@ -1541,15 +1167,6 @@
             price: 38,
           },
           {
-            id: "A46-S",
-            name: "Louis Vuitton Afternoon Swim - Standard",
-            brand: "Louis Vuitton",
-            img: "images/perfume46.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 45,
-          },
-          {
             id: "A46-P",
             name: "Louis Vuitton Afternoon Swim - Premium (Luxe)",
             brand: "Louis Vuitton",
@@ -1557,15 +1174,6 @@
             stock: 1,
             tier: "Premium",
             price: 49,
-          },
-          {
-            id: "A47-S",
-            name: "Carolina Herrera 212 Men - Standard",
-            brand: "Carolina Herrera",
-            img: "images/perfume47.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A47-P",
@@ -1577,15 +1185,6 @@
             price: 38,
           },
           {
-            id: "A48-S",
-            name: "Burberry My Burberry Blush - Standard",
-            brand: "Burberry",
-            img: "images/perfume48.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A48-P",
             name: "Burberry My Burberry Blush - Premium (Luxe)",
             brand: "Burberry",
@@ -1593,24 +1192,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A49-S",
-            name: "Valentino Donna Born In Roma The Gold - Standard",
-            brand: "Valentino",
-            img: "images/perfume49.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A50-S",
-            name: "Gucci Bloom Acqua di Fiori - Standard",
-            brand: "Gucci",
-            img: "images/perfume50.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A51-P",
@@ -1631,15 +1212,6 @@
             price: 38,
           },
           {
-            id: "A53-S",
-            name: "Initio Psychedelic Love - Standard",
-            brand: "Initio",
-            img: "images/perfume53.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A53-P",
             name: "Initio Psychedelic Love - Premium (Luxe)",
             brand: "Initio",
@@ -1647,24 +1219,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A56-S",
-            name: "Jean Paul Gaultier Scandal Pour Homme - Standard",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume56.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A57-S",
-            name: "Yves Saint Laurent Black Opium - Standard",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume57.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A57-P",
@@ -1676,15 +1230,6 @@
             price: 38,
           },
           {
-            id: "A58-S",
-            name: "Chanel Coco Noir - Standard",
-            brand: "Chanel",
-            img: "images/perfume58.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A58-P",
             name: "Chanel Coco Noir - Premium (Luxe)",
             brand: "Chanel",
@@ -1692,15 +1237,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A59-S",
-            name: "Versace Eros Flame - Standard",
-            brand: "Versace",
-            img: "images/perfume59.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A59-P",
@@ -1712,15 +1248,6 @@
             price: 38,
           },
           {
-            id: "A60-S",
-            name: "Chanel N°5 L'eau - Standard",
-            brand: "Chanel",
-            img: "images/perfume60.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A60-P",
             name: "Chanel N°5 L'eau - Premium (Luxe)",
             brand: "Chanel",
@@ -1728,15 +1255,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A61-S",
-            name: "Giorgio Armani Acqua di Giò Eau de Parfum - Standard",
-            brand: "Giorgio Armani",
-            img: "images/perfume61.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A61-P",
@@ -1748,15 +1266,6 @@
             price: 38,
           },
           {
-            id: "A62-S",
-            name: "Ralph Lauren Polo Blue Parfum - Standard",
-            brand: "Ralph Lauren",
-            img: "images/perfume62.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A62-P",
             name: "Ralph Lauren Polo Blue Parfum - Premium (Luxe)",
             brand: "Ralph Lauren",
@@ -1764,24 +1273,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A63-S",
-            name: 'Jean Paul Gaultier "La Belle" Paradise Garden - Standard',
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume63.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A64-S",
-            name: "Creed Absolu Aventus - Standard",
-            brand: "Creed",
-            img: "images/perfume64.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A64-P",
@@ -1793,15 +1284,6 @@
             price: 38,
           },
           {
-            id: "A65-S",
-            name: "Maison Francis Kurkdjian Oud Silk Mood - Standard",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume65.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A65-P",
             name: "Maison Francis Kurkdjian Oud Silk Mood - Premium (Luxe)",
             brand: "Maison Francis Kurkdjian",
@@ -1809,24 +1291,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A66-S",
-            name: "Giorgio Armani My Way - Standard",
-            brand: "Giorgio Armani",
-            img: "images/perfume66.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A67-S",
-            name: "Gucci Guilty Parfum Pour Homme - Standard",
-            brand: "Gucci",
-            img: "images/perfume67.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A67-P",
@@ -1838,15 +1302,6 @@
             price: 38,
           },
           {
-            id: "A68-S",
-            name: "Parfums de Marly Althaïr - Standard",
-            brand: "Parfums de Marly",
-            img: "images/perfume68.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A68-P",
             name: "Parfums de Marly Althaïr - Premium (Luxe)",
             brand: "Parfums de Marly",
@@ -1856,20 +1311,11 @@
             price: 38,
           },
           {
-            id: "A69-S",
-            name: "Dior Hypnotic Poison - Standard",
-            brand: "Dior",
-            img: "images/perfume69.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A70-P",
             name: 'Jean Paul Gaultier "Le Beau" Le Parfum - Premium (Luxe)',
             brand: "Jean Paul Gaultier",
             img: "images/perfume70.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
           },
@@ -1881,15 +1327,6 @@
             stock: 1,
             tier: "Premium",
             price: 49,
-          },
-          {
-            id: "A72-S",
-            name: "Maison Francis Kurkdjian Baccarat Rouge 540 - Standard",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume72.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A72-P",
@@ -1926,15 +1363,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A76-S",
-            name: "Tom Ford Oud Wood - Standard",
-            brand: "Tom Ford",
-            img: "images/perfume76.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A76-P",
@@ -1992,15 +1420,6 @@
             price: 38,
           },
           {
-            id: "A82-S",
-            name: "Tom Ford Ombré Leather - Standard",
-            brand: "Tom Ford",
-            img: "images/perfume82.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A82-P",
             name: "Tom Ford Ombré Leather - Premium (Luxe)",
             brand: "Tom Ford",
@@ -2028,15 +1447,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A85-S",
-            name: "Initio Oud for Greatness - Standard",
-            brand: "Initio",
-            img: "images/perfume85.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A85-P",
@@ -2084,15 +1494,6 @@
             price: 38,
           },
           {
-            id: "A90-S",
-            name: "Le Labo Santal 33 - Standard",
-            brand: "Le Labo",
-            img: "images/perfume90.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A91-P",
             name: "Burberry Her Elixir de Parfum - Premium (Luxe)",
             brand: "Burberry",
@@ -2102,42 +1503,6 @@
             price: 38,
           },
           {
-            id: "A92-S",
-            name: "Hugo Boss Boss Bottled - Standard",
-            brand: "Hugo Boss",
-            img: "images/perfume92.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A93-S",
-            name: "Carolina Herrera Good Girl Blush - Standard",
-            brand: "Carolina Herrera",
-            img: "images/perfume93.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A94-S",
-            name: "Hermès Terre d'Hermès - Standard",
-            brand: "Hermès",
-            img: "images/perfume94.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A95-S",
-            name: "Chanel Gabrielle Essence - Standard",
-            brand: "Chanel",
-            img: "images/perfume95.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
             id: "A95-P",
             name: "Chanel Gabrielle Essence - Premium (Luxe)",
             brand: "Chanel",
@@ -2145,33 +1510,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A96-S",
-            name: "Byredo Rose of No Man's Land - Standard",
-            brand: "Byredo",
-            img: "images/perfume96.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A97-S",
-            name: "Jo Malone English Pear & Freesia - Standard",
-            brand: "Jo Malone",
-            img: "images/perfume97.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A98-S",
-            name: "Creed Love in White - Standard",
-            brand: "Creed",
-            img: "images/perfume98.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A98-P",
@@ -2187,7 +1525,7 @@
             name: "Valentino Donna Born in Roma Coral Fantasy - Premium (Luxe)",
             brand: "Valentino",
             img: "images/perfume99.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
           },
@@ -2230,15 +1568,6 @@
             price: 38,
           },
           {
-            id: "A104-S",
-            name: "Louis Vuitton On The Beach - Standard",
-            brand: "Louis Vuitton",
-            img: "images/perfume104.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 45,
-          },
-          {
             id: "A104-P",
             name: "Louis Vuitton On The Beach - Premium (Luxe)",
             brand: "Louis Vuitton",
@@ -2246,15 +1575,6 @@
             stock: 1,
             tier: "Premium",
             price: 49,
-          },
-          {
-            id: "A105-S",
-            name: "Yves Saint Laurent Y ELIXIR - Standard",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume105.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A105-P",
@@ -2343,18 +1663,9 @@
             name: "Initio Side Effect - Premium (Luxe)",
             brand: "Initio",
             img: "images/perfume114.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A115-S",
-            name: "Maison Francis Kurkdjian Grand Soir - Standard",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume115.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A115-P",
@@ -2383,15 +1694,6 @@
             stock: 1,
             tier: "Premium",
             price: 38,
-          },
-          {
-            id: "A118-S",
-            name: "Armani Code - Standard",
-            brand: "Giorgio Armani",
-            img: "images/perfume118.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
           },
           {
             id: "A118-P",
@@ -2479,99 +1781,11 @@
             price: 38,
           },
           {
-            id: "A127-S",
-            name: "Jean Paul Gaultier Le Male Le Parfum - Standard",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume127.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A128-S",
-            name: "Carolina Herrera Bad Boy Elixir - Standard",
-            brand: "Carolina Herrera",
-            img: "images/perfume128.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-
-          {
-            id: "A129-S",
-            name: "Dior Homme Intense - Standard",
-            brand: "Dior",
-            img: "images/perfume129.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-
-          {
-            id: "A130-S",
-            name: "Rabanne Invictus Parfum - Standard",
-            brand: "Rabanne",
-            img: "images/perfume130.webp",
-            stock: 0,
-            tier: "Standard",
-            price: 35,
-          },
-
-          {
-            id: "A131-S",
-            name: "Jean Paul Gaultier Divine - Standard",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume131.webp",
-            stock: 0,
-            tier: "Standard",
-            price: 35,
-          },
-
-          {
-            id: "A132-S",
-            name: "Burberry Her Eau de Toilette - Standard",
-            brand: "Burberry",
-            img: "images/perfume132.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-
-          {
-            id: "A133-S",
-            name: "Dolce & Gabbana Light Blue Summer Vibes Pour Homme - Standard",
-            brand: "Dolce & Gabbana",
-            img: "images/perfume133.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-
-          {
-            id: "A134-S",
-            name: "Carolina Herrera Good Girl Blush Elixir - Standard",
-            brand: "Carolina Herrera",
-            img: "images/perfume134.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 35,
-          },
-          {
-            id: "A135-S",
-            name: "Louis Vuitton Orage - Standard",
-            brand: "Louis Vuitton",
-            img: "images/perfume135.webp",
-            stock: 1,
-            tier: "Standard",
-            price: 45,
-          },
-
-          {
             id: "A136-P",
             name: "Jean Paul Gaultier Ultra Male - Premium (Luxe)",
             brand: "Jean Paul Gaultier",
             img: "images/perfume136.webp",
-            stock: 1,
+            stock: 0,
             tier: "Premium",
             price: 38,
           },
@@ -2596,22 +1810,383 @@
             price: 38,
           },
           {
-            id: "A138-P",
+            id: "A139",
             name: "Parfums de Marly Kalan - Premium (Luxe)",
             brand: "Parfums de Marly",
-            img: "images/perfume138.webp",
+            img: "images/perfume139.webp",
             stock: 1,
             tier: "Premium",
             price: 38,
           },
           {
-            id: "A139",
-            name: "Parfums de Marly Kalan",
-            brand: "Parfums de Marly",
-            img: "images/perfume139.webp",
-            stock: 1,
+            id: "A140",
+            name: "Gucci Flora Gorgeous Gardenia - Premium (Luxe)",
+            brand: "Gucci",
+            img: "images/perfume140.webp",
             tier: "Premium",
             stock: 1,
+            price: 38,
+          },
+          {
+            id: "A141",
+            name: "Creed Spring Flower - Premium (Luxe)",
+            brand: "Creed",
+            img: "images/perfume141.webp",
+            tier: "Premium",
+            stock: 1,
+            price: 38,
+          },
+          {
+            id: "A142",
+            name: "Jean Paul Gaultier Le Male",
+            brand: "Jean Paul Gaultier",
+            img: "images/perfume142.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A143",
+            name: "Emporio Armani Because It's You",
+            brand: "Giorgio Armani",
+            img: "images/perfume143.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A144",
+            name: "Paco Rabanne 1 Million Privé",
+            brand: "Paco Rabanne",
+            img: "images/perfume144.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A145",
+            name: "Azzaro Wanted Eau de Parfum",
+            brand: "Azzaro",
+            img: "images/perfume145.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A146",
+            name: "Lattafa Yara",
+            brand: "Lattafa",
+            img: "images/perfume146.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A147",
+            name: "Lattafa Khamrah",
+            brand: "Lattafa",
+            img: "images/perfume147.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A148",
+            name: "Azzaro The Most Wanted Parfum",
+            brand: "Azzaro",
+            img: "images/perfume148.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A149",
+            name: "Azzaro Forever Wanted Elixir",
+            brand: "Azzaro",
+            img: "images/perfume149.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A150",
+            name: "Azzaro The Most Wanted Eau de Toilette Intense",
+            brand: "Azzaro",
+            img: "images/perfume150.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A151",
+            name: "Yves Saint Laurent Y Eau de Toilette",
+            brand: "Yves Saint Laurent",
+            img: "images/perfume151.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A152",
+            name: "Gucci Bloom Ambrosia di Fiori",
+            brand: "Gucci",
+            img: "images/perfume152.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A153",
+            name: "Acqua di Giò Pour Homme",
+            brand: "Giorgio Armani",
+            img: "images/perfume153.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A154",
+            name: "Versace Pour Homme",
+            brand: "Versace",
+            img: "images/perfume154.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A155",
+            name: "Versace Dylan Turquoise Pour Femme",
+            brand: "Versace",
+            img: "images/perfume155.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A156",
+            name: "Creed Viking",
+            brand: "Creed",
+            img: "images/perfume156.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A157",
+            name: "Versace Man Eau Fraiche",
+            brand: "Versace",
+            img: "images/perfume157.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A158",
+            name: "Chanel Chance Eau Fraiche",
+            brand: "Chanel",
+            img: "images/perfume158.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A159",
+            name: "Chanel Chance Eau Tendre",
+            brand: "Chanel",
+            img: "images/perfume159.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A160",
+            name: "Gucci Flora Gorgeous Magnolia",
+            brand: "Gucci",
+            img: "images/perfume160.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A161",
+            name: "Valentino Uomo",
+            brand: "Valentino",
+            img: "images/perfume161.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A162",
+            name: "Valentino Donna Born in Roma Green Stravaganza",
+            brand: "Valentino",
+            img: "images/perfume166.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A163",
+            name: "Valentino Donna Born in Roma",
+            brand: "Valentino",
+            img: "images/perfume163.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A164",
+            name: "Versace Crystal Noir",
+            brand: "Versace",
+            img: "images/perfume171.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A165",
+            name: "Valentino Uomo Born in Roma Rockstud Noir",
+            brand: "Valentino",
+            img: "images/perfume164.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A166",
+            name: "Valentino Uomo Born in Roma Green Stravaganza",
+            brand: "Valentino",
+            img: "images/perfume167.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A167",
+            name: "Versace Eros Parfum",
+            brand: "Versace",
+            img: "images/perfume165.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A168",
+            name: "Versace Dylan Purple",
+            brand: "Versace",
+            img: "images/perfume169.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A169",
+            name: "Lattafa Asad",
+            brand: "Lattafa",
+            img: "images/perfume170.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A170",
+            name: "Valentino Uomo Born in Roma Yellow Dream",
+            brand: "Valentino",
+            img: "images/perfume162.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A171",
+            name: "Lattafa Yara",
+            brand: "Lattafa",
+            img: "images/perfume168.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A172",
+            name: "Gucci Flora Gorgeous Orchid",
+            brand: "Gucci",
+            img: "images/perfume172.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A173",
+            name: "Lattafa Asad Zanzibar",
+            brand: "Lattafa",
+            img: "images/perfume173.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A174",
+            name: "Lattafa Yara",
+            brand: "Lattafa",
+            img: "images/perfume174.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A175",
+            name: "Lattafa Yara Tous",
+            brand: "Lattafa",
+            img: "images/perfume175.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A176",
+            name: "Versace Yellow Diamond",
+            brand: "Versace",
+            img: "images/perfume176.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A177",
+            name: "Chanel Allure Homme Sport Eau Extreme",
+            brand: "Chanel",
+            img: "images/perfume177.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A178",
+            name: "Lattafa Yara Moi",
+            brand: "Lattafa",
+            img: "images/perfume178.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A179",
+            name: "Valentino Uomo Born in Roma Extradose",
+            brand: "Valentino",
+            img: "images/perfume179.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A180",
+            name: "Creed Royal Princess Oud",
+            brand: "Creed",
+            img: "images/perfume180.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A181",
+            name: "Lattafa Asad Bourbon",
+            brand: "Lattafa",
+            img: "images/perfume181.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A182",
+            name: "Lattafa Khamrah",
+            brand: "Lattafa",
+            img: "images/perfume182.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A183",
+            name: "Lattafa Khamrah Qahwa",
+            brand: "Lattafa",
+            img: "images/perfume183.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A184",
+            name: "Paco Rabanne 1 Million Lucky",
+            brand: "Paco Rabanne",
+            img: "images/perfume184.webp",
+            stock: 1,
+            price: 30,
+          },
+          {
+            id: "A185",
+            name: "Chanel Chance Eau Vive",
+            brand: "Chanel",
+            img: "images/perfume185.webp",
+            stock: 1,
+            price: 30,
           },
         ];
 
@@ -2639,10 +2214,15 @@
         const policyModal = document.getElementById("policy-modal");
         const policyModalClose = document.getElementById("policy-modal-close");
 
+        // --- !!! NEW: RECEIPT MODAL VARS !!! ---
+        const receiptBtn = document.getElementById("receipt-btn");
+        const receiptModal = document.getElementById("receipt-modal");
+        const receiptModalClose = document.getElementById(
+          "receipt-modal-close"
+        );
+
         // --- !! NEW: NAVBAR DOM ELEMENTS !! ---
-        const tierNavbar = document.getElementById("tier-navbar");
         const brandNavbar = document.getElementById("brand-navbar");
-        const allTierButtons = tierNavbar.querySelectorAll("button[data-tier]");
         const allBrandButtons =
           brandNavbar.querySelectorAll("button[data-brand]");
 
@@ -2862,8 +2442,14 @@
         modal.addEventListener("click", (e) => {
           if (e.target === modal) modal.classList.remove("open");
         });
+
+        // STEP 3B: KEYDOWN LISTENER MODIFIED HERE
         document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") modal.classList.remove("open");
+          if (e.key === "Escape") {
+            modal.classList.remove("open");
+            policyModal.classList.remove("open");
+            if (receiptModal) receiptModal.classList.remove("open");
+          }
         });
 
         // --- !!! NEW: POLICY MODAL LISTENERS !!! ---
@@ -2876,6 +2462,21 @@
           );
           policyModal.addEventListener("click", (e) => {
             if (e.target === policyModal) policyModal.classList.remove("open");
+          });
+        }
+
+        // STEP 3C: NEW JS LISTENER BLOCK ADDED HERE
+        // --- !!! NEW: RECEIPT MODAL LISTENERS !!! ---
+        if (receiptBtn && receiptModal && receiptModalClose) {
+          receiptBtn.addEventListener("click", () =>
+            receiptModal.classList.add("open")
+          );
+          receiptModalClose.addEventListener("click", () =>
+            receiptModal.classList.remove("open")
+          );
+          receiptModal.addEventListener("click", (e) => {
+            if (e.target === receiptModal)
+              receiptModal.classList.remove("open");
           });
         }
 
@@ -2903,11 +2504,6 @@
         // --- !! UPDATED: CORE FILTERING FUNCTION (DUAL FILTERS) !! ---
         function filterAndSearch() {
           // 1. Get active filters from BOTH navbars
-          const activeTierBtn = tierNavbar.querySelector("button.active");
-          const selectedTier = activeTierBtn
-            ? activeTierBtn.dataset.tier
-            : "All";
-
           const activeBrandBtn = brandNavbar.querySelector("button.active");
           const selectedBrand = activeBrandBtn
             ? activeBrandBtn.dataset.brand
@@ -2920,12 +2516,7 @@
 
           let filteredList = perfumeDB;
 
-          // 2. Filter by Tier
-          if (selectedTier !== "All") {
-            filteredList = filteredList.filter((p) => p.tier === selectedTier);
-          }
-
-          // 3. Filter by Brand
+          // 2. Filter by Brand
           if (selectedBrand !== "All") {
             if (selectedBrand === "Other") {
               filteredList = filteredList.filter(
@@ -2938,7 +2529,7 @@
             }
           }
 
-          // 4. Filter by Search Term
+          // 3. Filter by Search Term
           if (searchTerm) {
             filteredList = filteredList.filter(
               (p) =>
@@ -2950,29 +2541,10 @@
 
           renderGallery(filteredList);
 
-          // 5. Save state for BOTH filters
-          localStorage.setItem("lastFilterTier", selectedTier);
+          // 4. Save state for BOTH filters
           localStorage.setItem("lastFilterBrand", selectedBrand);
           localStorage.setItem("lastSearchTerm", searchInput.value.trim());
         }
-
-        // --- !! NEW: TIER NAVBAR EVENT LISTENER !! ---
-        tierNavbar.addEventListener("click", (e) => {
-          const button = e.target.closest("button[data-tier]");
-          if (!button) return;
-
-          allTierButtons.forEach((btn) => {
-            btn.classList.remove("active");
-            btn.setAttribute("aria-pressed", "false");
-          });
-          button.classList.add("active");
-          button.setAttribute("aria-pressed", "true");
-
-          // Clear search bar when filtering
-          searchInput.value = "";
-          searchClearBtn.style.display = "none";
-          filterAndSearch();
-        });
 
         // --- !! UPDATED: BRAND NAVBAR EVENT LISTENER !! ---
         brandNavbar.addEventListener("click", (e) => {
@@ -2994,13 +2566,6 @@
 
         // --- !! UPDATED: SEARCH INPUT EVENT LISTENER (RESETS BOTH NAVS) !! ---
         searchInput.addEventListener("input", () => {
-          // Reset Tier Navbar
-          allTierButtons.forEach((btn) => {
-            const isAll = btn.dataset.tier === "All";
-            btn.classList.toggle("active", isAll);
-            btn.setAttribute("aria-pressed", isAll);
-          });
-
           // Reset Brand Navbar
           allBrandButtons.forEach((btn) => {
             const isAll = btn.dataset.brand === "All";
@@ -3047,27 +2612,42 @@
         });
 
         // --- !! UPDATED: APPLY LAST STATE (FOR BOTH FILTERS) !! ---
+        // --- !! UPDATED: APPLY LAST STATE (Defaults to Premium Tier) !! ---
         function applyLastState() {
-          const lastTier = localStorage.getItem("lastFilterTier") || "All";
           const lastBrand = localStorage.getItem("lastFilterBrand") || "All";
           const lastSearch = localStorage.getItem("lastSearchTerm") || "";
 
+          // Clear search input if filters were last used
+          if (!lastSearch) {
+            searchInput.value = "";
+            searchClearBtn.style.display = "none";
+          }
+
           if (lastSearch) {
             searchInput.value = lastSearch;
+            // Manually trigger the search input handler to reset filters and search
             searchInput.dispatchEvent(new Event("input"));
           } else {
-            // Restore Tier state
-            allTierButtons.forEach((btn) => {
-              const isMatch = btn.dataset.tier === lastTier;
-              btn.classList.toggle("active", isMatch);
-              btn.setAttribute("aria-pressed", isMatch);
-            });
-            // Restore Brand state
+            // --- Restore or apply default Brand state ---
+            let brandApplied = false;
             allBrandButtons.forEach((btn) => {
               const isMatch = btn.dataset.brand === lastBrand;
               btn.classList.toggle("active", isMatch);
               btn.setAttribute("aria-pressed", isMatch);
+              if (isMatch) brandApplied = true;
             });
+            // Fallback for brand if needed
+            if (!brandApplied) {
+              const defaultBrandBtn = brandNavbar.querySelector(
+                'button[data-brand="All"]'
+              );
+              if (defaultBrandBtn) {
+                defaultBrandBtn.classList.add("active");
+                defaultBrandBtn.setAttribute("aria-pressed", "true");
+              }
+            }
+
+            // Apply the filters
             filterAndSearch();
           }
         }
@@ -3076,55 +2656,6 @@
         loadCartFromLocalStorage();
         updateCartCount();
         applyLastState();
-
-        // --- UPDATED: NEW ARRIVAL BUTTON (RESETS BOTH FILTERS) ---
-        const newArrivalButton = document.getElementById("new-arrival-btn");
-        if (newArrivalButton) {
-          const isElementInViewport = (el) => {
-            if (!el) return false;
-            const rect = el.getBoundingClientRect();
-            return rect.top < window.innerHeight && rect.bottom >= 0;
-          };
-
-          newArrivalButton.addEventListener("click", () => {
-            // Click "All" on BOTH navbars
-            const allTiers = tierNavbar.querySelector(
-              'button[data-tier="All"]'
-            );
-            const allBrands = brandNavbar.querySelector(
-              'button[data-brand="All"]'
-            );
-            if (allTiers) allTiers.click();
-            if (allBrands) allBrands.click();
-
-            searchInput.value = "";
-
-            setTimeout(() => {
-              // Scroll to A100 (Standard)
-              const targetItem = document.querySelector(
-                '.item[data-name="A100-S"]'
-              );
-              if (targetItem) {
-                targetItem.scrollIntoView({
-                  behavior: "smooth",
-                  block: "center",
-                });
-                newArrivalButton.style.display = "none";
-              }
-            }, 100);
-          });
-
-          window.addEventListener("scroll", () => {
-            const targetItem = document.querySelector(
-              '.item[data-name="A100-S"]'
-            );
-            if (isElementInViewport(targetItem)) {
-              newArrivalButton.style.display = "none";
-            } else {
-              newArrivalButton.style.display = "block";
-            }
-          });
-        }
       });
     </script>
   </body>
