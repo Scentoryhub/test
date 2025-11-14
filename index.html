@@ -2,794 +2,396 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Perfume List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfume Catalog</title>
     <link rel="icon" type="image/png" href="icon/32.png" />
     <link rel="apple-touch-icon" href="icon/180.png" />
-
     <style>
-      /* Reset */
-      a {
-        color: black;
-        font-weight: bold;
-      }
-      * {
-        box-sizing: border-box;
+      :root {
+        --primary-color: #007bff;
       }
       body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: #f9f9f9;
         margin: 0;
-        padding: 0;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        background: #fff;
-        color: #222;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
+        /* --- 关键修改 --- */
+        padding-top: 340px; /* 从 140px 增加到 240px 为换行的按钮留出空间 */
+        /* --- 修改结束 --- */
       }
-      /* --- Search Input Styles --- */
+      .header-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        padding: 0 10px;
+      }
+      .search-wrapper {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        max-width: 800px;
+        margin: 0 auto;
+      }
       .search-container {
-        max-width: 600px;
-        margin: 25px auto;
-        padding: 0 15px;
         position: relative;
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
       }
       #search-input {
         width: 100%;
-        padding: 12px 40px 12px 20px;
-        font-size: 1.1rem;
-        border: 1px solid #ccc;
-        border-radius: 25px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        outline: none;
-        transition: border-color 0.3s, box-shadow 0.3s;
+        padding: 12px 40px 12px 15px;
+        font-size: 1rem;
+        border-radius: 22px;
+        border: 1px solid #ddd;
+        background-color: #f4f4f4;
+        box-sizing: border-box;
+        -webkit-appearance: none;
       }
-      #search-input:focus {
-        border-color: #333;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      }
-      #search-clear-btn {
+      #clear-search-btn {
         position: absolute;
+        right: 45px;
         top: 50%;
-        right: 30px;
         transform: translateY(-50%);
+        border: none;
         background: #ccc;
         color: white;
-        border: none;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
-        width: 22px;
-        height: 22px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 16px;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        line-height: 22px;
-        transition: background-color 0.2s;
-      }
-      #search-clear-btn:hover {
-        background: #999;
-      }
-
-      /* --- Navbar Styles --- */
-      .navbar {
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        padding: 15px 15px;
-        border-bottom: 1px solid #eee;
-        background: #fff;
-      }
-      /* 第二个navbar (brand) 才需要 margin-bottom */
-      #brand-navbar {
-        margin-bottom: 20px;
-      }
-
-      .navbar button {
-        background: #f8f8f8;
-        border: 1px solid #ddd;
-        padding: 8px 16px;
-        margin: 5px;
         cursor: pointer;
         font-size: 1rem;
-        border-radius: 20px;
-        transition: all 0.3s ease;
+        line-height: 20px;
+        text-align: center;
+        display: none; /* Initially hidden */
       }
-      .navbar button:hover {
-        background: #e9e9e9;
-      }
-      .navbar button.active {
-        background: #333;
-        color: #fff;
-        border-color: #333;
-      }
-      /* --- Gallery Styles --- */
-      .gallery {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 10px;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 25px;
-        min-height: 300px; /* Give gallery some height while loading */
-      }
-      @media (min-width: 768px) {
-        .gallery {
-          grid-template-columns: repeat(4, 1fr);
-          gap: 40px;
-          padding: 0 20px;
-        }
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: scale(0.98);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      .item {
-        position: relative;
-        overflow: hidden;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        background: #fff;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        animation: fadeIn 0.5s ease-out;
-      }
-      .item:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      }
-      .item[data-stock="0"] {
-        opacity: 0.5;
-        pointer-events: none;
-      }
-      .item[data-stock="0"]::after {
-        content: "Out of Stock";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.7);
+      #cart-button {
+        background-color: var(--primary-color);
         color: white;
-        padding: 8px 15px;
-        border-radius: 8px;
-        font-weight: bold;
-        z-index: 2;
-      }
-      .item .add-to-cart {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        color: #fff;
         border: none;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
+        padding: 0 12px;
+        height: 44px;
+        border-radius: 22px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        margin-left: 10px;
+        position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        font-size: 1.2rem;
-        transition: background 0.3s ease;
-        z-index: 3;
       }
-      .item .add-to-cart:hover {
-        background: rgba(0, 0, 0, 0.9);
-      }
-      .item-cart-count {
+      #cart-count {
         position: absolute;
         top: -5px;
-        right: -5px;
-        background-color: #f44;
+        right: -8px;
+        background-color: red;
         color: white;
         border-radius: 50%;
         padding: 2px 6px;
-        font-size: 0.8rem;
-        min-width: 1.2em;
+        font-size: 0.75rem;
+        font-weight: bold;
+        min-width: 12px;
         text-align: center;
-        display: none;
+        line-height: 1.2;
+        display: none; /* Initially hidden */
       }
-      .item img {
-        display: block;
-        width: 100%;
-        height: 250px;
-        object-fit: cover;
-        vertical-align: middle;
-        border-radius: 12px 12px 0 0;
+      /* Pulsing animation */
+      .pulse {
+        animation: pulse-animation 0.5s ease;
       }
-      .caption {
-        background: #fff;
-        color: #333;
-        padding: 16px;
-        font-size: 1rem;
-        font-weight: 600;
-        text-align: center;
-        border-top: 1px solid #eee;
-        min-height: 90px;
-        display: flex;
-        flex-direction: column; /* 让价格显示在名字下方 */
-        align-items: center;
-        justify-content: center;
-      }
-      .hidden {
-        display: none !important;
-      }
-      .no-results-message {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 40px 15px;
-        font-size: 1.1rem;
-        color: #777;
-      }
-      .no-results-message p {
-        margin: 5px 0;
-      }
-
-      /* --- Loading State Spinner (New) --- */
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      .gallery-loader {
-        grid-column: 1 / -1; /* Span all columns in the grid */
-        margin: 80px auto;
-        border: 6px solid #f3f3f3; /* Light grey circle */
-        border-top: 6px solid #333; /* Dark part that spins */
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite;
-      }
-
-      /* --- Mobile Navbar Optimization --- */
-      @media (max-width: 767px) {
-        .navbar {
-          flex-wrap: nowrap;
-          overflow-x: auto;
-          justify-content: flex-start;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-        }
-        .navbar::-webkit-scrollbar {
-          display: none;
-        }
-      }
-      /* --- Other styles --- */
-      .price-info,
-      .order-instructions,
-      .modal,
-      .modal-content,
-      .modal-caption,
-      .modal-close,
-      .contact-info,
-      .back-to-top,
-      .cart-button,
-      .cart-count,
-      .cart-icon,
-      .TOP,
-      .add-to-cart-confirmation {
-        /* Your existing styles are kept */
-      }
-      .price-info {
-        max-width: 600px;
-        margin: 0 auto 25px auto;
-        padding: 20px;
-        background-color: #f9f9f9;
-        border: 1px solid #e0e0e0;
-        border-radius: 12px;
-        text-align: center;
-      }
-      .price-info p {
-        margin: 8px 0;
-        font-size: 1rem;
-        color: #333;
-        font-weight: 500;
-      }
-      .order-instructions {
-        text-align: left;
-        width: 100%;
-        max-width: 350px;
-        margin-top: 15px;
-      }
-      .TOP {
-        text-align: center;
-      }
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 9999;
-        left: 0;
-        top: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.85);
-        justify-content: center;
-        align-items: center;
-        padding: 15px;
-      }
-      .modal.open {
-        display: flex;
-      }
-      .modal-content {
-        max-width: 90vw;
-        max-height: 90vh;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 0 40px rgba(255, 255, 255, 0.25);
-        background: #fff;
-        text-align: center;
-      }
-      .modal-content img {
-        max-width: 100%;
-        max-height: 80vh;
-        display: block;
-      }
-      .modal-caption {
-        padding: 12px 20px;
-        font-weight: 700;
-        font-size: 1.2rem;
-        color: #222;
-      }
-      .modal-close {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 2rem;
-        color: #fff;
-        cursor: pointer;
-        user-select: none;
-        transition: transform 0.3s ease;
-      }
-      .modal-close:hover {
-        transform: rotate(90deg);
-      }
-      .contact-info {
-        text-align: center;
-        padding: 30px 15px;
-        background: #fff;
-        margin-top: 20px;
-        border-top: 1px solid #eee;
-      }
-      .contact-info p {
-        margin: 5px 0;
-        font-size: 1.1rem;
-        color: #555;
-      }
-      .back-to-top {
-        display: none;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background-color: #333;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
-        line-height: 50px;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s;
-        z-index: 1000;
-        opacity: 0.8;
-      }
-      .back-to-top:hover {
-        background-color: #555;
-        opacity: 1;
-        transform: scale(1.1);
-      }
-      .cart-button {
-        position: fixed;
-        bottom: 20px;
-        left: 20px;
-        background-color: #ffffff;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        font-size: 1rem;
-        text-align: center;
-        cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        transition: background-color 0.3s;
-      }
-      .cart-button:hover {
-        background-color: #555;
-      }
-      .cart-button.added {
-        animation: cart-pulse 0.6s ease-out;
-      }
-      @keyframes cart-pulse {
+      @keyframes pulse-animation {
         0% {
           transform: scale(1);
         }
         50% {
-          transform: scale(1.15);
+          transform: scale(1.2);
         }
         100% {
           transform: scale(1);
         }
       }
-      .cart-count {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        background-color: #f44;
-        color: white;
-        border-radius: 50%;
-        padding: 2px 6px;
-        font-size: 0.8rem;
-      }
-      .cart-icon {
-        width: 40px;
-        height: 40px;
-      }
-      .add-to-cart-confirmation {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #28a745;
-        color: white;
-        padding: 6px 12px;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        font-weight: bold;
-        opacity: 0;
-        transition: opacity 0.5s ease, transform 0.5s ease;
-        z-index: 10;
-        pointer-events: none;
-      }
-      .add-to-cart-confirmation.show {
-        opacity: 1;
-        transform: translate(-50%, -100%);
-      }
-      /* --- NEW MODAL CONTROLS STYLES --- */
-      .modal-controls {
-        padding: 10px 20px 20px;
+      .navbar {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
-        align-items: center;
+        padding: 10px 0;
+        border-top: 1px solid #eee;
+        gap: 8px;
+        max-width: 800px;
+        margin: 0 auto;
       }
-      .modal-add-btn {
+      .nav-btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border: 1px solid #ddd;
+        background-color: #fdfdfd;
+        color: #333;
+        border-radius: 18px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .nav-btn:hover {
+        background-color: #f0f0f0;
+      }
+      .nav-btn.active {
         background-color: #333;
         color: white;
+        border-color: #333;
+      }
+      .nav-btn.all-btn.active {
+        background-color: #d9534f;
+        border-color: #d9534f;
+        color: white;
+      }
+      .supplier-badge {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 3px 8px;
+        background-color: #eee;
+        color: #555;
+        border-radius: 10px;
+        display: inline-block;
+        margin-top: 8px;
+        align-self: flex-start;
+      }
+      .filter-divider {
+        width: 100%;
+        flex-basis: 100%;
         border: none;
-        padding: 12px 24px;
-        font-size: 1rem;
-        font-weight: bold;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: background-color 0.3s;
+        border-top: 1px solid #eee;
+        margin: 5px 0;
       }
-      .modal-add-btn:hover {
-        background-color: #555;
+      .supplier-btn {
+        background-color: #f0f6ff;
+        color: #007bff;
+        border: 1px solid #b3d1ff;
       }
-      .modal-qty-controls {
-        display: flex;
-        align-items: center;
+      .supplier-btn:hover {
+        background-color: #e0ecff;
+      }
+      .supplier-btn.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+      }
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 10px;
+      }
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 15px;
       }
-      .modal-qty-btn {
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        font-size: 1.5rem;
+      .product-card {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .product-card.out-of-stock {
+        opacity: 0.6;
+      }
+      .product-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      }
+      .product-image-container {
+        position: relative;
+        width: 100%;
+        padding-top: 100%; /* 1:1 Aspect Ratio */
+      }
+      .product-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .stock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-weight: bold;
+        color: #333;
+        font-size: 1.1rem;
+        backdrop-filter: blur(2px);
+      }
+      .product-info {
+        padding: 12px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .product-id {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #888;
+        margin: 0 0 4px;
+      }
+      .product-name {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #222;
+        margin: 0;
+        flex-grow: 1;
+        line-height: 1.3;
+      }
+      .product-price {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin: 8px 0;
+      }
+      .add-to-cart-btn {
+        background-color: #f4f4f4;
+        color: #333;
+        border: none;
+        padding: 10px;
+        width: 100%;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
         cursor: pointer;
+        margin-top: 10px;
         transition: background-color 0.2s;
       }
-      .modal-qty-btn:hover {
-        background-color: #e0e0e0;
+      .add-to-cart-btn:hover {
+        background-color: #e9e9e9;
       }
-      .modal-qty-count {
-        font-size: 1.5rem;
+      .add-to-cart-btn:disabled {
+        background-color: #f0f0f0;
+        color: #aaa;
+        cursor: not-allowed;
+      }
+      .item-count-badge {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
         font-weight: bold;
-        min-width: 30px;
-        text-align: center;
-      }
-
-      /* --- !!! NEW: POLICY BUTTON STYLE !!! --- */
-      .info-button {
-        background: none;
-        border: none;
-        color: #333; /* Standard text color */
-        font-weight: 700; /* Bold */
-        text-decoration: underline;
-        cursor: pointer;
-        font-size: 1rem;
-        padding: 5px;
-      }
-      .info-button:hover {
-        color: #000;
-      }
-      /* ... 放在你其他的 CSS 样式旁边 ... */
-
-      .receipts-included {
-        color: #28a745; /* 绿色 */
-        font-weight: bold; /* 加粗 */
-      }
-
-      .receipts-not-included {
-        color: #6c757d; /* 灰色 */
-        font-weight: bold; /* 加粗 */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: none; /* Hidden by default */
       }
     </style>
   </head>
   <body>
-    <h2 class="TOP">Perfume List</h2>
-
-    <div class="price-info">
-      <div>
-        <p style="font-size: 1.1rem; font-weight: 700">Perfuems: From $30</p>
-        <p style="font-size: 1.1rem; font-weight: 600">
-          Free Shipping | Buy more save more !
-        </p>
-        <p style="font-size: 1.1rem; font-weight: 700">USA WAREHOUSE</p>
-        <p style="font-size: 0.9rem; color: #555">
-          (Exact price is shown on each product)
-        </p>
+    <div class="header-container">
+      <div class="search-wrapper">
+        <div class="search-container">
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search by name, ID or SKU..."
+          />
+          <button id="clear-search-btn">&times;</button>
+        </div>
+        <a href="cart.html" id="cart-button" aria-label="View Cart">
+          🛒
+          <span id="cart-count">0</span>
+        </a>
       </div>
-      <hr class="info-divider" />
 
-      <div style="margin-top: 15px">
-        <button id="policy-btn" class="info-button" style="color: #f44">
-          Compensation Policy
+      <div class="navbar">
+        <button class="nav-btn" data-brand="Dior">Dior</button>
+        <button class="nav-btn" data-brand="Chanel">Chanel</button>
+        <button class="nav-btn" data-brand="Louis Vuitton">
+          Louis Vuitton
+        </button>
+        <button class="nav-btn" data-brand="Tom Ford">Tom Ford</button>
+        <button class="nav-btn" data-brand="Creed">Creed</button>
+        <button class="nav-btn" data-brand="Yves Saint Laurent">
+          Yves Saint Laurent
+        </button>
+        <button class="nav-btn" data-brand="Valentino">Valentino</button>
+        <button class="nav-btn" data-brand="Versace">Versace</button>
+        <button class="nav-btn" data-brand="Jean Paul Gaultier">
+          Jean Paul Gaultier
+        </button>
+        <button class="nav-btn" data-brand="Parfums de Marly">
+          Parfums de Marly
+        </button>
+        <button class="nav-btn" data-brand="Giorgio Armani">
+          Giorgio Armani
+        </button>
+        <button class="nav-btn" data-brand="Maison Francis Kurkdjian">
+          Maison Francis Kurkdjian
+        </button>
+        <button class="nav-btn" data-brand="Gucci">Gucci</button>
+        <button class="nav-btn" data-brand="Lattafa">Lattafa</button>
+        <button class="nav-btn" data-brand="Azzaro">Azzaro</button>
+        <button class="nav-btn" data-brand="Carolina Herrera">
+          Carolina Herrera
+        </button>
+        <button class="nav-btn" data-brand="Paco Rabanne">Paco Rabanne</button>
+        <button class="nav-btn" data-brand="Initio">Initio</button>
+        <button class="nav-btn" data-brand="Xerjoff">Xerjoff</button>
+        <button class="nav-btn" data-brand="Kayali">Kayali</button>
+        <button class="nav-btn" data-brand="Amouage">Amouage</button>
+        <button class="nav-btn" data-brand="Burberry">Burberry</button>
+        <button class="nav-btn" data-brand="Prada">Prada</button>
+        <button class="nav-btn" data-brand="Ralph Lauren">Ralph Lauren</button>
+        <button class="nav-btn" data-brand="BVLGARI">BVLGARI</button>
+        <button class="nav-btn" data-brand="Givenchy">Givenchy</button>
+        <button class="nav-btn" data-brand="Kilian">Kilian</button>
+        <button class="nav-btn" data-brand="Lancôme">Lancôme</button>
+        <button class="nav-btn all-btn active" id="show-all-btn">
+          All Brands
+        </button>
+
+        <hr class="filter-divider" />
+        <button
+          class="nav-btn supplier-btn active"
+          id="supplier-all-btn"
+          data-supplier="all"
+        >
+          All Suppliers
+        </button>
+        <button class="nav-btn supplier-btn" data-supplier="供应商二">
+          供应商二
+        </button>
+        <button class="nav-btn supplier-btn" data-supplier="供应商三">
+          供应商三
+        </button>
+        <button class="nav-btn supplier-btn" data-supplier="供应商四">
+          供应商四
+        </button>
+        <button class="nav-btn supplier-btn" data-supplier="供应商五">
+          供应商五
         </button>
       </div>
     </div>
 
-    <div class="search-container">
-      <input
-        type="search"
-        id="search-input"
-        placeholder="Search by name, brand or number..."
-      />
-      <button id="search-clear-btn" title="Clear search">&times;</button>
+    <div class="container">
+      <div class="product-grid" id="perfume-list"></div>
     </div>
-
-    <div class="navbar" id="brand-navbar">
-      <button data-brand="All" class="active" aria-pressed="true">
-        All Brands
-      </button>
-      <button data-brand="Dior" aria-pressed="false">Dior</button>
-      <button data-brand="Chanel" aria-pressed="false">Chanel</button>
-      <button data-brand="Yves Saint Laurent" aria-pressed="false">
-        Yves Saint Laurent
-      </button>
-      <button data-brand="Louis Vuitton" aria-pressed="false">
-        Louis Vuitton
-      </button>
-      <button data-brand="Tom Ford" aria-pressed="false">Tom Ford</button>
-      <button data-brand="Gucci" aria-pressed="false">Gucci</button>
-      <button data-brand="Valentino" aria-pressed="false">Valentino</button>
-      <button data-brand="Prada" aria-pressed="false">Prada</button>
-      <button data-brand="Versace" aria-pressed="false">Versace</button>
-      <button data-brand="Creed" aria-pressed="false">Creed</button>
-      <button data-brand="Xerjoff" aria-pressed="false">Xerjoff</button>
-      <button data-brand="Kayali" aria-pressed="false">Kayali</button>
-      <button data-brand="Initio" aria-pressed="false">Initio</button>
-      <button data-brand="Jean Paul Gaultier" aria-pressed="false">
-        Jean Paul Gaultier
-      </button>
-      <button data-brand="Maison Francis Kurkdjian" aria-pressed="false">
-        Maison Francis Kurkdjian
-      </button>
-      <button data-brand="Parfums de Marly" aria-pressed="false">
-        Parfums de Marly
-      </button>
-      <button data-brand="Giorgio Armani" aria-pressed="false">Armani</button>
-      <button data-brand="Carolina Herrera" aria-pressed="false">
-        Carolina Herrera
-      </button>
-      <button data-brand="Lattafa" aria-pressed="false">Lattafa</button>
-      <button data-brand="Azzaro" aria-pressed="false">Azzaro</button>
-      <button data-brand="Paco Rabanne" aria-pressed="false">
-        Paco Rabanne
-      </button>
-      <button data-brand="Other" aria-pressed="false">Other Brands</button>
-    </div>
-
-    <div class="gallery" id="gallery">
-      <div class="gallery-loader"></div>
-    </div>
-
-    <div
-      class="modal"
-      id="modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-caption"
-    >
-      <div class="modal-close" id="modal-close" aria-label="Close modal">
-        &times;
-      </div>
-      <div class="modal-content">
-        <img src="" alt="" id="modal-img" />
-        <div class="modal-caption" id="modal-caption"></div>
-        <div class="modal-controls">
-          <button class="modal-add-btn">Add to Cart</button>
-          <div class="modal-qty-controls">
-            <button class="modal-qty-btn" data-action="decrease">-</button>
-            <span class="modal-qty-count">1</span>
-            <button class="modal-qty-btn" data-action="increase">+</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div
-      class="modal"
-      id="policy-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="policy-modal-caption"
-    >
-      <div class="modal-close" id="policy-modal-close" aria-label="Close modal">
-        &times;
-      </div>
-      <div
-        class="modal-content"
-        style="
-          max-width: 500px;
-          text-align: left;
-          padding: 25px;
-          box-sizing: border-box;
-        "
-      >
-        <h3
-          id="policy-modal-caption"
-          style="text-align: center; margin-top: 0; font-size: 1.4rem"
-        >
-          Compensation Policy
-        </h3>
-        <p style="font-size: 1rem; color: #333">
-          Please check your items upon delivery. If you have any issues, follow
-          these steps for a free reshipment:
-        </p>
-        <ul style="padding-left: 20px; font-size: 1rem">
-          <li style="margin-bottom: 15px">
-            <strong>1. Leaked or Damaged:</strong>
-            <p style="margin-top: 5px; margin-bottom: 0">
-              Provide photos of:
-              <strong>Outer Packaging + Shipping Label + Damaged Goods</strong>.
-            </p>
-          </li>
-          <li>
-            <strong>2. Wrong Product Sent:</strong>
-            <p style="margin-top: 5px; margin-bottom: 0">
-              Provide photos of:
-              <strong>Shipping Label + Incorrect Goods</strong>.
-            </p>
-          </li>
-        </ul>
-        <p
-          style="
-            font-weight: bold;
-            text-align: center;
-            margin-top: 25px;
-            font-size: 1rem;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 8px;
-          "
-        >
-          Important: Please keep all shipping packaging until you've checked
-          that everything is okay with your order. An unboxing video is highly
-          recommended.
-        </p>
-      </div>
-    </div>
-
-    <div
-      class="modal"
-      id="receipt-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="receipt-modal-caption"
-    >
-      <div
-        class="modal-close"
-        id="receipt-modal-close"
-        aria-label="Close modal"
-      >
-        &times;
-      </div>
-      <div
-        class="modal-content"
-        style="
-          max-width: 600px; /* 您可以调整图片弹窗的最大宽度 */
-          text-align: center;
-          padding: 0;
-          overflow: hidden;
-          background: #fff;
-        "
-      >
-        <img
-          src="images/receipt.webp"
-          alt="Receipt Example"
-          style="
-            max-width: 100%;
-            height: auto;
-            display: block;
-            max-height: 85vh;
-          "
-        />
-        <div
-          id="receipt-modal-caption"
-          style="
-            padding: 12px;
-            font-weight: bold;
-            background: #fff;
-            color: #222;
-          "
-        >
-          Example Receipt
-        </div>
-      </div>
-    </div>
-    <footer>
-      <div class="contact-info">
-        <a href="https://wa.me/16232027321"
-          >Need help? Contact us on WhatsApp</a
-        >
-        <p>We are available 24/7</p>
-        footer
-      </div>
-    </footer>
-
-    <button id="back-to-top" class="back-to-top" aria-label="Back to top">
-      &#x25B2;
-    </button>
-
-    <button
-      class="cart-button"
-      id="cart-button"
-      title="View Your Order"
-      aria-label="View Shopping Cart"
-    >
-      <img src="icon/order.png" alt="Cart" class="cart-icon" />
-      <span id="cart-count" class="cart-count">0</span>
-    </button>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // =================================================================
-        // 1. CENTRALIZED CONFIGURATION
-        // =================================================================
-        const config = {
-          whatsappNumber: "16232027321",
-          brandAliases: {
-            ysl: "yves saint laurent",
-            lv: "Louis Vuitton",
-            tf: "tom ford",
-            jpg: "jean paul gaultier",
-            mfk: "maison francis kurkdjian",
-            pdm: "parfums de marly",
-            ch: "carolina herrera",
-            ga: "giorgio armani",
-          },
-        };
-
-        // =================================================================
-        // 2. UNIFIED PERFUME DATABASE
-        // =================================================================
         const perfumeDB = [
           {
             id: "A02",
@@ -797,8 +399,8 @@
             brand: "Valentino",
             img: "images/perfume2.webp",
             stock: 0,
-
             price: 38,
+            sku: "朋克甜心",
           },
           {
             id: "A04",
@@ -806,8 +408,8 @@
             brand: "Dior",
             img: "images/perfume4.webp",
             stock: 1,
-
             price: 35,
+            sku: "H01",
           },
           {
             id: "A05",
@@ -815,8 +417,8 @@
             brand: "Lancôme",
             img: "images/perfume5.webp",
             stock: 1,
-
             price: 38,
+            sku: "兰蔻美丽人生",
           },
           {
             id: "A06",
@@ -824,8 +426,8 @@
             brand: "Chanel",
             img: "images/perfume6.webp",
             stock: 1,
-
             price: 38,
+            sku: "COCO chanel",
           },
           {
             id: "A07",
@@ -833,8 +435,8 @@
             brand: "Yves Saint Laurent",
             img: "images/perfume7.webp",
             stock: 1,
-
             price: 38,
+            sku: "淡香光耀巴黎",
           },
           {
             id: "A08",
@@ -842,8 +444,8 @@
             brand: "Paco Rabanne",
             img: "images/perfume8.webp",
             stock: 1,
-
             price: 38,
+            sku: "百万",
           },
           {
             id: "A09",
@@ -851,8 +453,8 @@
             brand: "Creed",
             img: "images/perfume9.webp",
             stock: 1,
-
             price: 38,
+            sku: "拿破仑",
           },
           {
             id: "A10",
@@ -861,6 +463,7 @@
             img: "images/perfume10.webp",
             stock: 1,
             price: 30,
+            sku: "luonan-jin",
           },
           {
             id: "A11",
@@ -869,6 +472,7 @@
             img: "images/perfume11.webp",
             stock: 1,
             price: 35,
+            sku: "H03",
           },
           {
             id: "A12",
@@ -876,8 +480,8 @@
             brand: "Yves Saint Laurent",
             img: "images/perfume12.webp",
             stock: 1,
-
             price: 38,
+            sku: "先锋男士",
           },
           {
             id: "A13",
@@ -885,8 +489,8 @@
             brand: "Chanel",
             img: "images/perfume13.webp",
             stock: 1,
-
             price: 38,
+            sku: "蔚蓝",
           },
           {
             id: "A14",
@@ -894,8 +498,8 @@
             brand: "Dior",
             img: "images/perfume14.webp",
             stock: 1,
-
             price: 38,
+            sku: "旷野",
           },
           {
             id: "A15",
@@ -903,8 +507,8 @@
             brand: "Versace",
             img: "images/perfume15.webp",
             stock: 1,
-
             price: 38,
+            sku: "Versace粉钻",
           },
           {
             id: "A16",
@@ -912,8 +516,8 @@
             brand: "Yves Saint Laurent",
             img: "images/perfume16.webp",
             stock: 0,
-
             price: 38,
+            sku: "YSL自由之水精醇版",
           },
           {
             id: "A18",
@@ -921,8 +525,8 @@
             brand: "Prada",
             img: "images/perfume18.webp",
             stock: 1,
-
             price: 38,
+            sku: "我本莫测浓情版",
           },
           {
             id: "A19",
@@ -930,8 +534,8 @@
             brand: "Tom Ford",
             img: "images/perfume19.webp",
             stock: 1,
-
             price: 38,
+            sku: "失落樱桃",
           },
           {
             id: "A21",
@@ -939,8 +543,8 @@
             brand: "Giorgio Armani",
             img: "images/perfume21.webp",
             stock: 1,
-
             price: 38,
+            sku: "阿玛尼 寄情男士",
           },
           {
             id: "A22",
@@ -948,8 +552,8 @@
             brand: "Tom Ford",
             img: "images/perfume22.webp",
             stock: 1,
-
             price: 38,
+            sku: "TF韵度烟草",
           },
           {
             id: "A23",
@@ -957,8 +561,8 @@
             brand: "Creed",
             img: "images/perfume23.webp",
             stock: 1,
-
             price: 38,
+            sku: "银色山泉",
           },
           {
             id: "A24",
@@ -966,8 +570,8 @@
             brand: "Tom Ford",
             img: "images/perfume24.webp",
             stock: 1,
-
             price: 38,
+            sku: "法布勒斯",
           },
           {
             id: "A25",
@@ -975,8 +579,8 @@
             brand: "Dior",
             img: "images/perfume25.webp",
             stock: 1,
-
             price: 38,
+            sku: "旷野典藏",
           },
           {
             id: "A26",
@@ -984,8 +588,8 @@
             brand: "Parfums de Marly",
             img: "images/perfume26.webp",
             stock: 1,
-
             price: 38,
+            sku: "旭日晨曦",
           },
           {
             id: "A27",
@@ -993,8 +597,8 @@
             brand: "Gucci",
             img: "images/perfume27.webp",
             stock: 1,
-
             price: 35,
+            sku: "H12",
           },
           {
             id: "A28",
@@ -1002,8 +606,8 @@
             brand: "Versace",
             img: "images/perfume28.webp",
             stock: 1,
-
             price: 38,
+            sku: "蓝爱神",
           },
           {
             id: "A29",
@@ -1011,8 +615,8 @@
             brand: "Chanel",
             img: "images/perfume29.webp",
             stock: 1,
-
             price: 38,
+            sku: "CHANEL紫邂逅",
           },
           {
             id: "A31",
@@ -1020,8 +624,8 @@
             brand: "Dior",
             img: "images/perfume31.webp",
             stock: 1,
-
             price: 38,
+            sku: "真我",
           },
           {
             id: "A32",
@@ -1029,8 +633,8 @@
             brand: "Giorgio Armani",
             img: "images/perfume32.webp",
             stock: 1,
-
             price: 38,
+            sku: "挚爱红色",
           },
           {
             id: "A33",
@@ -1038,8 +642,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume33.webp",
             stock: 1,
-
             price: 49,
+            sku: "悠然海岸",
           },
           {
             id: "A34",
@@ -1047,8 +651,8 @@
             brand: "Valentino",
             img: "images/perfume34.webp",
             stock: 0,
-
             price: 38,
+            sku: "暗夜先生",
           },
           {
             id: "A35",
@@ -1056,8 +660,8 @@
             brand: "Valentino",
             img: "images/perfume35.webp",
             stock: 0,
-
             price: 38,
+            sku: "坠梦罗马",
           },
           {
             id: "A36",
@@ -1065,8 +669,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume36.webp",
             stock: 1,
-
             price: 49,
+            sku: "星之城市",
           },
           {
             id: "A38",
@@ -1074,8 +678,8 @@
             brand: "Carolina Herrera",
             img: "images/perfume38.webp",
             stock: 1,
-
             price: 35,
+            sku: "H05",
           },
           {
             id: "A39",
@@ -1083,8 +687,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume39.webp",
             stock: 0,
-
             price: 49,
+            sku: "思扬",
           },
           {
             id: "A40",
@@ -1092,8 +696,8 @@
             brand: "Valentino",
             img: "images/perfume40.webp",
             stock: 1,
-
             price: 38,
+            sku: "唐娜小姐",
           },
           {
             id: "A41",
@@ -1101,8 +705,8 @@
             brand: "Xerjoff",
             img: "images/perfume41.webp",
             stock: 0,
-
             price: 38,
+            sku: "纯净草木",
           },
           {
             id: "A42",
@@ -1110,8 +714,8 @@
             brand: "Parfums de Marly",
             img: "images/perfume42.webp",
             stock: 1,
-
             price: 38,
+            sku: "德莉娜",
           },
           {
             id: "A43",
@@ -1119,8 +723,8 @@
             brand: "Chanel",
             img: "images/perfume43.webp",
             stock: 1,
-
             price: 38,
+            sku: "蔚蓝",
           },
           {
             id: "A44",
@@ -1128,8 +732,8 @@
             brand: "Creed",
             img: "images/perfume44.webp",
             stock: 1,
-
             price: 38,
+            sku: "千年帝国",
           },
           {
             id: "A45",
@@ -1138,6 +742,7 @@
             img: "images/perfume45.webp",
             stock: 1,
             price: 35,
+            sku: "1ZXSF39W",
           },
           {
             id: "A46",
@@ -1145,8 +750,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume46.webp",
             stock: 1,
-
             price: 49,
+            sku: "午后漫游",
           },
           {
             id: "A47",
@@ -1154,8 +759,8 @@
             brand: "Carolina Herrera",
             img: "images/perfume47.webp",
             stock: 1,
-
             price: 38,
+            sku: "212男士",
           },
           {
             id: "A48",
@@ -1163,8 +768,8 @@
             brand: "Burberry",
             img: "images/perfume48.webp",
             stock: 1,
-
             price: 38,
+            sku: "巴宝莉粉专属",
           },
           {
             id: "A51",
@@ -1172,8 +777,8 @@
             brand: "Prada",
             img: "images/perfume51.webp",
             stock: 1,
-
             price: 38,
+            sku: "红月海洋",
           },
           {
             id: "A52",
@@ -1181,8 +786,8 @@
             brand: "Jean Paul Gaultier",
             img: "images/perfume52.webp",
             stock: 1,
-
             price: 38,
+            sku: "蓝色裸男",
           },
           {
             id: "A53",
@@ -1190,8 +795,8 @@
             brand: "Initio",
             img: "images/perfume53.webp",
             stock: 1,
-
             price: 38,
+            sku: "迷幻之爱",
           },
           {
             id: "A57",
@@ -1199,8 +804,8 @@
             brand: "Yves Saint Laurent",
             img: "images/perfume57.webp",
             stock: 1,
-
             price: 38,
+            sku: "黑鸦片",
           },
           {
             id: "A58",
@@ -1208,8 +813,8 @@
             brand: "Chanel",
             img: "images/perfume58.webp",
             stock: 1,
-
             price: 38,
+            sku: "可可小姐黑色",
           },
           {
             id: "A59",
@@ -1217,8 +822,8 @@
             brand: "Versace",
             img: "images/perfume59.webp",
             stock: 1,
-
             price: 38,
+            sku: "红爱神",
           },
           {
             id: "A60",
@@ -1226,8 +831,8 @@
             brand: "Chanel",
             img: "images/perfume60.webp",
             stock: 1,
-
             price: 38,
+            sku: "白五号",
           },
           {
             id: "A61",
@@ -1235,8 +840,8 @@
             brand: "Giorgio Armani",
             img: "images/perfume61.webp",
             stock: 1,
-
             price: 38,
+            sku: "寄情男士白",
           },
           {
             id: "A62",
@@ -1244,8 +849,8 @@
             brand: "Ralph Lauren",
             img: "images/perfume62.webp",
             stock: 1,
-
             price: 38,
+            sku: "拉夫劳伦蓝色马球",
           },
           {
             id: "A64",
@@ -1253,8 +858,8 @@
             brand: "Creed",
             img: "images/perfume64.webp",
             stock: 1,
-
             price: 38,
+            sku: "拿破仑礼盒",
           },
           {
             id: "A65",
@@ -1262,8 +867,8 @@
             brand: "Maison Francis Kurkdjian",
             img: "images/perfume65.webp",
             stock: 1,
-
             price: 38,
+            sku: "乌木丝绸",
           },
           {
             id: "A67",
@@ -1271,8 +876,8 @@
             brand: "Gucci",
             img: "images/perfume67.webp",
             stock: 1,
-
             price: 38,
+            sku: "阿泰尔",
           },
           {
             id: "A68",
@@ -1280,8 +885,8 @@
             brand: "Parfums de Marly",
             img: "images/perfume68.webp",
             stock: 1,
-
             price: 38,
+            sku: "阿泰尔",
           },
           {
             id: "A70",
@@ -1289,8 +894,8 @@
             brand: "Jean Paul Gaultier",
             img: "images/perfume70.webp",
             stock: 0,
-
             price: 38,
+            sku: "美丽香精裸男",
           },
           {
             id: "A71",
@@ -1298,8 +903,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume71.webp",
             stock: 1,
-
             price: 49,
+            sku: "渐变加州",
           },
           {
             id: "A72",
@@ -1307,8 +912,8 @@
             brand: "Maison Francis Kurkdjian",
             img: "images/perfume72.webp",
             stock: 1,
-
             price: 38,
+            sku: "库尔吉安透明瓶百家乐540",
           },
           {
             id: "A73",
@@ -1316,8 +921,8 @@
             brand: "Parfums de Marly",
             img: "images/perfume73.webp",
             stock: 1,
-
             price: 38,
+            sku: "帕加索黑飞马",
           },
           {
             id: "A74",
@@ -1325,8 +930,8 @@
             brand: "Chanel",
             img: "images/perfume74.webp",
             stock: 1,
-
             price: 38,
+            sku: "黄五号",
           },
           {
             id: "A75",
@@ -1334,8 +939,8 @@
             brand: "Creed",
             img: "images/perfume75.webp",
             stock: 1,
-
             price: 38,
+            sku: "信仰高山雪松",
           },
           {
             id: "A76",
@@ -1343,8 +948,8 @@
             brand: "Tom Ford",
             img: "images/perfume76.webp",
             stock: 1,
-
             price: 38,
+            sku: "乌木沉香",
           },
           {
             id: "A77",
@@ -1352,8 +957,8 @@
             brand: "Carolina Herrera",
             img: "images/perfume77.webp",
             stock: 1,
-
             price: 38,
+            sku: "紫金高跟鞋",
           },
           {
             id: "A78",
@@ -1361,8 +966,8 @@
             brand: "Chanel",
             img: "images/perfume78.webp",
             stock: 1,
-
             price: 38,
+            sku: "N*19清倾款",
           },
           {
             id: "A79",
@@ -1370,8 +975,8 @@
             brand: "Creed",
             img: "images/perfume79.webp",
             stock: 1,
-
             price: 38,
+            sku: "维尔京岛之水",
           },
           {
             id: "A80",
@@ -1379,18 +984,17 @@
             brand: "Yves Saint Laurent",
             img: "images/perfume80.webp",
             stock: 1,
-
             price: 38,
+            sku: "YSL深红樱桃黑鸦片",
           },
-
           {
             id: "A81",
             name: "Tom Ford Vanilla Sex",
             brand: "Tom Ford",
             img: "images/perfume81.webp",
             stock: 1,
-
             price: 38,
+            sku: "禁忌香草",
           },
           {
             id: "A82",
@@ -1398,28 +1002,26 @@
             brand: "Tom Ford",
             img: "images/perfume82.webp",
             stock: 1,
-
             price: 38,
+            sku: "TF皮革之影",
           },
-
           {
             id: "A83",
             name: "Tom Ford Bitter Peach",
             brand: "Tom Ford",
             img: "images/perfume83.webp",
             stock: 1,
-
             price: 38,
+            sku: "TF苦桃",
           },
-
           {
             id: "A84",
             name: "Tom Ford Neroli Portofino",
             brand: "Tom Ford",
             img: "images/perfume84.webp",
             stock: 1,
-
             price: 38,
+            sku: "TF橙花油",
           },
           {
             id: "A85",
@@ -1427,8 +1029,8 @@
             brand: "Initio",
             img: "images/perfume85.webp",
             stock: 1,
-
             price: 38,
+            sku: "伟大沉香",
           },
           {
             id: "A86",
@@ -1436,8 +1038,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume86.webp",
             stock: 1,
-
             price: 49,
+            sku: "LV无限",
           },
           {
             id: "A87",
@@ -1445,8 +1047,8 @@
             brand: "Ralph Lauren",
             img: "images/perfume87.webp",
             stock: 1,
-
             price: 38,
+            sku: "红色马球浓香",
           },
           {
             id: "A88",
@@ -1455,6 +1057,7 @@
             img: "images/perfume88.webp",
             stock: 0,
             price: 38,
+            sku: "林顿",
           },
           {
             id: "A89",
@@ -1462,8 +1065,8 @@
             brand: "Chanel",
             img: "images/perfume89.webp",
             stock: 1,
-
             price: 38,
+            sku: "CHANEL黄邂逅",
           },
           {
             id: "A91",
@@ -1471,8 +1074,8 @@
             brand: "Burberry",
             img: "images/perfume91.webp",
             stock: 1,
-
             price: 38,
+            sku: "花与她浓",
           },
           {
             id: "A95",
@@ -1480,8 +1083,8 @@
             brand: "Chanel",
             img: "images/perfume95.webp",
             stock: 1,
-
             price: 38,
+            sku: "天性嘉伯丽尔",
           },
           {
             id: "A98",
@@ -1489,8 +1092,8 @@
             brand: "Creed",
             img: "images/perfume98.webp",
             stock: 1,
-
             price: 38,
+            sku: "白色爱恋女士",
           },
           {
             id: "A99",
@@ -1499,6 +1102,7 @@
             img: "images/perfume99.webp",
             stock: 1,
             price: 30,
+            sku: "1ZCHENG8YPT",
           },
           {
             id: "A100",
@@ -1506,8 +1110,8 @@
             brand: "BVLGARI",
             img: "images/perfume100.webp",
             stock: 1,
-
             price: 38,
+            sku: "新紫晶",
           },
           {
             id: "A101",
@@ -1515,28 +1119,26 @@
             brand: "Xerjoff",
             img: "images/perfume101.webp",
             stock: 1,
-
             price: 38,
+            sku: "XF纳克索斯岛",
           },
-
           {
             id: "A102",
             name: "Kayali Vanilla Candy Rock Sugar | 42",
             brand: "Kayali",
             img: "images/perfume102.webp",
             stock: 1,
-
             price: 38,
+            sku: "卡利亚42",
           },
-
           {
             id: "A103",
             name: "Amouage Blossom Love",
             brand: "Amouage",
             img: "images/perfume103.webp",
             stock: 1,
-
             price: 38,
+            sku: "爱慕心花盛放",
           },
           {
             id: "A104",
@@ -1544,8 +1146,8 @@
             brand: "Louis Vuitton",
             img: "images/perfume104.webp",
             stock: 1,
-
             price: 49,
+            sku: "LV海滩漫步",
           },
           {
             id: "A105",
@@ -1553,18 +1155,17 @@
             brand: "Yves Saint Laurent",
             img: "images/perfume105.webp",
             stock: 1,
-
             price: 38,
+            sku: "YSL先锋男士精粹",
           },
-
           {
             id: "A106",
             name: "Givenchy Gentleman",
             brand: "Givenchy",
             img: "images/perfume106.webp",
             stock: 1,
-
             price: 38,
+            sku: "纪梵希绅士雅淡香",
           },
           {
             id: "A107",
@@ -1572,8 +1173,8 @@
             brand: "Paco Rabanne",
             img: "images/perfume107.webp",
             stock: 1,
-
             price: 38,
+            sku: "银色奖杯",
           },
           {
             id: "A108",
@@ -1581,8 +1182,8 @@
             brand: "Tom Ford",
             img: "images/perfume108.webp",
             stock: 1,
-
             price: 38,
+            sku: "电光樱桃",
           },
           {
             id: "A109",
@@ -1590,8 +1191,8 @@
             brand: "Kayali",
             img: "images/perfume109.webp",
             stock: 1,
-
             price: 38,
+            sku: "卡利亚31",
           },
           {
             id: "A110",
@@ -1599,8 +1200,8 @@
             brand: "Xerjoff",
             img: "images/perfume110.webp",
             stock: 0,
-
             price: 38,
+            sku: "XF文艺复兴",
           },
           {
             id: "A111",
@@ -1608,8 +1209,8 @@
             brand: "Kayali",
             img: "images/perfume111.webp",
             stock: 1,
-
             price: 38,
+            sku: "卡亚利33",
           },
           {
             id: "A112",
@@ -1617,8 +1218,8 @@
             brand: "Tom Ford",
             img: "images/perfume112.webp",
             stock: 1,
-
             price: 38,
+            sku: "黑标法布勒斯",
           },
           {
             id: "A113",
@@ -1626,8 +1227,8 @@
             brand: "Kilian",
             img: "images/perfume113.webp",
             stock: 1,
-
             price: 38,
+            sku: "天使之享",
           },
           {
             id: "A114",
@@ -1635,8 +1236,8 @@
             brand: "Initio",
             img: "images/perfume114.webp",
             stock: 0,
-
             price: 38,
+            sku: "副作用",
           },
           {
             id: "A115",
@@ -1644,8 +1245,8 @@
             brand: "Maison Francis Kurkdjian",
             img: "images/perfume115.webp",
             stock: 1,
-
             price: 38,
+            sku: "MKF巴黎夜色",
           },
           {
             id: "A116",
@@ -1653,18 +1254,17 @@
             brand: "Gucci",
             img: "images/perfume116.webp",
             stock: 1,
-
             price: 38,
+            sku: "竹韵浓",
           },
-
           {
             id: "A117",
             name: "Versace Dylan Blue",
             brand: "Versace",
             img: "images/perfume117.webp",
             stock: 1,
-
             price: 38,
+            sku: "迪伦男士",
           },
           {
             id: "A118",
@@ -1672,8 +1272,8 @@
             brand: "Giorgio Armani",
             img: "images/perfume118.webp",
             stock: 1,
-
             price: 38,
+            sku: "黑色密码香精",
           },
           {
             id: "A119",
@@ -1681,8 +1281,8 @@
             brand: "Dior",
             img: "images/perfume119.webp",
             stock: 1,
-
             price: 38,
+            sku: "粉红女宝宝",
           },
           {
             id: "A120",
@@ -1690,28 +1290,26 @@
             brand: "Louis Vuitton",
             img: "images/perfume120.webp",
             stock: 1,
-
             price: 49,
+            sku: "LV浮影",
           },
-
           {
             id: "A121",
             name: "Amouage Honour",
             brand: "Amouage",
             img: "images/perfume121.webp",
             stock: 1,
-
             price: 38,
+            sku: "化蝶女士",
           },
-
           {
             id: "A122",
             name: "Amouage Guidance 46",
             brand: "Amouage",
             img: "images/perfume122.webp",
             stock: 1,
-
             price: 38,
+            sku: "爱慕秘藏神谕",
           },
           {
             id: "A123",
@@ -1719,28 +1317,26 @@
             brand: "Amouage",
             img: "images/perfume123.webp",
             stock: 1,
-
             price: 38,
+            sku: "爱慕间奏曲",
           },
-
           {
             id: "A124",
             name: "Gucci Flora Gorgeous Jasmine",
             brand: "Gucci",
             img: "images/perfume124.webp",
             stock: 1,
-
             price: 38,
+            sku: "绿绮梦",
           },
-
           {
             id: "A125",
             name: "Gucci Flora Gorgeous Gardenia",
             brand: "Gucci",
             img: "images/perfume125.webp",
             stock: 1,
-
             price: 38,
+            sku: "粉绮梦",
           },
           {
             id: "A126",
@@ -1749,6 +1345,7 @@
             img: "images/perfume126.webp",
             stock: 1,
             price: 30,
+            sku: "azzaro-hei",
           },
           {
             id: "A136",
@@ -1756,28 +1353,26 @@
             brand: "Jean Paul Gaultier",
             img: "images/perfume136.webp",
             stock: 0,
-
             price: 38,
+            sku: "超级男士",
           },
-
           {
             id: "A137",
             name: "Jean Paul Gaultier La Belle Le Parfum",
             brand: "Jean Paul Gaultier",
             img: "images/perfume137.webp",
             stock: 1,
-
             price: 38,
+            sku: "美人浓情",
           },
-
           {
             id: "A138",
             name: "Jean Paul Gaultier Le Male Lover",
             brand: "Jean Paul Gaultier",
             img: "images/perfume138.webp",
             stock: 1,
-
             price: 38,
+            sku: "裸男情人",
           },
           {
             id: "A139",
@@ -1785,26 +1380,26 @@
             brand: "Parfums de Marly",
             img: "images/perfume139.webp",
             stock: 1,
-
             price: 38,
+            sku: "红色卡兰",
           },
           {
             id: "A140",
             name: "Gucci Flora Gorgeous Gardenia",
             brand: "Gucci",
             img: "images/perfume140.webp",
-
             stock: 1,
             price: 35,
+            sku: "H04",
           },
           {
             id: "A141",
             name: "Creed Spring Flower",
             brand: "Creed",
             img: "images/perfume141.webp",
-
             stock: 1,
             price: 35,
+            sku: "H09",
           },
           {
             id: "A142",
@@ -1813,6 +1408,7 @@
             img: "images/perfume142.webp",
             stock: 1,
             price: 30,
+            sku: "luonan-lan",
           },
           {
             id: "A143",
@@ -1821,6 +1417,7 @@
             img: "images/perfume143.webp",
             stock: 1,
             price: 30,
+            sku: "1znvyou100",
           },
           {
             id: "A144",
@@ -1829,6 +1426,7 @@
             img: "images/perfume144.webp",
             stock: 1,
             price: 30,
+            sku: "baiwan-zong",
           },
           {
             id: "A145",
@@ -1837,6 +1435,7 @@
             img: "images/perfume145.webp",
             stock: 1,
             price: 30,
+            sku: "azzaro-yin",
           },
           {
             id: "A146",
@@ -1845,6 +1444,7 @@
             img: "images/perfume146.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-zi",
           },
           {
             id: "A147",
@@ -1853,6 +1453,7 @@
             img: "images/perfume147.webp",
             stock: 1,
             price: 30,
+            sku: "kh-hong",
           },
           {
             id: "A148",
@@ -1861,6 +1462,7 @@
             img: "images/perfume148.webp",
             stock: 1,
             price: 30,
+            sku: "azzaro-zong",
           },
           {
             id: "A149",
@@ -1869,6 +1471,7 @@
             img: "images/perfume149.webp",
             stock: 1,
             price: 30,
+            sku: "azzaro-jin",
           },
           {
             id: "A150",
@@ -1877,6 +1480,7 @@
             img: "images/perfume150.webp",
             stock: 1,
             price: 30,
+            sku: "azzaro-mo",
           },
           {
             id: "A151",
@@ -1885,6 +1489,7 @@
             img: "images/perfume151.webp",
             stock: 1,
             price: 30,
+            sku: "1ZLSYSL",
           },
           {
             id: "A152",
@@ -1893,6 +1498,7 @@
             img: "images/perfume152.webp",
             stock: 1,
             price: 30,
+            sku: "1ZHEIHONG4Y6",
           },
           {
             id: "A153",
@@ -1901,6 +1507,7 @@
             img: "images/perfume153.webp",
             stock: 1,
             price: 30,
+            sku: "AMXS-01",
           },
           {
             id: "A154",
@@ -1909,6 +1516,7 @@
             img: "images/perfume154.webp",
             stock: 1,
             price: 30,
+            sku: "1ZLANZU64",
           },
           {
             id: "A155",
@@ -1917,6 +1525,7 @@
             img: "images/perfume155.webp",
             stock: 1,
             price: 30,
+            sku: "1ZLAN6TN8",
           },
           {
             id: "A156",
@@ -1925,6 +1534,7 @@
             img: "images/perfume156.webp",
             stock: 1,
             price: 30,
+            sku: "1ZCRERED",
           },
           {
             id: "A157",
@@ -1933,6 +1543,7 @@
             img: "images/perfume157.webp",
             stock: 1,
             price: 30,
+            sku: "1ZXS401W",
           },
           {
             id: "A158",
@@ -1941,6 +1552,7 @@
             img: "images/perfume158.webp",
             stock: 1,
             price: 30,
+            sku: "1ZLvJ1XS",
           },
           {
             id: "A159",
@@ -1949,6 +1561,7 @@
             img: "images/perfume159.webp",
             stock: 1,
             price: 30,
+            sku: "DMXS-003",
           },
           {
             id: "A160",
@@ -1957,6 +1570,7 @@
             img: "images/perfume160.webp",
             stock: 1,
             price: 30,
+            sku: "1ZZIGAOWMP",
           },
           {
             id: "A161",
@@ -1965,6 +1579,7 @@
             img: "images/perfume161.webp",
             stock: 1,
             price: 30,
+            sku: "1ZHUANGFY46",
           },
           {
             id: "A162",
@@ -1973,6 +1588,7 @@
             img: "images/perfume166.webp",
             stock: 1,
             price: 30,
+            sku: "1ZDALV100",
           },
           {
             id: "A163",
@@ -1981,6 +1597,7 @@
             img: "images/perfume163.webp",
             stock: 1,
             price: 30,
+            sku: "1ZFENPP100",
           },
           {
             id: "A164",
@@ -1989,6 +1606,7 @@
             img: "images/perfume171.webp",
             stock: 1,
             price: 30,
+            sku: "1Z031UE",
           },
           {
             id: "A165",
@@ -1997,6 +1615,7 @@
             img: "images/perfume164.webp",
             stock: 1,
             price: 30,
+            sku: "1ZHEIM7Y7",
           },
           {
             id: "A166",
@@ -2005,6 +1624,7 @@
             img: "images/perfume167.webp",
             stock: 1,
             price: 30,
+            sku: "1ZLVHEI100",
           },
           {
             id: "A167",
@@ -2013,6 +1633,7 @@
             img: "images/perfume165.webp",
             stock: 1,
             price: 30,
+            sku: "1ZLANJINMLCQ",
           },
           {
             id: "A168",
@@ -2021,6 +1642,7 @@
             img: "images/perfume169.webp",
             stock: 1,
             price: 30,
+            sku: "1ZZI563R",
           },
           {
             id: "A169",
@@ -2029,6 +1651,7 @@
             img: "images/perfume170.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-black",
           },
           {
             id: "A170",
@@ -2037,6 +1660,7 @@
             img: "images/perfume162.webp",
             stock: 1,
             price: 30,
+            sku: "1Zhuang6Y72",
           },
           {
             id: "A171",
@@ -2045,6 +1669,7 @@
             img: "images/perfume168.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-pink",
           },
           {
             id: "A172",
@@ -2053,6 +1678,7 @@
             img: "images/perfume172.webp",
             stock: 1,
             price: 30,
+            sku: "1Zhuanggao2C6",
           },
           {
             id: "A173",
@@ -2061,6 +1687,7 @@
             img: "images/perfume173.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-lan",
           },
           {
             id: "A174",
@@ -2069,6 +1696,7 @@
             img: "images/perfume174.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-bai",
           },
           {
             id: "A175",
@@ -2077,6 +1705,7 @@
             img: "images/perfume175.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-huang",
           },
           {
             id: "A176",
@@ -2085,6 +1714,7 @@
             img: "images/perfume176.webp",
             stock: 1,
             price: 30,
+            sku: "1ZXSA66K",
           },
           {
             id: "A177",
@@ -2093,6 +1723,7 @@
             img: "images/perfume177.webp",
             stock: 1,
             price: 30,
+            sku: "1ZSPORTRUO",
           },
           {
             id: "A178",
@@ -2101,6 +1732,7 @@
             img: "images/perfume178.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-hong",
           },
           {
             id: "A179",
@@ -2109,6 +1741,7 @@
             img: "images/perfume179.webp",
             stock: 1,
             price: 30,
+            sku: "1ZHEIFENWPL",
           },
           {
             id: "A180",
@@ -2117,6 +1750,7 @@
             img: "images/perfume180.webp",
             stock: 1,
             price: 30,
+            sku: "1ZCRE1760",
           },
           {
             id: "A181",
@@ -2125,6 +1759,7 @@
             img: "images/perfume181.webp",
             stock: 1,
             price: 30,
+            sku: "lattafa-zong",
           },
           {
             id: "A182",
@@ -2133,6 +1768,7 @@
             img: "images/perfume182.webp",
             stock: 1,
             price: 30,
+            sku: "kh-hei",
           },
           {
             id: "A183",
@@ -2141,6 +1777,7 @@
             img: "images/perfume183.webp",
             stock: 1,
             price: 30,
+            sku: "kh-QAHWA",
           },
           {
             id: "A184",
@@ -2149,6 +1786,7 @@
             img: "images/perfume184.webp",
             stock: 1,
             price: 30,
+            sku: "baiwan-bai",
           },
           {
             id: "A185",
@@ -2157,6 +1795,7 @@
             img: "images/perfume185.webp",
             stock: 1,
             price: 30,
+            sku: "1ZHUANGJIXS",
           },
           {
             id: "A186",
@@ -2165,94 +1804,116 @@
             img: "images/perfume186.webp",
             stock: 1,
             price: 30,
+            sku: "luonan-hei",
           },
         ];
 
-        const { whatsappNumber, brandAliases } = config;
+        // --- 供应商分类逻辑 ---
+        function getSupplier(sku) {
+          if (!sku) return "供应商二";
+          if (/^H\d+$/.test(sku)) return "供应商三";
+          if (
+            /^1Z/.test(sku) ||
+            sku === "1znvyou100" ||
+            sku === "AMXS-01" ||
+            sku === "DMXS-003"
+          ) {
+            return "供应商五";
+          }
+          if (
+            (/^[a-z-]+$/.test(sku) && sku.includes("-")) ||
+            sku === "kh-QAHWA"
+          ) {
+            return "供应商四";
+          }
+          return "供应商二";
+        }
+
+        perfumeDB.forEach((perfume) => {
+          perfume.supplier = getSupplier(perfume.sku);
+        });
+
+        let currentBrandFilter = "all";
+        let currentSupplierFilter = "all";
+        let searchTerm = "";
+        let cartItems = [];
+
+        const perfumeList = document.getElementById("perfume-list");
+        const searchInput = document.getElementById("search-input");
+        const clearSearchButton = document.getElementById("clear-search-btn");
         const cartButton = document.getElementById("cart-button");
         const cartCount = document.getElementById("cart-count");
-        const gallery = document.getElementById("gallery");
-        const modal = document.getElementById("modal");
-        const modalImg = document.getElementById("modal-img");
-        const modalCaption = document.getElementById("modal-caption");
-        const modalClose = document.getElementById("modal-close");
-        const backToTopButton = document.getElementById("back-to-top");
-        const searchInput = document.getElementById("search-input");
-        const searchClearBtn = document.getElementById("search-clear-btn");
-        let items = [];
-        let cartItems = [];
-        const modalControls = document.querySelector(".modal-controls");
-        const modalAddBtn = document.querySelector(".modal-add-btn");
-        const modalQtyControls = document.querySelector(".modal-qty-controls");
-        const modalQtyCount = document.querySelector(".modal-qty-count");
-        let currentModalProductId = null;
 
-        // --- !!! NEW: POLICY MODAL VARS !!! ---
-        const policyBtn = document.getElementById("policy-btn");
-        const policyModal = document.getElementById("policy-modal");
-        const policyModalClose = document.getElementById("policy-modal-close");
+        const brandButtons = document.querySelectorAll(".nav-btn[data-brand]");
+        const showAllButton = document.getElementById("show-all-btn");
+        const supplierButtons = document.querySelectorAll(".supplier-btn");
 
-        // --- !!! NEW: RECEIPT MODAL VARS !!! ---
-        const receiptBtn = document.getElementById("receipt-btn");
-        const receiptModal = document.getElementById("receipt-modal");
-        const receiptModalClose = document.getElementById(
-          "receipt-modal-close"
-        );
+        function renderPerfumes() {
+          perfumeList.innerHTML = "";
 
-        // --- !! NEW: NAVBAR DOM ELEMENTS !! ---
-        const brandNavbar = document.getElementById("brand-navbar");
-        const allBrandButtons =
-          brandNavbar.querySelectorAll("button[data-brand]");
+          const filteredPerfumes = perfumeDB.filter((perfume) => {
+            const matchesBrand =
+              currentBrandFilter === "all" ||
+              perfume.brand === currentBrandFilter;
 
-        // --- !! UPDATED: RENDER GALLERY (WITH BADGE, PRICE & PREMIUM TEXT) !! ---
-        function renderGallery(perfumeList) {
-          gallery.innerHTML = "";
-          perfumeList.forEach((perfume) => {
-            const item = document.createElement("div");
-            item.className = "item";
-            item.tabIndex = 0;
-            item.dataset.name = perfume.id;
-            item.dataset.img = perfume.img;
-            item.dataset.brand = perfume.brand;
-            item.dataset.stock = perfume.stock;
+            const matchesSupplier =
+              currentSupplierFilter === "all" ||
+              perfume.supplier === currentSupplierFilter;
 
-            let tierBadge = "";
-            let displayName = perfume.name; // 默认使用完整名字
+            const matchesSearch =
+              perfume.name.toLowerCase().includes(searchTerm) ||
+              perfume.id.toLowerCase().includes(searchTerm) ||
+              (perfume.sku && perfume.sku.toLowerCase().includes(searchTerm));
 
-            if (perfume.tier === "Premium") {
-              // 1. 添加徽章
-              tierBadge = '<span class="premium-badge">★ Premium</span>';
+            return matchesBrand && matchesSupplier && matchesSearch;
+          });
 
-              // 2. !!! 新增: 替换文本以添加CSS类 !!!
-              // 这会找到 "Premium (Luxe)" 并把它包裹在 <span class="premium-text">...</span> 中
-              displayName = displayName.replace(
-                "Premium (Luxe)",
-                '<span class="premium-text">Premium (Luxe)</span>'
-              );
+          if (filteredPerfumes.length === 0) {
+            perfumeList.innerHTML = "<p>No products found.</p>";
+          }
+
+          filteredPerfumes.forEach((perfume) => {
+            const card = document.createElement("div");
+            card.className = "product-card";
+            if (perfume.stock === 0) {
+              card.classList.add("out-of-stock");
             }
 
-            item.innerHTML = `
-                        ${tierBadge}
-                        <img src="${perfume.img}" alt="${perfume.id} - ${perfume.name}" loading="lazy" decoding="async"/>
-                        <div class="caption">
-                          ${perfume.id} - ${displayName} <strong style="display: block; color: #333; font-size: 1.1rem; margin-top: 5px;">
-                            $${perfume.price}
-                          </strong>
-                        </div>
-                        <button class="add-to-cart" title="Add to Cart" aria-label="Add ${perfume.id} to cart">
-                          🛒 <span class="item-cart-count"></span>
-                        </button>
-                    `;
-            gallery.appendChild(item);
+            // --- 供应商徽章已添加 ---
+            card.innerHTML = `
+              <div class="product-image-container">
+                <img src="${perfume.img}" alt="${
+              perfume.name
+            }" class="product-image" loading="lazy">
+                ${
+                  perfume.stock === 0
+                    ? '<div class="stock-overlay">Out of Stock</div>'
+                    : ""
+                }
+                <div class="item-count-badge" id="count-${perfume.id}"></div>
+              </div>
+              <div class="product-info">
+                <p class="product-id">${perfume.id}</p>
+                <p class="product-name">${perfume.name}</p>
+                <p class="product-price">$${perfume.price}</p>
+                <span class="supplier-badge">${perfume.supplier}</span>
+              </div>
+              <button class="add-to-cart-btn" data-id="${perfume.id}" ${
+              perfume.stock === 0 ? "disabled" : ""
+            }>
+                ${perfume.stock === 0 ? "Out of Stock" : "Add to Cart"}
+              </button>
+            `;
+
+            perfumeList.appendChild(card);
           });
-          items = Array.from(gallery.querySelectorAll(".item"));
           renderItemCounts();
-          handleNoResults();
         }
 
         function loadCartFromLocalStorage() {
           const storedCart = localStorage.getItem("perfumeCart");
           cartItems = storedCart ? JSON.parse(storedCart) : [];
+          updateCartCount();
         }
 
         function saveCartToLocalStorage() {
@@ -2260,56 +1921,44 @@
         }
 
         function updateCartCount() {
-          cartCount.textContent = cartItems.reduce(
-            (total, item) => total + item.quantity,
+          const totalQuantity = cartItems.reduce(
+            (sum, item) => sum + item.quantity,
             0
           );
+          if (totalQuantity > 0) {
+            cartCount.textContent = totalQuantity;
+            cartCount.style.display = "flex";
+          } else {
+            cartCount.style.display = "none";
+          }
         }
 
         function renderItemCounts() {
-          items.forEach((item) => {
-            const itemName = item.dataset.name;
-            const itemCartCountBadge = item.querySelector(".item-cart-count");
-            const itemInCart = cartItems.find(
-              (cartItem) => cartItem.name === itemName
-            );
-            if (itemInCart && itemInCart.quantity > 0) {
-              itemCartCountBadge.textContent = itemInCart.quantity;
-              itemCartCountBadge.style.display = "block";
-            } else {
-              itemCartCountBadge.style.display = "none";
+          document.querySelectorAll(".item-count-badge").forEach((badge) => {
+            badge.style.display = "none";
+          });
+          cartItems.forEach((item) => {
+            const badge = document.getElementById(`count-${item.name}`);
+            if (badge) {
+              badge.textContent = item.quantity;
+              badge.style.display = "flex";
             }
           });
         }
 
-        window.addEventListener("storage", () => {
-          loadCartFromLocalStorage();
-          updateCartCount();
-          renderItemCounts();
-        });
-
-        function showConfirmation(button) {
-          const confirmation = document.createElement("div");
-          confirmation.textContent = "Added!";
-          confirmation.className = "add-to-cart-confirmation";
-          const itemElement = button.closest(".item");
-          itemElement.appendChild(confirmation);
-          setTimeout(() => confirmation.classList.add("show"), 10);
-          setTimeout(() => confirmation.remove(), 1500);
-        }
-
         function pulseCartButton() {
-          cartButton.classList.add("added");
-          setTimeout(() => cartButton.classList.remove("added"), 600);
+          cartButton.classList.add("pulse");
+          setTimeout(() => {
+            cartButton.classList.remove("pulse");
+          }, 500);
         }
 
-        // --- !! UPDATED: ADD ITEM TO CART (WITH PRICE & TIER) !! ---
+        // --- 加购函数已更新，包含 sku 和 supplier ---
         function addItemToCart(productId) {
           const perfumeData = perfumeDB.find((p) => p.id === productId);
           if (!perfumeData) return;
 
-          // Get all data from DB
-          const { id, name, img, price, tier } = perfumeData;
+          const { id, name, img, price, tier, sku, supplier } = perfumeData;
 
           const existingItem = cartItems.find(
             (cartItem) => cartItem.name === id
@@ -2323,8 +1972,10 @@
               caption: `${id} - ${name}`,
               img,
               quantity: 1,
-              price: price, // <-- SAVE PRICE
-              tier: tier, // <-- SAVE TIER
+              price: price,
+              tier: tier,
+              sku: sku,
+              supplier: supplier,
             });
           }
           saveCartToLocalStorage();
@@ -2333,310 +1984,58 @@
           pulseCartButton();
         }
 
-        gallery.addEventListener("click", function (e) {
-          const button = e.target.closest(".add-to-cart");
-          if (button) {
-            e.stopPropagation();
-            const item = button.closest(".item");
-            addItemToCart(item.dataset.name);
-            showConfirmation(button);
-          }
-        });
-
-        cartButton.addEventListener("click", () => {
-          window.location.href = "cart.html";
-        });
-
-        function updateModalControls(productId) {
-          const itemInCart = cartItems.find(
-            (cartItem) => cartItem.name === productId
-          );
-
-          if (itemInCart && itemInCart.quantity > 0) {
-            modalAddBtn.style.display = "none";
-            modalQtyControls.style.display = "flex";
-            modalQtyCount.textContent = itemInCart.quantity;
-          } else {
-            modalAddBtn.style.display = "block";
-            modalQtyControls.style.display = "none";
-          }
-        }
-
-        gallery.addEventListener("click", (e) => {
-          const item = e.target.closest(".item");
-          if (item && !e.target.closest(".add-to-cart")) {
-            currentModalProductId = item.dataset.name;
-            modalImg.src = item.dataset.img;
-            modalImg.alt = item.querySelector(".caption").textContent;
-
-            // Get full caption text (name + price)
-            modalCaption.innerHTML = item.querySelector(".caption").innerHTML;
-
-            updateModalControls(currentModalProductId);
-            modal.classList.add("open");
-          }
-        });
-
-        modalControls.addEventListener("click", (e) => {
-          const target = e.target;
-          if (target.matches(".modal-add-btn")) {
-            addItemToCart(currentModalProductId);
-            updateModalControls(currentModalProductId);
-          }
-
-          const button = target.closest(".modal-qty-btn");
-          if (button) {
-            const action = button.dataset.action;
-            const itemInCart = cartItems.find(
-              (item) => item.name === currentModalProductId
-            );
-            if (!itemInCart) return;
-
-            if (action === "increase") {
-              itemInCart.quantity++;
-            } else if (action === "decrease") {
-              itemInCart.quantity--;
-            }
-
-            if (itemInCart.quantity <= 0) {
-              const itemIndex = cartItems.findIndex(
-                (item) => item.name === currentModalProductId
-              );
-              if (itemIndex > -1) {
-                cartItems.splice(itemIndex, 1);
-              }
-            }
-            saveCartToLocalStorage();
-            updateCartCount();
-            renderItemCounts();
-            updateModalControls(currentModalProductId);
-            pulseCartButton();
-          }
-        });
-
-        modalClose.addEventListener("click", () =>
-          modal.classList.remove("open")
-        );
-        modal.addEventListener("click", (e) => {
-          if (e.target === modal) modal.classList.remove("open");
-        });
-
-        // STEP 3B: KEYDOWN LISTENER MODIFIED HERE
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") {
-            modal.classList.remove("open");
-            policyModal.classList.remove("open");
-            if (receiptModal) receiptModal.classList.remove("open");
-          }
-        });
-
-        // --- !!! NEW: POLICY MODAL LISTENERS !!! ---
-        if (policyBtn && policyModal && policyModalClose) {
-          policyBtn.addEventListener("click", () =>
-            policyModal.classList.add("open")
-          );
-          policyModalClose.addEventListener("click", () =>
-            policyModal.classList.remove("open")
-          );
-          policyModal.addEventListener("click", (e) => {
-            if (e.target === policyModal) policyModal.classList.remove("open");
-          });
-        }
-
-        // STEP 3C: NEW JS LISTENER BLOCK ADDED HERE
-        // --- !!! NEW: RECEIPT MODAL LISTENERS !!! ---
-        if (receiptBtn && receiptModal && receiptModalClose) {
-          receiptBtn.addEventListener("click", () =>
-            receiptModal.classList.add("open")
-          );
-          receiptModalClose.addEventListener("click", () =>
-            receiptModal.classList.remove("open")
-          );
-          receiptModal.addEventListener("click", (e) => {
-            if (e.target === receiptModal)
-              receiptModal.classList.remove("open");
-          });
-        }
-
-        const dedicatedBrands = [
-          "Dior",
-          "Chanel",
-          "Yves Saint Laurent",
-          "Louis Vuitton",
-          "Tom Ford",
-          "Gucci",
-          "Valentino",
-          "Prada",
-          "Versace",
-          "Creed",
-          "Xerjoff",
-          "Kayali",
-          "Initio",
-          "Jean Paul Gaultier",
-          "Maison Francis Kurkdjian",
-          "Parfums de Marly",
-          "Giorgio Armani",
-          "Carolina Herrera",
-          "Lattafa",
-          "Azzaro",
-          "Paco Rabanne",
-        ];
-
-        // --- !! UPDATED: CORE FILTERING FUNCTION (DUAL FILTERS) !! ---
-        function filterAndSearch() {
-          // 1. Get active filters from BOTH navbars
-          const activeBrandBtn = brandNavbar.querySelector("button.active");
-          const selectedBrand = activeBrandBtn
-            ? activeBrandBtn.dataset.brand
-            : "All";
-
-          let searchTerm = searchInput.value.toLowerCase().trim();
-          if (brandAliases[searchTerm]) {
-            searchTerm = brandAliases[searchTerm];
-          }
-
-          let filteredList = perfumeDB;
-
-          // 2. Filter by Brand
-          if (selectedBrand !== "All") {
-            if (selectedBrand === "Other") {
-              filteredList = filteredList.filter(
-                (p) => !dedicatedBrands.includes(p.brand)
-              );
-            } else {
-              filteredList = filteredList.filter(
-                (p) => p.brand === selectedBrand
-              );
-            }
-          }
-
-          // 3. Filter by Search Term
-          if (searchTerm) {
-            filteredList = filteredList.filter(
-              (p) =>
-                p.name.toLowerCase().includes(searchTerm) ||
-                p.id.toLowerCase().includes(searchTerm) ||
-                p.brand.toLowerCase().includes(searchTerm)
-            );
-          }
-
-          renderGallery(filteredList);
-
-          // 4. Save state for BOTH filters
-          localStorage.setItem("lastFilterBrand", selectedBrand);
-          localStorage.setItem("lastSearchTerm", searchInput.value.trim());
-        }
-
-        // --- !! UPDATED: BRAND NAVBAR EVENT LISTENER !! ---
-        brandNavbar.addEventListener("click", (e) => {
-          const button = e.target.closest("button[data-brand]");
-          if (!button) return;
-
-          allBrandButtons.forEach((btn) => {
-            btn.classList.remove("active");
-            btn.setAttribute("aria-pressed", "false");
-          });
-          button.classList.add("active");
-          button.setAttribute("aria-pressed", "true");
-
-          // Clear search bar when filtering
-          searchInput.value = "";
-          searchClearBtn.style.display = "none";
-          filterAndSearch();
-        });
-
-        // --- !! UPDATED: SEARCH INPUT EVENT LISTENER (RESETS BOTH NAVS) !! ---
+        // 搜索栏逻辑
         searchInput.addEventListener("input", () => {
-          // Reset Brand Navbar
-          allBrandButtons.forEach((btn) => {
-            const isAll = btn.dataset.brand === "All";
-            btn.classList.toggle("active", isAll);
-            btn.setAttribute("aria-pressed", isAll);
-          });
-
-          searchClearBtn.style.display = searchInput.value ? "flex" : "none";
-          filterAndSearch();
+          searchTerm = searchInput.value.toLowerCase();
+          clearSearchButton.style.display = searchTerm ? "block" : "none";
+          renderPerfumes();
         });
 
-        searchClearBtn.addEventListener("click", () => {
+        clearSearchButton.addEventListener("click", () => {
+          searchTerm = "";
           searchInput.value = "";
-          searchInput.dispatchEvent(new Event("input"));
+          clearSearchButton.style.display = "none";
+          renderPerfumes();
         });
 
-        function handleNoResults() {
-          const visibleItems = gallery.children.length;
-          let messageEl = gallery.querySelector(".no-results-message");
-          if (visibleItems === 0 && !messageEl) {
-            messageEl = document.createElement("div");
-            messageEl.className = "no-results-message";
-            let searchTerm = searchInput.value;
-            let suggestionHTML = searchTerm
-              ? `<p>No results found for "<strong>${searchTerm}</strong>".</p><p>Please check your spelling or try another keyword.</p>`
-              : `<p>No items found for this filter.</p>`;
-            messageEl.innerHTML = suggestionHTML;
-            gallery.appendChild(messageEl);
-          } else if (visibleItems > 0 && messageEl) {
-            messageEl.remove();
-          }
-        }
+        // 过滤器事件监听
+        brandButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            currentBrandFilter = button.dataset.brand;
+            brandButtons.forEach((btn) => btn.classList.remove("active"));
+            showAllButton.classList.remove("active");
+            button.classList.add("active");
+            renderPerfumes();
+          });
+        });
 
-        window.addEventListener("scroll", () => {
-          if (window.pageYOffset > 300) {
-            backToTopButton.style.display = "block";
-          } else {
-            backToTopButton.style.display = "none";
+        showAllButton.addEventListener("click", () => {
+          currentBrandFilter = "all";
+          brandButtons.forEach((btn) => btn.classList.remove("active"));
+          showAllButton.classList.add("active");
+          renderPerfumes();
+        });
+
+        supplierButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            currentSupplierFilter = button.dataset.supplier;
+            supplierButtons.forEach((btn) => btn.classList.remove("active"));
+            button.classList.add("active");
+            renderPerfumes();
+          });
+        });
+
+        // 添加到购物车按钮的事件委托
+        perfumeList.addEventListener("click", (e) => {
+          if (e.target.classList.contains("add-to-cart-btn")) {
+            const productId = e.target.dataset.id;
+            addItemToCart(productId);
           }
         });
 
-        backToTopButton.addEventListener("click", () => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-
-        // --- !! UPDATED: APPLY LAST STATE (FOR BOTH FILTERS) !! ---
-        // --- !! UPDATED: APPLY LAST STATE (Defaults to Premium Tier) !! ---
-        function applyLastState() {
-          const lastBrand = localStorage.getItem("lastFilterBrand") || "All";
-          const lastSearch = localStorage.getItem("lastSearchTerm") || "";
-
-          // Clear search input if filters were last used
-          if (!lastSearch) {
-            searchInput.value = "";
-            searchClearBtn.style.display = "none";
-          }
-
-          if (lastSearch) {
-            searchInput.value = lastSearch;
-            // Manually trigger the search input handler to reset filters and search
-            searchInput.dispatchEvent(new Event("input"));
-          } else {
-            // --- Restore or apply default Brand state ---
-            let brandApplied = false;
-            allBrandButtons.forEach((btn) => {
-              const isMatch = btn.dataset.brand === lastBrand;
-              btn.classList.toggle("active", isMatch);
-              btn.setAttribute("aria-pressed", isMatch);
-              if (isMatch) brandApplied = true;
-            });
-            // Fallback for brand if needed
-            if (!brandApplied) {
-              const defaultBrandBtn = brandNavbar.querySelector(
-                'button[data-brand="All"]'
-              );
-              if (defaultBrandBtn) {
-                defaultBrandBtn.classList.add("active");
-                defaultBrandBtn.setAttribute("aria-pressed", "true");
-              }
-            }
-
-            // Apply the filters
-            filterAndSearch();
-          }
-        }
-
-        // Initial Load
+        // 初始加载
         loadCartFromLocalStorage();
-        updateCartCount();
-        applyLastState();
+        renderPerfumes();
       });
     </script>
   </body>

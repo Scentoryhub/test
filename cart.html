@@ -2,921 +2,354 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Your Cart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Order</title>
     <link rel="icon" type="image/png" href="icon/32.png" />
     <link rel="apple-touch-icon" href="icon/180.png" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-      /* Reset and common styles */
-      * {
-        box-sizing: border-box;
-      }
       body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        background-color: #f4f4f4;
         margin: 0;
-        padding: 0;
-        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        background: #f4f4f4;
-        color: #111;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        position: relative;
-        min-height: 100vh;
-        padding-bottom: 120px; /* Space for footer actions */
+        padding-bottom: 80px; /* 为底部的 sticky footer 留出空间 */
       }
-      .page-header {
-        position: relative;
-        text-align: center;
-        padding: 20px 15px;
-        border-bottom: 1px solid #eee;
+      .header {
         background-color: #fff;
-        margin-bottom: 20px;
+        padding: 15px 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 100;
       }
-      .page-header h1 {
+      .header h1 {
         margin: 0;
-        font-size: 1.8rem;
-        font-weight: 700;
-        letter-spacing: 2px;
-        color: #222;
+        font-size: 1.5rem;
       }
-      .back-btn {
-        position: absolute;
-        top: 50%;
-        left: 15px;
-        transform: translateY(-50%);
-        width: 30px;
-        height: 30px;
-        cursor: pointer;
+      .back-link {
         text-decoration: none;
-        transition: transform 0.3s;
-        background-image: url("icon/back.png");
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        border: none;
-        background-color: transparent;
+        color: #007aff;
+        font-size: 1rem;
+        font-weight: 500;
       }
-      .back-btn:hover {
-        transform: translateY(-50%) scale(1.1);
-      }
-      /* New container for screenshot area */
-      #capture-area {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 15px;
-        background-color: #f4f4f4; /* Ensures consistent background for the image */
-      }
-      .cart-items-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-      .cart-items-list.two-columns {
-        @media (min-width: 768px) {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-      .cart-items-list.three-columns {
-        @media (min-width: 1024px) {
-          grid-template-columns: 1fr 1fr 1fr;
-        }
+      .cart-container {
+        max-width: 700px;
+        margin: 20px auto;
+        padding: 0 10px;
       }
       .cart-item {
+        background-color: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         display: flex;
         align-items: center;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        transition: transform 0.2s ease-in-out;
-        gap: 15px;
-        padding-right: 15px;
+        padding: 15px;
+        margin-bottom: 15px;
+        position: relative;
       }
-      .cart-item:hover {
-        transform: translateY(-3px);
-      }
-
-      .cart-item img {
+      .item-img {
         width: 80px;
         height: 80px;
         object-fit: cover;
-        flex-shrink: 0;
-        transition: width 0.3s, height 0.3s;
+        border-radius: 8px;
+        margin-right: 15px;
       }
-      @media (min-width: 600px) {
-        .cart-item img {
-          width: 120px;
-          height: 120px;
-        }
-      }
-
-      .item-details {
+      .item-info {
         flex-grow: 1;
-        padding: 15px 0;
       }
-      .item-details h3 {
-        margin: 0 0 5px 0;
+      .item-info .item-name {
+        font-weight: 600;
+        margin: 0 0 10px 0;
         font-size: 1.1rem;
-        color: #333;
+        color: #222;
       }
-      .quantity-control {
+      .quantity-controls {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-top: 5px;
       }
-      .quantity-control button {
-        background: #f0f0f0;
-        border: 1px solid #ccc;
+      .quantity-controls button {
+        background-color: #f0f0f0;
+        border: none;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
-        width: 25px;
-        height: 25px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.2s;
-      }
-      .quantity-control button:hover {
-        background: #ddd;
-      }
-      .quantity-control span {
-        font-size: 1rem;
+        font-size: 1.5rem;
         font-weight: bold;
+        cursor: pointer;
+        line-height: 28px;
+        color: #333;
       }
-      .cart-item .remove-btn {
-        margin-left: auto;
+      .quantity-controls .quantity {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 15px;
+        min-width: 25px;
+        text-align: center;
       }
       .remove-btn {
-        padding: 6px 10px;
-        background: #eee;
+        background: #e0e0e0;
         color: #777;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+        border: none;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        font-size: 1.2rem;
+        font-weight: bold;
         cursor: pointer;
-        transition: background-color 0.2s, color 0.2s;
-        font-size: 0.8rem;
+        position: absolute;
+        top: 15px;
+        right: 15px;
       }
-      .remove-btn:hover {
-        background: #e74c3c;
-        color: #fff;
+
+      .cart-summary {
+        position: sticky;
+        bottom: 0;
+        background-color: #fff;
+        padding: 12px 10px;
+        border-top: 1px solid #ddd;
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+      }
+      .button-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      .checkout-button,
+      .clear-cart-button {
+        width: 50%;
+        flex-grow: 1;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: bold;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        max-width: 220px;
+      }
+
+      .checkout-button {
+        background-color: #28a745;
+        color: white;
+      }
+      .clear-cart-button {
+        background-color: #dc3545;
+        color: white;
+      }
+      .checkout-button:hover {
+        background-color: #218838;
+      }
+      .clear-cart-button:hover {
+        background-color: #c82333;
       }
       .empty-cart-message {
         text-align: center;
-        color: #777;
-        font-size: 1.1rem;
-        padding: 50px 0;
-      }
-      .cart-actions {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background-color: #fff;
-        padding: 15px;
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        border-top: 1px solid #eee;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-        z-index: 10;
-      }
-      .cart-actions button {
-        padding: 12px 15px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.9rem; /* Adjusted font size for three buttons */
-        font-weight: bold;
-        transition: background-color 0.2s, transform 0.2s;
-        flex-grow: 1;
-        max-width: 180px; /* Adjusted max-width */
-      }
-      @media (min-width: 600px) {
-        .cart-actions button {
-          font-size: 1rem;
-        }
-      }
-      .cart-actions button:hover {
-        transform: translateY(-2px);
-      }
-      .clear-cart-btn {
-        background-color: #e7e7e7;
-        color: #555;
-      }
-      .clear-cart-btn:hover {
-        background-color: #e74c3c;
-        color: #fff;
-      }
-      .send-whatsapp-btn {
-        background-color: #25d366;
-        color: white;
-      }
-      .send-whatsapp-btn:hover {
-        background-color: #1da851;
-      }
-      .share-image-btn {
-        background-color: #007bff;
-        color: white;
-      }
-      .share-image-btn:hover {
-        background-color: #0056b3;
-      }
-      .cart-summary {
-        margin: 20px 0 0 0;
-        padding: 20px;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e0e0e0;
-      }
-      .cart-summary h2 {
-        margin-top: 0;
-        text-align: center;
-        font-size: 1.4rem;
-      }
-      .cart-summary p {
-        margin: 8px 0;
-        font-size: 1.1rem;
-        color: #333;
-        display: flex;
-        justify-content: space-between;
-      }
-      .cart-summary .total-count {
-        font-weight: bold;
-        color: #111;
+        padding: 50px 20px;
         font-size: 1.2rem;
-        padding-top: 10px;
-        margin-top: 10px;
-      }
-
-      .premium-text {
-        color: #b28900;
-        font-weight: 700;
-      }
-
-      /* !!! NEW: Discount Tiers Styles !!! */
-      .discount-tiers-container {
-        margin: 20px 0 0 0;
-        padding: 20px;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border: 1px solid #e0e0e0;
-      }
-      .discount-tiers-container h3 {
-        margin-top: 0;
-        text-align: center;
-        font-size: 1.3rem;
-        margin-bottom: 15px;
-        color: #333;
-      }
-      #tiers-list {
-        display: grid;
-        grid-template-columns: repeat(
-          auto-fit,
-          minmax(150px, 1fr)
-        ); /* Responsive columns */
-        gap: 10px;
-        font-size: 0.95rem;
-      }
-      .tier-item {
-        padding: 10px;
-        border: 1px solid #eee;
-        border-radius: 6px;
-        background-color: #f9f9f9;
-        text-align: center;
-        transition: all 0.2s ease-in-out;
-      }
-      .tier-item span {
-        display: block;
-      }
-      .tier-item .tier-qty {
-        font-weight: bold;
-        color: #555;
-        margin-bottom: 5px;
-      }
-      .tier-item .tier-discount {
-        font-weight: bold;
-        color: #28a745; /* Green for discount */
-      }
-      /* Style for the current active tier */
-      .tier-item.current-tier {
-        background-color: #d4edda; /* Light green background */
-        border-color: #c3e6cb; /* Darker green border */
-        transform: scale(1.05); /* Slightly enlarge */
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      .tier-item.current-tier .tier-qty {
-        color: #155724; /* Darker green text */
-      }
-      .tier-item.current-tier .tier-discount {
-        color: #155724; /* Darker green text */
+        color: #777;
       }
     </style>
   </head>
   <body>
-    <header class="page-header">
-      <a href="index.html" class="back-btn" aria-label="Go back"></a>
-      <h1>Your Cart</h1>
-    </header>
-
-    <div id="capture-area">
-      <ul id="cart-items-list" class="cart-items-list"></ul>
-
-      <div id="cart-summary" class="cart-summary">
-        <h2>Order Summary</h2>
-
-        <p><span>LV Quantity:</span> <span id="lv-count">0</span></p>
-        <p>
-          <span>Other Brands Quantity:</span>
-          <span id="other-brands-count">0</span>
-        </p>
-
-        <p
-          class="total-count"
-          style="
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-            margin-top: 10px;
-          "
-        >
-          <span>Total Quantity:</span> <span id="total-count">0</span>
-        </p>
-
-        <p style="border-top: 1px solid #eee; padding-top: 10px">
-          <span>Subtotal (Original Price):</span>
-          <span id="subtotal-price">$0.00</span>
-        </p>
-        <p style="color: #28a745">
-          <span>Volume Discount:</span>
-          <span id="discount-amount">-$0.00</span>
-        </p>
-        <p class="total-count" style="font-size: 1.3rem">
-          <span>Total Price:</span>
-          <span id="total-price">$0.00</span>
-        </p>
-      </div>
-
-      <div
-        id="upsell-message"
-        style="
-          margin: 15px 0 0 0;
-          padding: 15px;
-          background-color: #e7f3ff; /* Light blue background */
-          border: 1px solid #b3d7ff; /* Blue border */
-          color: #004085; /* Dark blue text */
-          border-radius: 8px;
-          text-align: center;
-          font-weight: bold;
-          display: none; /* Hidden by default */
-        "
-      ></div>
-
-      <div
-        id="discount-tiers"
-        class="discount-tiers-container"
-        style="display: none"
-      >
-        <h3>Volume Discounts</h3>
-        <div id="tiers-list"></div>
-      </div>
+    <div class="header">
+      <h1>Your Order</h1>
+      <a href="index.html" class="back-link">Back to List</a>
     </div>
-    <div class="cart-actions">
-      <button id="clear-cart-btn" class="clear-cart-btn">Clear Cart</button>
-      <button id="send-whatsapp-btn" class="send-whatsapp-btn">
-        Send Order (Text)
-      </button>
-      <button id="share-image-btn" class="share-image-btn">
-        Share as Image
-      </button>
+
+    <div class="cart-container" id="cart-container"></div>
+
+    <div id="empty-cart-msg" class="empty-cart-message" style="display: none">
+      <p>Your cart is empty.</p>
+      <a href="index.html" class="back-link">Continue Shopping</a>
+    </div>
+
+    <div class="cart-summary" id="cart-summary" style="display: none">
+      <div class="button-row">
+        <button class="checkout-button" id="checkout-btn">复制订单文本</button>
+        <button class="clear-cart-button" id="clear-cart-btn">
+          Clear Cart
+        </button>
+      </div>
     </div>
 
     <script>
-      // --- Necessary Elements ---
-      const cartItemsList = document.getElementById("cart-items-list");
-      const clearCartBtn = document.getElementById("clear-cart-btn");
-      const sendWhatsappBtn = document.getElementById("send-whatsapp-btn");
-      const shareImageBtn = document.getElementById("share-image-btn");
+      document.addEventListener("DOMContentLoaded", () => {
+        const cartContainer = document.getElementById("cart-container");
+        const cartSummary = document.getElementById("cart-summary");
+        const checkoutBtn = document.getElementById("checkout-btn");
+        const clearCartBtn = document.getElementById("clear-cart-btn");
+        const emptyCartMsg = document.getElementById("empty-cart-msg");
+        let cartItems = [];
 
-      // Summary Elements
-      const totalCountEl = document.getElementById("total-count");
-      const lvCountEl = document.getElementById("lv-count");
-      const otherBrandsCountEl = document.getElementById("other-brands-count");
-      const subtotalPriceEl = document.getElementById("subtotal-price");
-      const discountAmountEl = document.getElementById("discount-amount");
-      const totalPriceEl = document.getElementById("total-price");
-      const upsellMessageEl = document.getElementById("upsell-message");
-      // !! NEW: Discount Tiers Element !!
-      const tiersListEl = document.getElementById("tiers-list");
-      const discountTiersContainer = document.getElementById("discount-tiers");
+        function loadCart() {
+          const storedCart = localStorage.getItem("perfumeCart");
+          cartItems = storedCart ? JSON.parse(storedCart) : [];
+        }
 
-      const whatsappNumber = "16232027321";
+        function saveCart() {
+          localStorage.setItem("perfumeCart", JSON.stringify(cartItems));
+        }
 
-      // Brand List (for getShortCaption)
-      const BRANDS = [
-        "Dior",
-        "Chanel",
-        "Yves Saint Laurent",
-        "Louis Vuitton",
-        "Tom Ford",
-        "Gucci",
-        "Valentino",
-        "Prada",
-        "Versace",
-        "Creed",
-        "Jean Paul Gaultier",
-        "Maison Francis Kurkdjian",
-        "Parfums de Marly",
-        "Giorgio Armani",
-        "Emporio Armani",
-        "Carolina Herrera",
-        "Lancôme",
-        "Paco Rabanne",
-        "Xerjoff",
-        "Initio",
-        "Lattafa",
-        "Ralph Lauren",
-        "Burberry",
-        "Le Labo",
-        "Hugo Boss",
-        "Hermès",
-        "Byredo",
-        "Jo Malone",
-      ];
-
-      // --- !!! MOVED: Tiers Definition (Global Scope) !!! ---
-      const tiers = [
-        { tierName: "A", min: 1, max: 1, percent: 0, next: 2 },
-        { tierName: "B", min: 2, max: 2, percent: 0.03, next: 3 },
-        { tierName: "C", min: 3, max: 4, percent: 0.05, next: 5 },
-        { tierName: "D", min: 5, max: 9, percent: 0.08, next: 10 },
-        { tierName: "E", min: 10, max: 19, percent: 0.14, next: 20 },
-        { tierName: "F", min: 20, max: 29, percent: 0.24, next: 30 },
-        { tierName: "G", min: 30, max: 49, percent: 0.26, next: 50 },
-        { tierName: "H", min: 50, max: 79, percent: 0.29, next: 80 },
-        { tierName: "I", min: 80, max: 100, percent: 0.32, next: 101 },
-        { tierName: "J", min: 101, max: Infinity, percent: 0.35, next: -1 },
-      ];
-
-      // --- Cart Core Functions (localStorage) ---
-      function loadCartFromLocalStorage() {
-        const storedCart = localStorage.getItem("perfumeCart");
-        return storedCart ? JSON.parse(storedCart) : [];
-      }
-
-      function saveCartToLocalStorage(cart) {
-        localStorage.setItem("perfumeCart", JSON.stringify(cart));
-        window.dispatchEvent(new Event("storage"));
-      }
-
-      // --- Helper Function (getShortCaption - includes premium text styling) ---
-      function getShortCaption(fullCaption) {
-        const captionParts = fullCaption.split(" - ");
-        if (captionParts.length < 2) return fullCaption;
-        const itemNumber = captionParts[0];
-        const fullName = captionParts.slice(1).join(" - ");
-
-        const sortedBrands = [...BRANDS].sort((a, b) => b.length - a.length);
-        const foundBrand = sortedBrands.find((brand) =>
-          fullName.toLowerCase().includes(brand.toLowerCase())
-        );
-
-        const shortName = foundBrand
-          ? `${itemNumber} - ${foundBrand}`
-          : `${itemNumber} - ${fullName.split(" ")[0]}`;
-
-        const tierMatch = fullName.match(/Premium \(Luxe\)|Standard/);
-        if (tierMatch) {
-          const tierText = tierMatch[0];
-          if (tierText === "Premium (Luxe)") {
-            return `${shortName} (<span class="premium-text">Premium (Luxe)</span>)`;
-          } else {
-            return `${shortName} (Standard)`;
+        function renderCart() {
+          cartContainer.innerHTML = "";
+          if (cartItems.length === 0) {
+            cartSummary.style.display = "none";
+            emptyCartMsg.style.display = "block";
+            return;
           }
-        }
-        return shortName;
-      }
 
-      // --- Render Cart Items ---
-      function renderCartItems() {
-        let cartItems = loadCartFromLocalStorage();
-        cartItemsList.innerHTML = "";
+          cartSummary.style.display = "block";
+          emptyCartMsg.style.display = "none";
 
-        cartItemsList.className = "cart-items-list";
-        const itemCount = cartItems.length;
-        if (itemCount > 12) {
-          cartItemsList.classList.add("three-columns");
-        } else if (itemCount > 6) {
-          cartItemsList.classList.add("two-columns");
-        }
+          cartItems.forEach((item) => {
+            const itemEl = document.createElement("div");
+            itemEl.className = "cart-item";
+            itemEl.dataset.name = item.name;
 
-        if (cartItems.length === 0) {
-          cartItemsList.innerHTML =
-            "<p class='empty-cart-message'>Your cart is empty.</p>";
-          document.getElementById("cart-summary").style.display = "none";
-          if (upsellMessageEl) upsellMessageEl.style.display = "none";
-          if (discountTiersContainer)
-            discountTiersContainer.style.display = "none"; // Hide tiers if cart empty
-        } else {
-          document.getElementById("cart-summary").style.display = "block";
-          if (discountTiersContainer)
-            discountTiersContainer.style.display = "block"; // Show tiers if cart has items
-          cartItems.sort((a, b) => {
-            const getNumber = (str) =>
-              parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
-            return getNumber(a.caption) - getNumber(b.caption);
-          });
+            const displayName = item.sku || item.caption || item.name;
 
-          cartItems.forEach((item, index) => {
-            const li = document.createElement("li");
-            li.className = "cart-item";
-            const displayCaption = getShortCaption(item.caption);
-            li.innerHTML = `
-              <img src="${item.img}" alt="${item.name}" loading="lazy">
-              <div class="item-details">
-                <h3>${displayCaption}</h3>
-                <p style="margin: 5px 0; font-weight: bold;">Original Price: $${
-                  item.price || "N/A"
-                }</p>
-                <div class="quantity-control">
-                  <button class="decrease-quantity" data-index="${index}">-</button>
-                  <span>${item.quantity}</span>
-                  <button class="increase-quantity" data-index="${index}">+</button>
+            itemEl.innerHTML = `
+              <img src="${item.img}" alt="${displayName}" class="item-img" />
+              <div class="item-info">
+                <p class="item-name">${displayName}</p> 
+                <div class="quantity-controls">
+                  <button class="decrease-btn" data-action="decrease" ${
+                    item.quantity <= 1 ? 'style="visibility: hidden;"' : ""
+                  }>-</button>
+                  <span class="quantity">${item.quantity}</span>
+                  <button class="increase-btn" data-action="increase">+</button>
                 </div>
               </div>
-              <button class="remove-btn" data-index="${index}">Remove</button>
+              <button class="remove-btn" title="Remove item">&times;</button>
             `;
-            cartItemsList.appendChild(li);
+            cartContainer.appendChild(itemEl);
           });
-        }
-        updateCartSummary(); // This also calls renderDiscountTiers now
-      }
-
-      // --- Discount Calculation Function ---
-      function calculateDiscountInfo(qty) {
-        let discountPercent = 0;
-        let nextTierStart = -1;
-        let currentTier = tiers.find(
-          (tier) => qty >= tier.min && qty <= tier.max
-        );
-
-        if (currentTier) {
-          discountPercent = currentTier.percent;
-          nextTierStart = currentTier.next;
-        } else {
-          discountPercent = 0;
-          nextTierStart = 1;
+          // "Total Items" 相关的JS已删除，因为元素被移除了
         }
 
-        let upsellMessage = "";
-        if (
-          currentTier &&
-          qty >= 5 &&
-          nextTierStart > 0 &&
-          nextTierStart <= 80
-        ) {
-          const diff = nextTierStart - qty;
-          if (diff > 0 && diff <= 3) {
-            const nextTierInfo = tiers.find(
-              (tier) => tier.min === nextTierStart
-            );
-            const nextDiscountFormatted = nextTierInfo
-              ? (nextTierInfo.percent * 100).toFixed(0) + "%"
-              : "a better";
-            upsellMessage = `✨ Add ${diff} more item${
-              diff > 1 ? "s" : ""
-            } (total ${nextTierStart}) to get ${nextDiscountFormatted} discount!`;
+        function updateQuantity(name, action) {
+          const item = cartItems.find((i) => i.name === name);
+          if (!item) return;
+
+          if (action === "increase") {
+            item.quantity++;
+          } else if (action === "decrease") {
+            item.quantity--;
           }
+
+          if (item.quantity <= 0) {
+            cartItems = cartItems.filter((i) => i.name !== name);
+          }
+          saveCart();
+          renderCart();
         }
 
-        return {
-          discountPercent: discountPercent,
-          upsellMessage: upsellMessage,
-          currentTier: currentTier, // Return the current tier object
-        };
-      }
+        cartContainer.addEventListener("click", (e) => {
+          const target = e.target;
+          const itemEl = target.closest(".cart-item");
+          if (!itemEl) return;
+          const name = itemEl.dataset.name;
 
-      // --- !!! NEW: Render Discount Tiers Function !!! ---
-      function renderDiscountTiers(currentQty) {
-        if (!tiersListEl) return; // Exit if the element doesn't exist
-        tiersListEl.innerHTML = ""; // Clear previous tiers
-
-        tiers.forEach((tier) => {
-          const tierDiv = document.createElement("div");
-          tierDiv.classList.add("tier-item");
-
-          // Format quantity range string
-          let qtyString = "";
-          if (tier.min === tier.max) {
-            qtyString = `${tier.min} Item${tier.min > 1 ? "s" : ""}`;
-          } else if (tier.max === Infinity) {
-            qtyString = `${tier.min}+ Items`;
-          } else {
-            qtyString = `${tier.min}-${tier.max} Items`;
-          }
-
-          // Check if this is the current tier
-          if (currentQty >= tier.min && currentQty <= tier.max) {
-            tierDiv.classList.add("current-tier");
-          }
-
-          tierDiv.innerHTML = `
-                  <span class="tier-qty">${qtyString}</span>
-                  <span class="tier-discount">${(tier.percent * 100).toFixed(
-                    0
-                  )}% Off</span>
-              `;
-          tiersListEl.appendChild(tierDiv);
-        });
-      }
-
-      // --- Core Price Logic ---
-      function updateCartSummary() {
-        let cartItems = loadCartFromLocalStorage();
-        let totalCount = 0;
-        let subtotal = 0;
-        let lvCount = 0;
-        let otherCount = 0;
-
-        cartItems.forEach((item) => {
-          const quantity = item.quantity;
-          const price = item.price || 0;
-          totalCount += quantity;
-          subtotal += price * quantity;
-
-          if (item.caption.toLowerCase().includes("louis vuitton")) {
-            lvCount += quantity;
-          } else {
-            otherCount += quantity;
+          if (target.classList.contains("increase-btn")) {
+            updateQuantity(name, "increase");
+          } else if (target.classList.contains("decrease-btn")) {
+            updateQuantity(name, "decrease");
+          } else if (target.classList.contains("remove-btn")) {
+            cartItems = cartItems.filter((i) => i.name !== name);
+            saveCart();
+            renderCart();
           }
         });
 
-        const discountInfo = calculateDiscountInfo(totalCount);
-        const discountPercent = discountInfo.discountPercent;
-        const finalTotalBeforeRounding = subtotal * (1 - discountPercent);
-        const finalTotalRounded = Math.round(finalTotalBeforeRounding);
-        const discountAmount = Math.max(0, subtotal - finalTotalRounded);
-
-        // Update Summary HTML
-        totalCountEl.textContent = `${totalCount}`;
-        lvCountEl.textContent = `${lvCount}`;
-        otherBrandsCountEl.textContent = `${otherCount}`;
-        subtotalPriceEl.textContent = `$${subtotal.toFixed(2)}`;
-        let discountText = `-$${discountAmount.toFixed(2)}`;
-        if (discountPercent > 0) {
-          discountText += ` (${(discountPercent * 100).toFixed(0)}% off)`;
-        }
-        discountAmountEl.textContent = discountText;
-        totalPriceEl.textContent = `$${finalTotalRounded.toFixed(2)}`;
-
-        // Update Upsell Message
-        if (upsellMessageEl) {
-          if (discountInfo.upsellMessage) {
-            upsellMessageEl.textContent = discountInfo.upsellMessage;
-            upsellMessageEl.style.display = "block";
-          } else {
-            upsellMessageEl.style.display = "none";
+        // --- ！！关键修改！！ ---
+        // --- 更新了复制按钮的逻辑 ---
+        checkoutBtn.addEventListener("click", () => {
+          if (cartItems.length === 0) {
+            alert("Your cart is empty!");
+            return;
           }
-        }
 
-        // --- !!! NEW: Call Render Discount Tiers !!! ---
-        renderDiscountTiers(totalCount);
+          // 1. 定义供应商的正确顺序
+          const supplierOrder = [
+            "供应商二",
+            "供应商三",
+            "供应商四",
+            "供应商五",
+          ];
 
-        // Return summary for WhatsApp
-        return {
-          totalCount,
-          lvCount,
-          otherCount,
-          subtotal,
-          discountAmount,
-          discountPercent,
-          finalTotal: finalTotalRounded,
-        };
-      }
-
-      // --- Page Load ---
-      document.addEventListener("DOMContentLoaded", renderCartItems);
-
-      // --- Button Event Listeners ---
-      cartItemsList.addEventListener("click", (e) => {
-        const index = e.target.getAttribute("data-index");
-        if (index === null) return;
-
-        if (e.target.classList.contains("remove-btn")) {
-          if (!confirm("Are you sure you want to remove this item?")) return;
-          let cartItems = loadCartFromLocalStorage();
-          const sortedItems = [...cartItems].sort((a, b) => {
-            const getNumber = (str) =>
-              parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
-            return getNumber(a.caption) - getNumber(b.caption);
-          });
-          const itemToRemove = sortedItems[index];
-          if (itemToRemove) {
-            const updatedCart = cartItems.filter(
-              (item) => item.caption !== itemToRemove.caption
-            );
-            saveCartToLocalStorage(updatedCart);
-            renderCartItems();
-          }
-        } else if (e.target.classList.contains("increase-quantity")) {
-          updateQuantity(parseInt(index), 1);
-        } else if (e.target.classList.contains("decrease-quantity")) {
-          updateQuantity(parseInt(index), -1);
-        }
-      });
-
-      function updateQuantity(index, change) {
-        let cartItems = loadCartFromLocalStorage();
-        const sortedItems = [...cartItems].sort((a, b) => {
-          const getNumber = (str) =>
-            parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
-          return getNumber(a.caption) - getNumber(b.caption);
-        });
-        const itemToUpdate = sortedItems[index];
-        if (itemToUpdate) {
-          itemToUpdate.quantity = Math.max(0, itemToUpdate.quantity + change);
-          const originalItemIndex = cartItems.findIndex(
-            (item) => item.caption === itemToUpdate.caption
-          );
-          if (originalItemIndex !== -1) {
-            cartItems[originalItemIndex].quantity = itemToUpdate.quantity;
-          }
-          const updatedCart = cartItems.filter((item) => item.quantity > 0);
-          saveCartToLocalStorage(updatedCart);
-          renderCartItems();
-        }
-      }
-
-      clearCartBtn.addEventListener("click", () => {
-        if (loadCartFromLocalStorage().length === 0) {
-          alert("Your cart is already empty.");
-          return;
-        }
-        if (!confirm("Are you sure you want to clear your cart?")) return;
-        localStorage.removeItem("perfumeCart");
-        window.dispatchEvent(new Event("storage"));
-        renderCartItems();
-      });
-
-      // --- "SEND AS TEXT" Logic ---
-      sendWhatsappBtn.addEventListener("click", () => {
-        const cartItems = loadCartFromLocalStorage();
-        if (cartItems.length === 0) {
-          alert(
-            "Your cart is empty. Please add items before sending an order."
-          );
-          return;
-        }
-
-        const originalText = sendWhatsappBtn.textContent;
-        sendWhatsappBtn.textContent = "Preparing...";
-        sendWhatsappBtn.disabled = true;
-
-        const summary = updateCartSummary();
-
-        cartItems.sort((a, b) => {
-          const getNumber = (str) =>
-            parseInt(str.match(/A(\d+)/)?.[1] || "0", 10);
-          return getNumber(a.caption) - getNumber(b.caption);
-        });
-
-        const messageLines = cartItems.map(
-          (item) =>
-            `* ${item.caption} (${item.quantity} x $${item.price || "N/A"})`
-        );
-
-        const summaryLines = [
-          `---`,
-          `*Order Summary*`,
-          `Total Quantity: ${summary.totalCount} bottles`,
-          `(LV: ${summary.lvCount}, Other: ${summary.otherCount})`,
-          `---`,
-          `Subtotal (Original): $${summary.subtotal.toFixed(2)}`,
-          `Volume Discount (${(summary.discountPercent * 100).toFixed(
-            0
-          )}%): -$${summary.discountAmount.toFixed(2)}`,
-          `*Final Total (Rounded): $${summary.finalTotal.toFixed(2)}*`,
-        ];
-
-        if (summary.upsellMessage) {
-          const textUpsellMessage = summary.upsellMessage.replace("✨ ", "");
-          summaryLines.push(`%0A${textUpsellMessage}`);
-        }
-
-        const message = [
-          "Hello, I am interested in the following perfumes:",
-          ...messageLines,
-          "%0A", // Newline
-          ...summaryLines,
-          "%0A%0APlease provide a quote. Thank you!",
-        ].join("%0A");
-
-        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${message}`;
-        window.open(whatsappUrl, "_blank");
-
-        setTimeout(() => {
-          sendWhatsappBtn.textContent = originalText;
-          sendWhatsappBtn.disabled = false;
-        }, 1000);
-      });
-
-      // --- "SHARE AS IMAGE" Logic ---
-      shareImageBtn.addEventListener("click", () => {
-        const cartItems = loadCartFromLocalStorage();
-        if (cartItems.length === 0) {
-          alert(
-            "Your cart is empty. Please add items before sharing an image."
-          );
-          return;
-        }
-
-        const originalText = shareImageBtn.textContent;
-        shareImageBtn.textContent = "Generating...";
-        shareImageBtn.disabled = true;
-
-        const captureArea = document.getElementById("capture-area");
-        // Ensure tiers are visible for screenshot if cart has items
-        if (discountTiersContainer && cartItems.length > 0)
-          discountTiersContainer.style.display = "block";
-
-        html2canvas(captureArea, {
-          backgroundColor: "#f4f4f4",
-          useCORS: true,
-          onclone: (clonedDoc) => {
-            // Ensure tiers are visible in the clone as well
-            const clonedTiers = clonedDoc.getElementById("discount-tiers");
-            if (clonedTiers && cartItems.length > 0) {
-              clonedTiers.style.display = "block";
+          // 2. 按供应商对购物车商品进行分组
+          const groupedBySupplier = {};
+          cartItems.forEach((item) => {
+            // item.supplier 是从 index.html 添加购物车时保存的
+            const supplier = item.supplier || "供应商二"; // 备用方案
+            if (!groupedBySupplier[supplier]) {
+              groupedBySupplier[supplier] = [];
             }
-          },
-        })
-          .then((canvas) => {
-            canvas.toBlob(async (blob) => {
-              if (!blob) {
-                throw new Error("Canvas to Blob conversion failed");
-              }
-              const file = new File([blob], "cart-order.png", {
-                type: "image/png",
-              });
-              const shareData = {
-                files: [file],
-                title: "My Perfume Order",
-                text: "Hello, I would like to order the items in this image.",
-              };
-
-              if (navigator.canShare && navigator.canShare(shareData)) {
-                try {
-                  await navigator.share(shareData);
-                } catch (err) {
-                  console.error("Share failed:", err.name, err.message);
-                  if (err.name !== "AbortError") {
-                    alert(
-                      "Sharing failed. You can try downloading the image instead."
-                    );
-                  }
-                }
-              } else if (navigator.share) {
-                console.warn(
-                  "Cannot share files directly, falling back to download."
-                );
-                triggerDownload(file);
-              } else {
-                console.warn(
-                  "Web Share API not supported, falling back to download."
-                );
-                triggerDownload(file);
-              }
-            }, "image/png");
-          })
-          .catch((err) => {
-            console.error("Image generation failed:", err);
-            alert(
-              "Sorry, there was an error creating the image. Please try sending as text."
-            );
-          })
-          .finally(() => {
-            shareImageBtn.textContent = originalText;
-            shareImageBtn.disabled = false;
-            // Update summary which might re-hide tiers if cart becomes empty
-            updateCartSummary();
+            groupedBySupplier[supplier].push(item);
           });
-      });
 
-      // Helper function for download fallback
-      function triggerDownload(file) {
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(file);
-        link.download = "cart-order.png";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-        alert(
-          "Cart image downloaded!\n\nPlease open WhatsApp and manually send the 'cart-order.png' file from your downloads."
-        );
-      }
+          // 3. 按照 supplierOrder 的顺序构建文本
+          let allOrderParts = [];
+
+          supplierOrder.forEach((supplierName) => {
+            const items = groupedBySupplier[supplierName];
+
+            // 检查这个供应商是否有商品在购物车中
+            if (items && items.length > 0) {
+              // 添加分组标题
+              allOrderParts.push(`\n--- ${supplierName} ---`);
+
+              // 创建 "sku*数量" 字符串
+              const itemParts = items.map((item) => {
+                const sku = item.sku || item.name; // 优先用 sku
+                return `${sku}*${item.quantity}`;
+              });
+
+              // 用 " + " 拼接这个组的商品
+              allOrderParts.push(itemParts.join(" + "));
+            }
+          });
+
+          // 4. 将所有部分（标题和商品字符串）用换行符连接
+          let orderText = allOrderParts.join("\n");
+
+          // 移除开头的多余换行符
+          if (orderText.startsWith("\n")) {
+            orderText = orderText.substring(1);
+          }
+
+          // 5. 复制到剪贴板
+          if (navigator.clipboard) {
+            navigator.clipboard
+              .writeText(orderText)
+              .then(() => {
+                alert("订单已复制到剪贴板！\n\n" + orderText);
+              })
+              .catch((err) => {
+                console.error("Failed to copy text: ", err);
+                alert("复制失败，请重试。");
+              });
+          } else {
+            alert("浏览器不支持复制功能。");
+          }
+        });
+        // --- 修改结束 ---
+
+        clearCartBtn.addEventListener("click", () => {
+          if (confirm("Are you sure you want to clear the entire cart?")) {
+            cartItems = [];
+            saveCart();
+            renderCart();
+          }
+        });
+
+        // Initial Load
+        loadCart();
+        renderCart();
+      });
     </script>
   </body>
 </html>
