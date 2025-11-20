@@ -391,1636 +391,198 @@
       <div class="product-grid" id="perfume-list"></div>
     </div>
 
+    <script src="db.js"></script>
+
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // 保持数据库内容不变
-        const perfumeDB = [
-          {
-            id: "A01",
-            name: "Valentino Donna Born in Roma Intense",
-            brand: "Valentino",
-            img: "images/perfume1.webp",
-            stock: 1,
-            price: 35,
-            sku: "A1",
-          },
-          {
-            id: "A02",
-            name: "Valentino Donna Born in Roma",
-            brand: "Valentino",
-            img: "images/perfume2.webp",
-            stock: 1,
-            price: 35,
-            sku: "A2",
-          },
-          {
-            id: "A03",
-            name: "Valentino Uomo Born in Roma",
-            brand: "Valentino",
-            img: "images/perfume3.webp",
-            stock: 1,
-            price: 35,
-            sku: "A3",
-          },
-          {
-            id: "A04",
-            name: "Miss Dior Blooming Bouquet",
-            brand: "Dior",
-            img: "images/perfume4.webp",
-            stock: 1,
-            price: 35,
-            sku: "H01",
-          },
-          {
-            id: "A05",
-            name: "Lancôme La vie est belle",
-            brand: "Lancôme",
-            img: "images/perfume5.webp",
-            stock: 1,
-            price: 38,
-            sku: "兰蔻美丽人生",
-          },
-          {
-            id: "A06",
-            name: "Chanel Coco Mademoiselle L'eau Privee",
-            brand: "Chanel",
-            img: "images/perfume6.webp",
-            stock: 1,
-            price: 38,
-            sku: "COCO chanel",
-          },
-          {
-            id: "A07",
-            name: "Yves Saint Laurent Mon Paris Eau de Toilette Lumière",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume7.webp",
-            stock: 1,
-            price: 38,
-            sku: "淡香光耀巴黎",
-          },
-          {
-            id: "A08",
-            name: "Paco Rabanne 1 Million",
-            brand: "Paco Rabanne",
-            img: "images/perfume8.webp",
-            stock: 1,
-            price: 38,
-            sku: "百万",
-          },
-          {
-            id: "A09",
-            name: "Creed Aventus",
-            brand: "Creed",
-            img: "images/perfume9.webp",
-            stock: 1,
-            price: 38,
-            sku: "拿破仑",
-          },
-          {
-            id: "A10",
-            name: "Jean Paul Gaultier Le Male Elixir",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume10.webp",
-            stock: 1,
-            price: 30,
-            sku: "luonan-jin",
-          },
-          {
-            id: "A11",
-            name: "Maison Francis Kurkdjian Baccarat Rouge 540 Extrait de parfum",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume11.webp",
-            stock: 1,
-            price: 35,
-            sku: "A11",
-          },
-          {
-            id: "A12",
-            name: "Yves Saint Laurent Y Eau de Parfum",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume12.webp",
-            stock: 1,
-            price: 38,
-            sku: "先锋男士",
-          },
-          {
-            id: "A13",
-            name: "Chanel Bleu de Chanel Eau de Toilette",
-            brand: "Chanel",
-            img: "images/perfume13.webp",
-            stock: 1,
-            price: 38,
-            sku: "蔚蓝",
-          },
-          {
-            id: "A14",
-            name: "Dior Sauvage Eau de Toilette",
-            brand: "Dior",
-            img: "images/perfume14.webp",
-            stock: 1,
-            price: 38,
-            sku: "旷野",
-          },
-          {
-            id: "A15",
-            name: "Versace Bright Crystal",
-            brand: "Versace",
-            img: "images/perfume15.webp",
-            stock: 1,
-            price: 38,
-            sku: "Versace粉钻",
-          },
-          {
-            id: "A16",
-            name: "Yves Saint Laurent Libre Le Parfum",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume16.webp",
-            stock: 1,
-            price: 38,
-            sku: "YSL自由之水精醇版",
-          },
-          {
-            id: "A18",
-            name: "Prada Paradoxe Intense",
-            brand: "Prada",
-            img: "images/perfume18.webp",
-            stock: 1,
-            price: 38,
-            sku: "我本莫测浓情版",
-          },
-          {
-            id: "A19",
-            name: "Tom Ford Lost Cherry",
-            brand: "Tom Ford",
-            img: "images/perfume19.webp",
-            stock: 1,
-            price: 38,
-            sku: "失落樱桃",
-          },
-          {
-            id: "A21",
-            name: "Giorgio Armani Acqua di Giò Profondo",
-            brand: "Giorgio Armani",
-            img: "images/perfume21.webp",
-            stock: 1,
-            price: 38,
-            sku: "阿玛尼 寄情男士",
-          },
-          {
-            id: "A22",
-            name: "Tom Ford Tobacco Vanille",
-            brand: "Tom Ford",
-            img: "images/perfume22.webp",
-            stock: 1,
-            price: 38,
-            sku: "TF韵度烟草",
-          },
-          {
-            id: "A23",
-            name: "Creed Silver Mountain Water",
-            brand: "Creed",
-            img: "images/perfume23.webp",
-            stock: 1,
-            price: 38,
-            sku: "银色山泉",
-          },
-          {
-            id: "A24",
-            name: "Tom Ford Fucking Fabulous",
-            brand: "Tom Ford",
-            img: "images/perfume24.webp",
-            stock: 1,
-            price: 38,
-            sku: "法布勒斯",
-          },
-          {
-            id: "A25",
-            name: "Dior Sauvage Elixir",
-            brand: "Dior",
-            img: "images/perfume25.webp",
-            stock: 1,
-            price: 38,
-            sku: "旷野典藏",
-          },
-          {
-            id: "A26",
-            name: "Parfums de Marly Perseus",
-            brand: "Parfums de Marly",
-            img: "images/perfume26.webp",
-            stock: 1,
-            price: 38,
-            sku: "旭日晨曦",
-          },
-          {
-            id: "A27",
-            name: "Gucci Bloom",
-            brand: "Gucci",
-            img: "images/perfume27.webp",
-            stock: 1,
-            price: 35,
-            sku: "H12",
-          },
-          {
-            id: "A28",
-            name: "Versace Eros Eau de Parfum",
-            brand: "Versace",
-            img: "images/perfume28.webp",
-            stock: 1,
-            price: 38,
-            sku: "蓝爱神",
-          },
-          {
-            id: "A29",
-            name: "Chanel Chance Eau Splendide",
-            brand: "Chanel",
-            img: "images/perfume29.webp",
-            stock: 1,
-            price: 38,
-            sku: "CHANEL紫邂逅",
-          },
-          {
-            id: "A31",
-            name: "Dior J'adore",
-            brand: "Dior",
-            img: "images/perfume31.webp",
-            stock: 1,
-            price: 38,
-            sku: "真我",
-          },
-          {
-            id: "A32",
-            name: "Giorgio Armani Sì Passione",
-            brand: "Giorgio Armani",
-            img: "images/perfume32.webp",
-            stock: 1,
-            price: 38,
-            sku: "挚爱红色",
-          },
-          {
-            id: "A33",
-            name: "Louis Vuitton Pacific Chill",
-            brand: "Louis Vuitton",
-            img: "images/perfume33.webp",
-            stock: 1,
-            price: 49,
-            sku: "悠然海岸",
-          },
-          {
-            id: "A34",
-            name: "Valentino Uomo Born in Roma Intense",
-            brand: "Valentino",
-            img: "images/perfume34.webp",
-            stock: 1,
-            price: 35,
-            sku: "A34",
-          },
-          {
-            id: "A35",
-            name: "Valentino Uomo Born in Roma Coral Fantasy",
-            brand: "Valentino",
-            img: "images/perfume35.webp",
-            stock: 1,
-            price: 35,
-            sku: "A35",
-          },
-          {
-            id: "A36",
-            name: "Louis Vuitton City of Stars",
-            brand: "Louis Vuitton",
-            img: "images/perfume36.webp",
-            stock: 1,
-            price: 49,
-            sku: "星之城市",
-          },
-          {
-            id: "A38",
-            name: "Carolina Herrera Good Girl",
-            brand: "Carolina Herrera",
-            img: "images/perfume38.webp",
-            stock: 1,
-            price: 35,
-            sku: "H05",
-          },
-          {
-            id: "A39",
-            name: "Louis Vuitton Imagination",
-            brand: "Louis Vuitton",
-            img: "images/perfume39.webp",
-            stock: 1,
-            price: 49,
-            sku: "A39",
-          },
-          {
-            id: "A40",
-            name: "Valentino Donna",
-            brand: "Valentino",
-            img: "images/perfume40.webp",
-            stock: 1,
-            price: 38,
-            sku: "唐娜小姐",
-          },
-          {
-            id: "A41",
-            name: "Xerjoff Erba Pura",
-            brand: "Xerjoff",
-            img: "images/perfume41.webp",
-            stock: 1,
-            price: 38,
-            sku: "A41",
-          },
-          {
-            id: "A42",
-            name: "Parfums de Marly Delina",
-            brand: "Parfums de Marly",
-            img: "images/perfume42.webp",
-            stock: 1,
-            price: 38,
-            sku: "德莉娜",
-          },
-          {
-            id: "A43",
-            name: "Chanel Bleu de Chanel Parfum",
-            brand: "Chanel",
-            img: "images/perfume43.webp",
-            stock: 1,
-            price: 38,
-            sku: "金蔚蓝",
-          },
-          {
-            id: "A44",
-            name: "Creed Millésime Impérial",
-            brand: "Creed",
-            img: "images/perfume44.webp",
-            stock: 1,
-            price: 38,
-            sku: "千年帝国",
-          },
-          {
-            id: "A45",
-            name: "Yves Saint Laurent MYSLF",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume45.webp",
-            stock: 1,
-            price: 35,
-            sku: "1ZXSF39W",
-          },
-          {
-            id: "A46",
-            name: "Louis Vuitton Afternoon Swim",
-            brand: "Louis Vuitton",
-            img: "images/perfume46.webp",
-            stock: 1,
-            price: 49,
-            sku: "午后漫游",
-          },
-          {
-            id: "A47",
-            name: "Carolina Herrera 212 Men",
-            brand: "Carolina Herrera",
-            img: "images/perfume47.webp",
-            stock: 1,
-            price: 38,
-            sku: "212男士",
-          },
-          {
-            id: "A48",
-            name: "Burberry My Burberry Blush",
-            brand: "Burberry",
-            img: "images/perfume48.webp",
-            stock: 1,
-            price: 38,
-            sku: "巴宝莉粉专属",
-          },
-          {
-            id: "A51",
-            name: "Prada Luna Rossa Ocean",
-            brand: "Prada",
-            img: "images/perfume51.webp",
-            stock: 1,
-            price: 38,
-            sku: "红月海洋",
-          },
-          {
-            id: "A52",
-            name: "Jean Paul Gaultier Le Beau",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume52.webp",
-            stock: 1,
-            price: 35,
-            sku: "luolan-lv",
-          },
-          {
-            id: "A53",
-            name: "Initio Psychedelic Love",
-            brand: "Initio",
-            img: "images/perfume53.webp",
-            stock: 1,
-            price: 38,
-            sku: "迷幻之爱",
-          },
-          {
-            id: "A57",
-            name: "Yves Saint Laurent Black Opium",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume57.webp",
-            stock: 1,
-            price: 38,
-            sku: "黑鸦片",
-          },
-          {
-            id: "A58",
-            name: "Chanel Coco Noir",
-            brand: "Chanel",
-            img: "images/perfume58.webp",
-            stock: 1,
-            price: 38,
-            sku: "可可小姐黑色",
-          },
-          {
-            id: "A59",
-            name: "Versace Eros Flame",
-            brand: "Versace",
-            img: "images/perfume59.webp",
-            stock: 1,
-            price: 38,
-            sku: "红爱神",
-          },
-          {
-            id: "A60",
-            name: "Chanel N°5 L'eau",
-            brand: "Chanel",
-            img: "images/perfume60.webp",
-            stock: 1,
-            price: 38,
-            sku: "白五号",
-          },
-          {
-            id: "A61",
-            name: "Giorgio Armani Acqua di Giò Eau de Parfum",
-            brand: "Giorgio Armani",
-            img: "images/perfume61.webp",
-            stock: 1,
-            price: 38,
-            sku: "寄情男士白",
-          },
-          {
-            id: "A62",
-            name: "Ralph Lauren Polo Blue Parfum",
-            brand: "Ralph Lauren",
-            img: "images/perfume62.webp",
-            stock: 1,
-            price: 38,
-            sku: "拉夫劳伦蓝色马球",
-          },
-          {
-            id: "A64",
-            name: "Creed Absolu Aventus",
-            brand: "Creed",
-            img: "images/perfume64.webp",
-            stock: 1,
-            price: 38,
-            sku: "拿破仑礼盒",
-          },
-          {
-            id: "A65",
-            name: "Maison Francis Kurkdjian Oud Silk Mood",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume65.webp",
-            stock: 1,
-            price: 38,
-            sku: "乌木丝绸",
-          },
-          {
-            id: "A67",
-            name: "Gucci Guilty Parfum Pour Homme",
-            brand: "Gucci",
-            img: "images/perfume67.webp",
-            stock: 1,
-            price: 38,
-            sku: "阿泰尔",
-          },
-          {
-            id: "A68",
-            name: "Parfums de Marly Althaïr",
-            brand: "Parfums de Marly",
-            img: "images/perfume68.webp",
-            stock: 1,
-            price: 38,
-            sku: "阿泰尔",
-          },
-          {
-            id: "A70",
-            name: 'Jean Paul Gaultier "Le Beau" Le Parfum',
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume70.webp",
-            stock: 1,
-            price: 38,
-            sku: "美丽香精裸男",
-          },
-          {
-            id: "A71",
-            name: "Louis Vuitton California Dream",
-            brand: "Louis Vuitton",
-            img: "images/perfume71.webp",
-            stock: 1,
-            price: 49,
-            sku: "渐变加州",
-          },
-          {
-            id: "A72",
-            name: "Maison Francis Kurkdjian Baccarat Rouge 540",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume72.webp",
-            stock: 1,
-            price: 38,
-            sku: "库尔吉安透明瓶百家乐540",
-          },
-          {
-            id: "A73",
-            name: "Parfums de Marly Pegasus",
-            brand: "Parfums de Marly",
-            img: "images/perfume73.webp",
-            stock: 1,
-            price: 38,
-            sku: "帕加索黑飞马",
-          },
-          {
-            id: "A74",
-            name: "Chanel N°5",
-            brand: "Chanel",
-            img: "images/perfume74.webp",
-            stock: 1,
-            price: 38,
-            sku: "黄五号",
-          },
-          {
-            id: "A75",
-            name: "Creed Himalaya",
-            brand: "Creed",
-            img: "images/perfume75.webp",
-            stock: 1,
-            price: 38,
-            sku: "信仰高山雪松",
-          },
-          {
-            id: "A76",
-            name: "Tom Ford Oud Wood",
-            brand: "Tom Ford",
-            img: "images/perfume76.webp",
-            stock: 1,
-            price: 38,
-            sku: "乌木沉香",
-          },
-          {
-            id: "A77",
-            name: "Carolina Herrera Good Girl Dazzling Garden",
-            brand: "Carolina Herrera",
-            img: "images/perfume77.webp",
-            stock: 1,
-            price: 38,
-            sku: "紫金高跟鞋",
-          },
-          {
-            id: "A78",
-            name: "Chanel N°19",
-            brand: "Chanel",
-            img: "images/perfume78.webp",
-            stock: 1,
-            price: 38,
-            sku: "N*19清倾款",
-          },
-          {
-            id: "A79",
-            name: "Creed Virgin Island Water",
-            brand: "Creed",
-            img: "images/perfume79.webp",
-            stock: 1,
-            price: 38,
-            sku: "维尔京岛之水",
-          },
-          {
-            id: "A80",
-            name: "Yves Saint Laurent Black Opium Over Red",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume80.webp",
-            stock: 1,
-            price: 38,
-            sku: "YSL深红樱桃黑鸦片",
-          },
-          {
-            id: "A81",
-            name: "Tom Ford Vanilla Sex",
-            brand: "Tom Ford",
-            img: "images/perfume81.webp",
-            stock: 1,
-            price: 38,
-            sku: "禁忌香草",
-          },
-          {
-            id: "A82",
-            name: "Tom Ford Ombré Leather",
-            brand: "Tom Ford",
-            img: "images/perfume82.webp",
-            stock: 1,
-            price: 38,
-            sku: "TF皮革之影",
-          },
-          {
-            id: "A83",
-            name: "Tom Ford Bitter Peach",
-            brand: "Tom Ford",
-            img: "images/perfume83.webp",
-            stock: 1,
-            price: 38,
-            sku: "TF苦桃",
-          },
-          {
-            id: "A84",
-            name: "Tom Ford Neroli Portofino",
-            brand: "Tom Ford",
-            img: "images/perfume84.webp",
-            stock: 1,
-            price: 38,
-            sku: "TF橙花油",
-          },
-          {
-            id: "A85",
-            name: "Initio Oud for Greatness",
-            brand: "Initio",
-            img: "images/perfume85.webp",
-            stock: 1,
-            price: 38,
-            sku: "伟大沉香",
-          },
-          {
-            id: "A86",
-            name: "Louis Vuitton L'Immensité",
-            brand: "Louis Vuitton",
-            img: "images/perfume86.webp",
-            stock: 1,
-            price: 49,
-            sku: "LV无限",
-          },
-          {
-            id: "A87",
-            name: "Ralph Lauren Polo Red",
-            brand: "Ralph Lauren",
-            img: "images/perfume87.webp",
-            stock: 1,
-            price: 38,
-            sku: "红色马球浓香",
-          },
-          {
-            id: "A88",
-            name: "Parfums de Marly Layton",
-            brand: "Parfums de Marly",
-            img: "images/perfume88.webp",
-            stock: 1,
-            price: 38,
-            sku: "林顿",
-          },
-          {
-            id: "A89",
-            name: "Chanel Chance Eau de Toilette",
-            brand: "Chanel",
-            img: "images/perfume89.webp",
-            stock: 1,
-            price: 38,
-            sku: "CHANEL黄邂逅",
-          },
-          {
-            id: "A90",
-            name: "Le Labo Santal 33",
-            brand: "Le Labo",
-            img: "images/perfume90.webp",
-            stock: 1,
-            price: 30,
-            sku: "lelabo-santa",
-          },
-          {
-            id: "A91",
-            name: "Burberry Her Elixir de Parfum",
-            brand: "Burberry",
-            img: "images/perfume91.webp",
-            stock: 1,
-            price: 38,
-            sku: "花与她浓",
-          },
-          {
-            id: "A95",
-            name: "Chanel Gabrielle Essence",
-            brand: "Chanel",
-            img: "images/perfume95.webp",
-            stock: 1,
-            price: 38,
-            sku: "天性嘉伯丽尔",
-          },
-          {
-            id: "A98",
-            name: "Creed Love in White",
-            brand: "Creed",
-            img: "images/perfume98.webp",
-            stock: 1,
-            price: 38,
-            sku: "白色爱恋女士",
-          },
-          {
-            id: "A99",
-            name: "Valentino Donna Born in Roma Coral Fantasy",
-            brand: "Valentino",
-            img: "images/perfume99.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZCHENG8YPT",
-          },
-          {
-            id: "A100",
-            name: "Bvlgari Omnia Amethyste",
-            brand: "BVLGARI",
-            img: "images/perfume100.webp",
-            stock: 1,
-            price: 38,
-            sku: "新紫晶",
-          },
-          {
-            id: "A101",
-            name: "Xerjoff Naxos",
-            brand: "Xerjoff",
-            img: "images/perfume101.webp",
-            stock: 1,
-            price: 38,
-            sku: "XF纳克索斯岛",
-          },
-          {
-            id: "A102",
-            name: "Kayali Vanilla Candy Rock Sugar | 42",
-            brand: "Kayali",
-            img: "images/perfume102.webp",
-            stock: 1,
-            price: 38,
-            sku: "卡利亚42",
-          },
-          {
-            id: "A103",
-            name: "Amouage Blossom Love",
-            brand: "Amouage",
-            img: "images/perfume103.webp",
-            stock: 1,
-            price: 38,
-            sku: "爱慕心花盛放",
-          },
-          {
-            id: "A104",
-            name: "Louis Vuitton On The Beach",
-            brand: "Louis Vuitton",
-            img: "images/perfume104.webp",
-            stock: 1,
-            price: 49,
-            sku: "LV海滩漫步",
-          },
-          {
-            id: "A105",
-            name: "Yves Saint Laurent Y ELIXIR",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume105.webp",
-            stock: 1,
-            price: 38,
-            sku: "YSL先锋男士精粹",
-          },
-          {
-            id: "A106",
-            name: "Givenchy Gentleman",
-            brand: "Givenchy",
-            img: "images/perfume106.webp",
-            stock: 1,
-            price: 38,
-            sku: "纪梵希绅士雅淡香",
-          },
-          {
-            id: "A107",
-            name: "Paco Rabanne Invictus",
-            brand: "Paco Rabanne",
-            img: "images/perfume107.webp",
-            stock: 1,
-            price: 38,
-            sku: "银色奖杯",
-          },
-          {
-            id: "A108",
-            name: "Tom Ford Electric Cherry",
-            brand: "Tom Ford",
-            img: "images/perfume108.webp",
-            stock: 1,
-            price: 38,
-            sku: "电光樱桃",
-          },
-          {
-            id: "A109",
-            name: "Kayali Fleur Majesty Rose Royale | 31",
-            brand: "Kayali",
-            img: "images/perfume109.webp",
-            stock: 1,
-            price: 38,
-            sku: "卡利亚31",
-          },
-          {
-            id: "A110",
-            name: "Xerjoff Renaissance",
-            brand: "Xerjoff",
-            img: "images/perfume110.webp",
-            stock: 1,
-            price: 38,
-            sku: "XF文艺复兴",
-          },
-          {
-            id: "A111",
-            name: "Kayali Yum Pistachio Gelato | 33",
-            brand: "Kayali",
-            img: "images/perfume111.webp",
-            stock: 1,
-            price: 38,
-            sku: "卡亚利33",
-          },
-          {
-            id: "A112",
-            name: "Tom Ford Fucking Fabulous Parfum",
-            brand: "Tom Ford",
-            img: "images/perfume112.webp",
-            stock: 1,
-            price: 38,
-            sku: "黑标法布勒斯",
-          },
-          {
-            id: "A113",
-            name: "Kilian Angels' Share",
-            brand: "Kilian",
-            img: "images/perfume113.webp",
-            stock: 1,
-            price: 38,
-            sku: "天使之享",
-          },
-          {
-            id: "A114",
-            name: "Initio Side Effect",
-            brand: "Initio",
-            img: "images/perfume114.webp",
-            stock: 1,
-            price: 38,
-            sku: "副作用",
-          },
-          {
-            id: "A115",
-            name: "Maison Francis Kurkdjian Grand Soir",
-            brand: "Maison Francis Kurkdjian",
-            img: "images/perfume115.webp",
-            stock: 1,
-            price: 38,
-            sku: "MKF巴黎夜色",
-          },
-          {
-            id: "A116",
-            name: "Gucci Bamboo",
-            brand: "Gucci",
-            img: "images/perfume116.webp",
-            stock: 1,
-            price: 38,
-            sku: "竹韵浓",
-          },
-          {
-            id: "A117",
-            name: "Versace Dylan Blue",
-            brand: "Versace",
-            img: "images/perfume117.webp",
-            stock: 1,
-            price: 38,
-            sku: "迪伦男士",
-          },
-          {
-            id: "A118",
-            name: "Armani Code",
-            brand: "Giorgio Armani",
-            img: "images/perfume118.webp",
-            stock: 1,
-            price: 38,
-            sku: "黑色密码香精",
-          },
-          {
-            id: "A119",
-            name: "Dior Bonne Étoile",
-            brand: "Dior",
-            img: "images/perfume119.webp",
-            stock: 1,
-            price: 38,
-            sku: "粉红女宝宝",
-          },
-          {
-            id: "A120",
-            name: "Louis Vuitton Ombre Nomade",
-            brand: "Louis Vuitton",
-            img: "images/perfume120.webp",
-            stock: 1,
-            price: 49,
-            sku: "LV浮影",
-          },
-          {
-            id: "A121",
-            name: "Amouage Honour",
-            brand: "Amouage",
-            img: "images/perfume121.webp",
-            stock: 1,
-            price: 38,
-            sku: "化蝶女士",
-          },
-          {
-            id: "A122",
-            name: "Amouage Guidance 46",
-            brand: "Amouage",
-            img: "images/perfume122.webp",
-            stock: 1,
-            price: 38,
-            sku: "爱慕秘藏神谕",
-          },
-          {
-            id: "A123",
-            name: "Amouage Interlude Black Iris",
-            brand: "Amouage",
-            img: "images/perfume123.webp",
-            stock: 1,
-            price: 38,
-            sku: "爱慕间奏曲",
-          },
-          {
-            id: "A124",
-            name: "Gucci Flora Gorgeous Jasmine",
-            brand: "Gucci",
-            img: "images/perfume124.webp",
-            stock: 1,
-            price: 38,
-            sku: "绿绮梦",
-          },
-          {
-            id: "A125",
-            name: "Gucci Flora Gorgeous Gardenia",
-            brand: "Gucci",
-            img: "images/perfume125.webp",
-            stock: 1,
-            price: 38,
-            sku: "粉绮梦",
-          },
-          {
-            id: "A126",
-            name: "Azzaro The Most Wanted",
-            brand: "Azzaro",
-            img: "images/perfume126.webp",
-            stock: 1,
-            price: 30,
-            sku: "azzaro-hei",
-          },
-          {
-            id: "A136",
-            name: "Jean Paul Gaultier Ultra Male",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume136.webp",
-            stock: 1,
-            price: 38,
-            sku: "超级男士",
-          },
-          {
-            id: "A137",
-            name: "Jean Paul Gaultier La Belle Le Parfum",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume137.webp",
-            stock: 1,
-            price: 38,
-            sku: "美人浓情",
-          },
-          {
-            id: "A138",
-            name: "Jean Paul Gaultier Le Male Lover",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume138.webp",
-            stock: 1,
-            price: 38,
-            sku: "裸男情人",
-          },
-          {
-            id: "A139",
-            name: "Parfums de Marly Kalan",
-            brand: "Parfums de Marly",
-            img: "images/perfume139.webp",
-            stock: 1,
-            price: 38,
-            sku: "红色卡兰",
-          },
-          {
-            id: "A140",
-            name: "Gucci Flora Gorgeous Gardenia",
-            brand: "Gucci",
-            img: "images/perfume140.webp",
-            stock: 1,
-            price: 35,
-            sku: "H04",
-          },
-          {
-            id: "A141",
-            name: "Creed Spring Flower",
-            brand: "Creed",
-            img: "images/perfume141.webp",
-            stock: 1,
-            price: 35,
-            sku: "H09",
-          },
-          {
-            id: "A142",
-            name: "Jean Paul Gaultier Le Male",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume142.webp",
-            stock: 1,
-            price: 30,
-            sku: "luonan-lan",
-          },
-          {
-            id: "A143",
-            name: "Emporio Armani Because It's You",
-            brand: "Giorgio Armani",
-            img: "images/perfume143.webp",
-            stock: 1,
-            price: 30,
-            sku: "1znvyou100",
-          },
-          {
-            id: "A144",
-            name: "Paco Rabanne 1 Million Privé",
-            brand: "Paco Rabanne",
-            img: "images/perfume144.webp",
-            stock: 1,
-            price: 30,
-            sku: "baiwan-zong",
-          },
-          {
-            id: "A145",
-            name: "Azzaro Wanted Eau de Parfum",
-            brand: "Azzaro",
-            img: "images/perfume145.webp",
-            stock: 1,
-            price: 30,
-            sku: "azzaro-yin",
-          },
-          {
-            id: "A146",
-            name: "Lattafa Yara",
-            brand: "Lattafa",
-            img: "images/perfume146.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-zi",
-          },
-          {
-            id: "A147",
-            name: "Lattafa Khamrah",
-            brand: "Lattafa",
-            img: "images/perfume147.webp",
-            stock: 1,
-            price: 30,
-            sku: "kh-hong",
-          },
-          {
-            id: "A148",
-            name: "Azzaro The Most Wanted Parfum",
-            brand: "Azzaro",
-            img: "images/perfume148.webp",
-            stock: 1,
-            price: 30,
-            sku: "azzaro-zong",
-          },
-          {
-            id: "A149",
-            name: "Azzaro Forever Wanted Elixir",
-            brand: "Azzaro",
-            img: "images/perfume149.webp",
-            stock: 1,
-            price: 30,
-            sku: "azzaro-jin",
-          },
-          {
-            id: "A150",
-            name: "Azzaro The Most Wanted Eau de Toilette Intense",
-            brand: "Azzaro",
-            img: "images/perfume150.webp",
-            stock: 1,
-            price: 30,
-            sku: "azzaro-mo",
-          },
-          {
-            id: "A151",
-            name: "Yves Saint Laurent Y Eau de Toilette",
-            brand: "Yves Saint Laurent",
-            img: "images/perfume151.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZLSYSL",
-          },
-          {
-            id: "A152",
-            name: "Gucci Bloom Ambrosia di Fiori",
-            brand: "Gucci",
-            img: "images/perfume152.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZHEIHONG4Y6",
-          },
-          {
-            id: "A153",
-            name: "Acqua di Giò Pour Homme",
-            brand: "Giorgio Armani",
-            img: "images/perfume153.webp",
-            stock: 1,
-            price: 30,
-            sku: "AMXS-01",
-          },
-          {
-            id: "A154",
-            name: "Versace Pour Homme",
-            brand: "Versace",
-            img: "images/perfume154.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZLANZU64",
-          },
-          {
-            id: "A155",
-            name: "Versace Dylan Turquoise Pour Femme",
-            brand: "Versace",
-            img: "images/perfume155.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZLAN6TN8",
-          },
-          {
-            id: "A156",
-            name: "Creed Viking",
-            brand: "Creed",
-            img: "images/perfume156.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZCRERED",
-          },
-          {
-            id: "A157",
-            name: "Versace Man Eau Fraiche",
-            brand: "Versace",
-            img: "images/perfume157.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZXS401W",
-          },
-          {
-            id: "A158",
-            name: "Chanel Chance Eau Fraiche",
-            brand: "Chanel",
-            img: "images/perfume158.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZLvJ1XS",
-          },
-          {
-            id: "A159",
-            name: "Chanel Chance Eau Tendre",
-            brand: "Chanel",
-            img: "images/perfume159.webp",
-            stock: 1,
-            price: 30,
-            sku: "DMXS-003",
-          },
-          {
-            id: "A160",
-            name: "Gucci Flora Gorgeous Magnolia",
-            brand: "Gucci",
-            img: "images/perfume160.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZZIGAOWMP",
-          },
-          {
-            id: "A161",
-            name: "Valentino Uomo",
-            brand: "Valentino",
-            img: "images/perfume161.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZHUANGFY46",
-          },
-          {
-            id: "A162",
-            name: "Valentino Donna Born in Roma Green Stravaganza",
-            brand: "Valentino",
-            img: "images/perfume166.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZDALV100",
-          },
-          {
-            id: "A163",
-            name: "Valentino Donna Born in Roma",
-            brand: "Valentino",
-            img: "images/perfume163.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZFENPP100",
-          },
-          {
-            id: "A164",
-            name: "Versace Crystal Noir",
-            brand: "Versace",
-            img: "images/perfume171.webp",
-            stock: 1,
-            price: 30,
-            sku: "1Z031UE",
-          },
-          {
-            id: "A165",
-            name: "Valentino Uomo Born in Roma Rockstud Noir",
-            brand: "Valentino",
-            img: "images/perfume164.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZHEIM7Y7",
-          },
-          {
-            id: "A166",
-            name: "Valentino Uomo Born in Roma Green Stravaganza",
-            brand: "Valentino",
-            img: "images/perfume167.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZLVHEI100",
-          },
-          {
-            id: "A167",
-            name: "Versace Eros Parfum",
-            brand: "Versace",
-            img: "images/perfume165.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZLANJINMLCQ",
-          },
-          {
-            id: "A168",
-            name: "Versace Dylan Purple",
-            brand: "Versace",
-            img: "images/perfume169.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZZI563R",
-          },
-          {
-            id: "A169",
-            name: "Lattafa Asad",
-            brand: "Lattafa",
-            img: "images/perfume170.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-black",
-          },
-          {
-            id: "A170",
-            name: "Valentino Uomo Born in Roma Yellow Dream",
-            brand: "Valentino",
-            img: "images/perfume162.webp",
-            stock: 1,
-            price: 30,
-            sku: "1Zhuang6Y72",
-          },
-          {
-            id: "A171",
-            name: "Lattafa Yara",
-            brand: "Lattafa",
-            img: "images/perfume168.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-pink",
-          },
-          {
-            id: "A172",
-            name: "Gucci Flora Gorgeous Orchid",
-            brand: "Gucci",
-            img: "images/perfume172.webp",
-            stock: 1,
-            price: 30,
-            sku: "1Zhuanggao2C6",
-          },
-          {
-            id: "A173",
-            name: "Lattafa Asad Zanzibar",
-            brand: "Lattafa",
-            img: "images/perfume173.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-lan",
-          },
-          {
-            id: "A174",
-            name: "Lattafa Yara",
-            brand: "Lattafa",
-            img: "images/perfume174.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-bai",
-          },
-          {
-            id: "A175",
-            name: "Lattafa Yara Tous",
-            brand: "Lattafa",
-            img: "images/perfume175.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-huang",
-          },
-          {
-            id: "A176",
-            name: "Versace Yellow Diamond",
-            brand: "Versace",
-            img: "images/perfume176.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZXSA66K",
-          },
-          {
-            id: "A177",
-            name: "Chanel Allure Homme Sport Eau Extreme",
-            brand: "Chanel",
-            img: "images/perfume177.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZSPORTRUO",
-          },
-          {
-            id: "A178",
-            name: "Lattafa Yara Moi",
-            brand: "Lattafa",
-            img: "images/perfume178.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-hong",
-          },
-          {
-            id: "A179",
-            name: "Valentino Uomo Born in Roma Extradose",
-            brand: "Valentino",
-            img: "images/perfume179.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZEXTRG8DK",
-          },
-          {
-            id: "A180",
-            name: "Creed Royal Princess Oud",
-            brand: "Creed",
-            img: "images/perfume180.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZCRE1760",
-          },
-          {
-            id: "A181",
-            name: "Lattafa Asad Bourbon",
-            brand: "Lattafa",
-            img: "images/perfume181.webp",
-            stock: 1,
-            price: 30,
-            sku: "lattafa-zong",
-          },
-          {
-            id: "A182",
-            name: "Lattafa Khamrah",
-            brand: "Lattafa",
-            img: "images/perfume182.webp",
-            stock: 1,
-            price: 30,
-            sku: "kh-hei",
-          },
-          {
-            id: "A183",
-            name: "Lattafa Khamrah Qahwa",
-            brand: "Lattafa",
-            img: "images/perfume183.webp",
-            stock: 1,
-            price: 30,
-            sku: "kh-QAHWA",
-          },
-          {
-            id: "A184",
-            name: "Paco Rabanne 1 Million Lucky",
-            brand: "Paco Rabanne",
-            img: "images/perfume184.webp",
-            stock: 1,
-            price: 30,
-            sku: "baiwan-bai",
-          },
-          {
-            id: "A185",
-            name: "Chanel Chance Eau Vive",
-            brand: "Chanel",
-            img: "images/perfume185.webp",
-            stock: 1,
-            price: 30,
-            sku: "1ZHUANGJIXS",
-          },
-          {
-            id: "A186",
-            name: "Jean Paul Gaultier Le Male Le Parfum",
-            brand: "Jean Paul Gaultier",
-            img: "images/perfume186.webp",
-            stock: 1,
-            price: 30,
-            sku: "luonan-hei",
-          },
-        ];
+      // 注意：不要再这里写 document.addEventListener("DOMContentLoaded"...) 去调用渲染了
+      // 因为 db.js 会在数据准备好后自动调用 renderPerfumes()
 
-        // --- 修改后的供应商分类逻辑 ---
-        function getSupplier(sku) {
-          if (!sku) return "供应商二"; // 默认
+      // 定义全局变量
+      let currentBrandFilter = "all";
+      let currentSupplierFilter = "all";
+      let searchTerm = "";
+      let cartItems = [];
 
-          // 供应商五：1Z 开头
-          if (String(sku).startsWith("1Z")) {
-            return "供应商五";
-          }
+      const perfumeList = document.getElementById("perfume-list");
+      const searchInput = document.getElementById("search-input");
+      const clearSearchButton = document.getElementById("clear-search-btn");
+      const cartButton = document.getElementById("cart-button");
+      const cartCount = document.getElementById("cart-count");
 
-          // 供应商三：H 开头，后面跟数字 (例如 H01)
-          if (/^H\d+$/.test(sku)) {
-            return "供应商三";
-          }
+      const brandButtons = document.querySelectorAll(".nav-btn[data-brand]");
+      const showAllButton = document.getElementById("show-all-btn");
+      const supplierButtons = document.querySelectorAll(".supplier-btn");
 
-          // 供应商一：A 开头，后面跟数字 (例如 A01)
-          if (/^A\d+$/.test(sku)) {
-            return "供应商一";
-          }
+      // --- 核心渲染函数 (将被 db.js 调用) ---
+      // 必须定义在全局作用域，或者挂载到 window 上，因为 db.js 可能会用到它
+      window.renderPerfumes = function () {
+        // 安全获取数据：如果还没加载完，就是一个空数组
+        const db = window.perfumeDB || [];
 
-          // 供应商四：小写英文且包含横杠 (例如 luonan-jin)
-          // 逻辑：含有小写字母，包含 '-'，且不含大写字母
-          if (/[a-z]/.test(sku) && sku.includes("-") && !/[A-Z]/.test(sku)) {
-            return "供应商四";
-          }
+        perfumeList.innerHTML = "";
 
-          // 供应商二：中文或英文香水名称 (其他所有情况)
-          return "供应商二";
+        // 如果数据是空的（可能是网络错误或还没加载），显示提示
+        if (db.length === 0) {
+          perfumeList.innerHTML =
+            "<p style='text-align:center; padding:20px;'>Loading products from database...</p>";
+          return;
         }
 
-        perfumeDB.forEach((perfume) => {
-          perfume.supplier = getSupplier(perfume.sku);
+        const filteredPerfumes = db.filter((perfume) => {
+          const matchesBrand =
+            currentBrandFilter === "all" ||
+            perfume.brand === currentBrandFilter;
+
+          const matchesSupplier =
+            currentSupplierFilter === "all" ||
+            perfume.supplier === currentSupplierFilter;
+
+          // 增加对 SKU 的搜索支持
+          // 注意：从 CSV 读出来的 sku 可能是 undefined，要加防护
+          const skuStr = perfume.sku ? String(perfume.sku).toLowerCase() : "";
+          const nameStr = perfume.name
+            ? String(perfume.name).toLowerCase()
+            : "";
+          const idStr = perfume.id ? String(perfume.id).toLowerCase() : "";
+          const term = searchTerm.toLowerCase();
+
+          const matchesSearch =
+            nameStr.includes(term) ||
+            idStr.includes(term) ||
+            skuStr.includes(term);
+
+          return matchesBrand && matchesSupplier && matchesSearch;
         });
 
-        let currentBrandFilter = "all";
-        let currentSupplierFilter = "all";
-        let searchTerm = "";
-        let cartItems = [];
+        if (filteredPerfumes.length === 0) {
+          perfumeList.innerHTML = "<p>No products found.</p>";
+        }
 
-        const perfumeList = document.getElementById("perfume-list");
-        const searchInput = document.getElementById("search-input");
-        const clearSearchButton = document.getElementById("clear-search-btn");
-        const cartButton = document.getElementById("cart-button");
-        const cartCount = document.getElementById("cart-count");
-
-        const brandButtons = document.querySelectorAll(".nav-btn[data-brand]");
-        const showAllButton = document.getElementById("show-all-btn");
-        const supplierButtons = document.querySelectorAll(".supplier-btn");
-
-        function renderPerfumes() {
-          perfumeList.innerHTML = "";
-
-          const filteredPerfumes = perfumeDB.filter((perfume) => {
-            const matchesBrand =
-              currentBrandFilter === "all" ||
-              perfume.brand === currentBrandFilter;
-
-            const matchesSupplier =
-              currentSupplierFilter === "all" ||
-              perfume.supplier === currentSupplierFilter;
-
-            // 增加对 SKU 的搜索支持
-            const matchesSearch =
-              perfume.name.toLowerCase().includes(searchTerm) ||
-              perfume.id.toLowerCase().includes(searchTerm) ||
-              (perfume.sku && perfume.sku.toLowerCase().includes(searchTerm));
-
-            return matchesBrand && matchesSupplier && matchesSearch;
-          });
-
-          if (filteredPerfumes.length === 0) {
-            perfumeList.innerHTML = "<p>No products found.</p>";
+        filteredPerfumes.forEach((perfume) => {
+          const card = document.createElement("div");
+          card.className = "product-card";
+          // 注意：CSV 读出来的 stock 可能是字符串 "0" 或数字 0
+          if (Number(perfume.stock) === 0) {
+            card.classList.add("out-of-stock");
           }
 
-          filteredPerfumes.forEach((perfume) => {
-            const card = document.createElement("div");
-            card.className = "product-card";
-            if (perfume.stock === 0) {
-              card.classList.add("out-of-stock");
-            }
+          card.innerHTML = `
+            <div class="product-image-container">
+              <img src="${perfume.img}" alt="${
+            perfume.name
+          }" class="product-image" loading="lazy">
+              ${
+                Number(perfume.stock) === 0
+                  ? '<div class="stock-overlay">Out of Stock</div>'
+                  : ""
+              }
+              <div class="item-count-badge" id="count-${perfume.id}"></div>
+            </div>
+            <div class="product-info">
+              <p class="product-id">${perfume.id}</p>
+              <p class="product-name">${perfume.name}</p>
+              <p class="product-price">$${perfume.price}</p>
+              <span class="supplier-badge">${
+                perfume.supplier || "Unknown"
+              }</span>
+            </div>
+            <button class="add-to-cart-btn" data-id="${perfume.id}" ${
+            Number(perfume.stock) === 0 ? "disabled" : ""
+          }>
+              ${Number(perfume.stock) === 0 ? "Out of Stock" : "Add to Cart"}
+            </button>
+          `;
 
-            card.innerHTML = `
-              <div class="product-image-container">
-                <img src="${perfume.img}" alt="${
-              perfume.name
-            }" class="product-image" loading="lazy">
-                ${
-                  perfume.stock === 0
-                    ? '<div class="stock-overlay">Out of Stock</div>'
-                    : ""
-                }
-                <div class="item-count-badge" id="count-${perfume.id}"></div>
-              </div>
-              <div class="product-info">
-                <p class="product-id">${perfume.id}</p>
-                <p class="product-name">${perfume.name}</p>
-                <p class="product-price">$${perfume.price}</p>
-                <span class="supplier-badge">${perfume.supplier}</span>
-              </div>
-              <button class="add-to-cart-btn" data-id="${perfume.id}" ${
-              perfume.stock === 0 ? "disabled" : ""
-            }>
-                ${perfume.stock === 0 ? "Out of Stock" : "Add to Cart"}
-              </button>
-            `;
+          perfumeList.appendChild(card);
+        });
+        renderItemCounts();
+      };
 
-            perfumeList.appendChild(card);
-          });
-          renderItemCounts();
+      // --- 购物车相关逻辑 (保持不变) ---
+      function loadCartFromLocalStorage() {
+        const storedCart = localStorage.getItem("perfumeCart");
+        cartItems = storedCart ? JSON.parse(storedCart) : [];
+        updateCartCount();
+      }
+
+      function saveCartToLocalStorage() {
+        localStorage.setItem("perfumeCart", JSON.stringify(cartItems));
+      }
+
+      function updateCartCount() {
+        const totalQuantity = cartItems.reduce(
+          (sum, item) => sum + item.quantity,
+          0
+        );
+        if (totalQuantity > 0) {
+          cartCount.textContent = totalQuantity;
+          cartCount.style.display = "flex";
+        } else {
+          cartCount.style.display = "none";
         }
+      }
 
-        function loadCartFromLocalStorage() {
-          const storedCart = localStorage.getItem("perfumeCart");
-          cartItems = storedCart ? JSON.parse(storedCart) : [];
-          updateCartCount();
-        }
-
-        function saveCartToLocalStorage() {
-          localStorage.setItem("perfumeCart", JSON.stringify(cartItems));
-        }
-
-        function updateCartCount() {
-          const totalQuantity = cartItems.reduce(
-            (sum, item) => sum + item.quantity,
-            0
-          );
-          if (totalQuantity > 0) {
-            cartCount.textContent = totalQuantity;
-            cartCount.style.display = "flex";
-          } else {
-            cartCount.style.display = "none";
+      function renderItemCounts() {
+        document.querySelectorAll(".item-count-badge").forEach((badge) => {
+          badge.style.display = "none";
+        });
+        cartItems.forEach((item) => {
+          // 注意 id 选择器可能需要转义特殊字符，这里假设 id 是简单的 A01 格式
+          const badge = document.getElementById(`count-${item.name}`);
+          if (badge) {
+            badge.textContent = item.quantity;
+            badge.style.display = "flex";
           }
+        });
+      }
+
+      function pulseCartButton() {
+        cartButton.classList.add("pulse");
+        setTimeout(() => {
+          cartButton.classList.remove("pulse");
+        }, 500);
+      }
+
+      function addItemToCart(productId) {
+        // 关键修改：从 window.perfumeDB 查找
+        const db = window.perfumeDB || [];
+        const perfumeData = db.find((p) => p.id === productId);
+
+        if (!perfumeData) {
+          console.error("Product not found:", productId);
+          return;
         }
 
-        function renderItemCounts() {
-          document.querySelectorAll(".item-count-badge").forEach((badge) => {
-            badge.style.display = "none";
+        const { id, name, img, price, tier, sku, supplier } = perfumeData;
+
+        const existingItem = cartItems.find((cartItem) => cartItem.name === id);
+
+        if (existingItem) {
+          existingItem.quantity++;
+        } else {
+          cartItems.push({
+            name: id,
+            caption: `${id} - ${name}`,
+            img,
+            quantity: 1,
+            price: Number(price), // 确保是数字
+            tier: tier,
+            sku: sku,
+            supplier: supplier,
           });
-          cartItems.forEach((item) => {
-            const badge = document.getElementById(`count-${item.name}`);
-            if (badge) {
-              badge.textContent = item.quantity;
-              badge.style.display = "flex";
-            }
-          });
         }
+        saveCartToLocalStorage();
+        updateCartCount();
+        renderItemCounts();
+        pulseCartButton();
+      }
 
-        function pulseCartButton() {
-          cartButton.classList.add("pulse");
-          setTimeout(() => {
-            cartButton.classList.remove("pulse");
-          }, 500);
-        }
+      // --- 事件监听器绑定 (必须在 DOMReady 后执行一次) ---
+      document.addEventListener("DOMContentLoaded", () => {
+        // 初始化购物车 (这个不需要等待数据库)
+        loadCartFromLocalStorage();
 
-        function addItemToCart(productId) {
-          const perfumeData = perfumeDB.find((p) => p.id === productId);
-          if (!perfumeData) return;
-
-          const { id, name, img, price, tier, sku, supplier } = perfumeData;
-
-          const existingItem = cartItems.find(
-            (cartItem) => cartItem.name === id
-          );
-
-          if (existingItem) {
-            existingItem.quantity++;
-          } else {
-            cartItems.push({
-              name: id,
-              caption: `${id} - ${name}`,
-              img,
-              quantity: 1,
-              price: price,
-              tier: tier,
-              sku: sku,
-              supplier: supplier,
-            });
-          }
-          saveCartToLocalStorage();
-          updateCartCount();
-          renderItemCounts();
-          pulseCartButton();
-        }
-
-        // 搜索栏逻辑
+        // 绑定搜索事件
         searchInput.addEventListener("input", () => {
           searchTerm = searchInput.value.toLowerCase();
           clearSearchButton.style.display = searchTerm ? "block" : "none";
@@ -2034,7 +596,7 @@
           renderPerfumes();
         });
 
-        // 品牌过滤器
+        // 绑定品牌过滤器
         brandButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentBrandFilter = button.dataset.brand;
@@ -2052,7 +614,7 @@
           renderPerfumes();
         });
 
-        // 供应商过滤器
+        // 绑定供应商过滤器
         supplierButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentSupplierFilter = button.dataset.supplier;
@@ -2062,17 +624,13 @@
           });
         });
 
-        // 添加到购物车
+        // 绑定加入购物车事件
         perfumeList.addEventListener("click", (e) => {
           if (e.target.classList.contains("add-to-cart-btn")) {
             const productId = e.target.dataset.id;
             addItemToCart(productId);
           }
         });
-
-        // 初始加载
-        loadCartFromLocalStorage();
-        renderPerfumes();
       });
     </script>
   </body>
