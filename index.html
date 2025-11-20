@@ -15,9 +15,7 @@
           Helvetica, Arial, sans-serif;
         background-color: #f9f9f9;
         margin: 0;
-        /* --- 关键修改 --- */
-        padding-top: 340px; /* 从 140px 增加到 240px 为换行的按钮留出空间 */
-        /* --- 修改结束 --- */
+        padding-top: 340px;
       }
       .header-container {
         position: fixed;
@@ -67,7 +65,7 @@
         font-size: 1rem;
         line-height: 20px;
         text-align: center;
-        display: none; /* Initially hidden */
+        display: none;
       }
       #cart-button {
         background-color: var(--primary-color);
@@ -83,6 +81,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        text-decoration: none;
       }
       #cart-count {
         position: absolute;
@@ -97,9 +96,8 @@
         min-width: 12px;
         text-align: center;
         line-height: 1.2;
-        display: none; /* Initially hidden */
+        display: none;
       }
-      /* Pulsing animation */
       .pulse {
         animation: pulse-animation 0.5s ease;
       }
@@ -208,7 +206,7 @@
       .product-image-container {
         position: relative;
         width: 100%;
-        padding-top: 100%; /* 1:1 Aspect Ratio */
+        padding-top: 100%;
       }
       .product-image {
         position: absolute;
@@ -295,7 +293,7 @@
         font-size: 0.9rem;
         font-weight: bold;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        display: none; /* Hidden by default */
+        display: none;
       }
     </style>
   </head>
@@ -371,6 +369,9 @@
         >
           All Suppliers
         </button>
+        <button class="nav-btn supplier-btn" data-supplier="供应商一">
+          供应商一
+        </button>
         <button class="nav-btn supplier-btn" data-supplier="供应商二">
           供应商二
         </button>
@@ -392,15 +393,34 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
+        // 保持数据库内容不变
         const perfumeDB = [
+          {
+            id: "A01",
+            name: "Valentino Donna Born in Roma Intense",
+            brand: "Valentino",
+            img: "images/perfume1.webp",
+            stock: 1,
+            price: 35,
+            sku: "A1",
+          },
           {
             id: "A02",
             name: "Valentino Donna Born in Roma",
             brand: "Valentino",
             img: "images/perfume2.webp",
-            stock: 0,
-            price: 38,
-            sku: "朋克甜心",
+            stock: 1,
+            price: 35,
+            sku: "A2",
+          },
+          {
+            id: "A03",
+            name: "Valentino Uomo Born in Roma",
+            brand: "Valentino",
+            img: "images/perfume3.webp",
+            stock: 1,
+            price: 35,
+            sku: "A3",
           },
           {
             id: "A04",
@@ -472,7 +492,7 @@
             img: "images/perfume11.webp",
             stock: 1,
             price: 35,
-            sku: "H03",
+            sku: "A11",
           },
           {
             id: "A12",
@@ -515,7 +535,7 @@
             name: "Yves Saint Laurent Libre Le Parfum",
             brand: "Yves Saint Laurent",
             img: "images/perfume16.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
             sku: "YSL自由之水精醇版",
           },
@@ -650,18 +670,18 @@
             name: "Valentino Uomo Born in Roma Intense",
             brand: "Valentino",
             img: "images/perfume34.webp",
-            stock: 0,
-            price: 38,
-            sku: "暗夜先生",
+            stock: 1,
+            price: 35,
+            sku: "A34",
           },
           {
             id: "A35",
             name: "Valentino Uomo Born in Roma Coral Fantasy",
             brand: "Valentino",
             img: "images/perfume35.webp",
-            stock: 0,
-            price: 38,
-            sku: "坠梦罗马",
+            stock: 1,
+            price: 35,
+            sku: "A35",
           },
           {
             id: "A36",
@@ -686,9 +706,9 @@
             name: "Louis Vuitton Imagination",
             brand: "Louis Vuitton",
             img: "images/perfume39.webp",
-            stock: 0,
+            stock: 1,
             price: 49,
-            sku: "思扬",
+            sku: "A39",
           },
           {
             id: "A40",
@@ -704,9 +724,9 @@
             name: "Xerjoff Erba Pura",
             brand: "Xerjoff",
             img: "images/perfume41.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
-            sku: "纯净草木",
+            sku: "A41",
           },
           {
             id: "A42",
@@ -893,7 +913,7 @@
             name: 'Jean Paul Gaultier "Le Beau" Le Parfum',
             brand: "Jean Paul Gaultier",
             img: "images/perfume70.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
             sku: "美丽香精裸男",
           },
@@ -1055,7 +1075,7 @@
             name: "Parfums de Marly Layton",
             brand: "Parfums de Marly",
             img: "images/perfume88.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
             sku: "林顿",
           },
@@ -1067,6 +1087,15 @@
             stock: 1,
             price: 38,
             sku: "CHANEL黄邂逅",
+          },
+          {
+            id: "A90",
+            name: "Le Labo Santal 33",
+            brand: "Le Labo",
+            img: "images/perfume90.webp",
+            stock: 1,
+            price: 30,
+            sku: "lelabo-santa",
           },
           {
             id: "A91",
@@ -1199,7 +1228,7 @@
             name: "Xerjoff Renaissance",
             brand: "Xerjoff",
             img: "images/perfume110.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
             sku: "XF文艺复兴",
           },
@@ -1235,7 +1264,7 @@
             name: "Initio Side Effect",
             brand: "Initio",
             img: "images/perfume114.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
             sku: "副作用",
           },
@@ -1352,7 +1381,7 @@
             name: "Jean Paul Gaultier Ultra Male",
             brand: "Jean Paul Gaultier",
             img: "images/perfume136.webp",
-            stock: 0,
+            stock: 1,
             price: 38,
             sku: "超级男士",
           },
@@ -1808,24 +1837,32 @@
           },
         ];
 
-        // --- 供应商分类逻辑 ---
+        // --- 修改后的供应商分类逻辑 ---
         function getSupplier(sku) {
-          if (!sku) return "供应商二";
-          if (/^H\d+$/.test(sku)) return "供应商三";
-          if (
-            /^1Z/.test(sku) ||
-            sku === "1znvyou100" ||
-            sku === "AMXS-01" ||
-            sku === "DMXS-003"
-          ) {
+          if (!sku) return "供应商二"; // 默认
+
+          // 供应商五：1Z 开头
+          if (String(sku).startsWith("1Z")) {
             return "供应商五";
           }
-          if (
-            (/^[a-z-]+$/.test(sku) && sku.includes("-")) ||
-            sku === "kh-QAHWA"
-          ) {
+
+          // 供应商三：H 开头，后面跟数字 (例如 H01)
+          if (/^H\d+$/.test(sku)) {
+            return "供应商三";
+          }
+
+          // 供应商一：A 开头，后面跟数字 (例如 A01)
+          if (/^A\d+$/.test(sku)) {
+            return "供应商一";
+          }
+
+          // 供应商四：小写英文且包含横杠 (例如 luonan-jin)
+          // 逻辑：含有小写字母，包含 '-'，且不含大写字母
+          if (/[a-z]/.test(sku) && sku.includes("-") && !/[A-Z]/.test(sku)) {
             return "供应商四";
           }
+
+          // 供应商二：中文或英文香水名称 (其他所有情况)
           return "供应商二";
         }
 
@@ -1860,6 +1897,7 @@
               currentSupplierFilter === "all" ||
               perfume.supplier === currentSupplierFilter;
 
+            // 增加对 SKU 的搜索支持
             const matchesSearch =
               perfume.name.toLowerCase().includes(searchTerm) ||
               perfume.id.toLowerCase().includes(searchTerm) ||
@@ -1879,7 +1917,6 @@
               card.classList.add("out-of-stock");
             }
 
-            // --- 供应商徽章已添加 ---
             card.innerHTML = `
               <div class="product-image-container">
                 <img src="${perfume.img}" alt="${
@@ -1953,7 +1990,6 @@
           }, 500);
         }
 
-        // --- 加购函数已更新，包含 sku 和 supplier ---
         function addItemToCart(productId) {
           const perfumeData = perfumeDB.find((p) => p.id === productId);
           if (!perfumeData) return;
@@ -1998,7 +2034,7 @@
           renderPerfumes();
         });
 
-        // 过滤器事件监听
+        // 品牌过滤器
         brandButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentBrandFilter = button.dataset.brand;
@@ -2016,6 +2052,7 @@
           renderPerfumes();
         });
 
+        // 供应商过滤器
         supplierButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentSupplierFilter = button.dataset.supplier;
@@ -2025,7 +2062,7 @@
           });
         });
 
-        // 添加到购物车按钮的事件委托
+        // 添加到购物车
         perfumeList.addEventListener("click", (e) => {
           if (e.target.classList.contains("add-to-cart-btn")) {
             const productId = e.target.dataset.id;
