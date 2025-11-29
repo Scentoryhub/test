@@ -7,7 +7,6 @@ const SHEET_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwZ_BgnXtX_ZdO87jkvLU_IMUByJwFKZoyzVVI0Sghwe-2_Qq676JsqsrO0AnGubJGuCxonKizijyj/pub?gid=0&single=true&output=csv";
 
 // 缓存时间：5分钟 (300000毫秒)
-// 意味着：你改了表格，发货员/客户最晚 5 分钟后看到变化。
 const CACHE_DURATION = 5 * 60 * 1000;
 
 // 全局变量，用来存放数据
@@ -50,7 +49,7 @@ async function initProductData() {
     // 解析 CSV
     window.perfumeDB = parseCSV(data);
 
-    // 自动计算供应商 (你的核心逻辑)
+    // 自动计算供应商 (核心逻辑)
     window.perfumeDB.forEach((p) => {
       p.supplier = getSupplier(p.sku);
     });
@@ -80,8 +79,6 @@ function runPageLogic() {
     renderPerfumes();
   }
   // 如果是购物车页 (有 renderCart 函数)
-  // 注意：购物车通常读 localStorage 的 'perfumeCart'，但如果需要同步最新库存状态，
-  // 你可以在 renderCart 里对比 window.perfumeDB
   if (typeof renderCart === "function") {
     renderCart();
   }
@@ -98,16 +95,13 @@ function parseCSV(csvText) {
   return lines
     .slice(1)
     .map((line) => {
-      // 简单的逗号分割 (前提：你的产品名字里不要带逗号！)
       const values = line.split(",");
       const obj = {};
 
-      // 防止空行报错
       if (values.length < headers.length) return null;
 
       headers.forEach((header, index) => {
         let val = values[index] ? values[index].trim() : "";
-        // 数字转换
         if (header === "price" || header === "stock") {
           val = Number(val);
         }
@@ -118,13 +112,40 @@ function parseCSV(csvText) {
     .filter((item) => item !== null);
 }
 
-// --- 工具：供应商判断逻辑 ---
+// ==========================================
+// 修改后的供应商判断逻辑 (包含最新规则)
+// ==========================================
 function getSupplier(sku) {
+  // 0. 兜底保护
   if (!sku) return "供应商二";
-  if (String(sku).startsWith("1Z")) return "供应商五";
-  if (/^H\d+$/.test(sku)) return "供应商三";
-  if (/^A\d+$/.test(sku)) return "供应商一";
-  if (/[a-z]/.test(sku) && sku.includes("-") && !/[A-Z]/.test(sku))
+
+  const s = String(sku); // 转字符串防止报错
+
+  // 1. 规则: 1Z开头 或 特定例外 -> 供应商五
+  // 包含: 1znvyou100, AMXS-01, DMXS-003
+  if (
+    s.startsWith("1Z") ||
+    s === "1znvyou100" ||
+    s === "AMXS-01" ||
+    s === "DMXS-003"
+  ) {
+    return "供应商五";
+  }
+
+  // 2. 规则: H开头 + 数字 -> 供应商三
+  if (/^H\d+/.test(s)) return "供应商三";
+
+  // 3. 规则: A开头 + 数字 -> 供应商一
+  // (注意：AMXS-01 虽然A开头，但在上面第1条规则已被截获为供应商五，不会冲突)
+  if (/^A\d+/.test(s)) return "供应商一";
+
+  // 4. 规则: 全小写且带横杠 (如 lattafa-zi) 或 特定例外 -> 供应商四
+  // 正则 /^[a-z-]+$/ 确保不包含大写字母
+  if ((/^[a-z-]+$/.test(s) && s.includes("-")) || s === "kh-QAHWA") {
     return "供应商四";
+  }
+
+  // 5. 规则: 其他所有 -> 供应商二
+  // (包括中文名、纯数字如1001、T开头、(美中)结尾等)
   return "供应商二";
 }
