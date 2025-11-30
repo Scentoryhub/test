@@ -557,34 +557,28 @@
       document.addEventListener("DOMContentLoaded", () => {
         loadCartFromLocalStorage();
 
-        // 1. 普通输入事件 (用于正常打字搜索)
+        // 1. 普通输入事件
         searchInput.addEventListener("input", () => {
           searchTerm = searchInput.value.toLowerCase();
           clearSearchButton.style.display = searchTerm ? "block" : "none";
           renderPerfumes();
         });
 
-        // 2. 粘贴事件 (核心修复：拦截粘贴，获取完整文本)
+        // 2. 粘贴事件 (拦截并解析)
         searchInput.addEventListener("paste", (e) => {
-          // 阻止默认粘贴，因为默认粘贴会丢失换行符
           e.preventDefault();
-
-          // 获取剪贴板里的完整文本 (包含换行符)
           const pastedText = (e.clipboardData || window.clipboardData).getData(
             "text"
           );
 
-          // 判定逻辑: 是否包含 "x数字" 或 "New Order"
-          // 支持 x3, x 3, *3*, (x3) 和中文乘号 ×
+          // 判定逻辑: 包含 "New Order" 或者包含 x数字
           const isOrder =
             pastedText.includes("New Order") ||
             /[xX×]\s*[*]?\(?\d+/.test(pastedText);
 
           if (isOrder && pastedText.includes("\n")) {
-            // 如果像订单，直接处理
             handleOrderPaste(pastedText);
           } else {
-            // 如果不像订单，手动把文字插进搜索框，进行普通搜索
             searchInput.value = pastedText;
             searchTerm = pastedText.toLowerCase();
             clearSearchButton.style.display = searchTerm ? "block" : "none";
@@ -599,7 +593,7 @@
           renderPerfumes();
         });
 
-        // 3. 订单处理函数 (Regex 终极版)
+        // 3. 订单处理函数 (Regex 已修复)
         function handleOrderPaste(text) {
           const db = window.perfumeDB || [];
           if (db.length === 0) {
@@ -612,10 +606,10 @@
           let notFoundList = [];
           let tempCart = [];
 
-          // 终极正则：
-          // 忽略开头 -> 抓取ID -> 忽略中间 -> 找 x/X/× -> 忽略符号 -> 抓取数字
+          // 修复：使用 .* (贪婪匹配) 而不是 .*? (非贪婪匹配)
+          // 这样如果名字里有 x (例如 Vanilla Sex)，它会跳过去，匹配最后面的那个 x
           const lineRegex =
-            /^\s*[-*•]?\s*([A-Za-z0-9]+).*?[xX×]\s*[*]?\(?(\d+)/i;
+            /^\s*[-*•]?\s*([A-Za-z0-9]+).*[xX×]\s*[*]?\(?(\d+)/i;
 
           lines.forEach((line) => {
             const match = line.match(lineRegex);
@@ -659,10 +653,9 @@
             }
             alert(msg);
           } else {
-            // 如果确实粘贴了多行文本，但没识别出任何东西，才报错
             if (lines.length > 2) {
               alert(
-                "Detected text paste, but found 0 products.\nPlease check if your IDs (e.g. A21) match the Database IDs."
+                "Detected paste but found 0 products. Check IDs match database."
               );
             }
           }
