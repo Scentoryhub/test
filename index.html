@@ -304,7 +304,7 @@
           <input
             type="text"
             id="search-input"
-            placeholder="Search by name, ID or SKU..."
+            placeholder="Search, or paste order (e.g., A195... x *1*)"
           />
           <button id="clear-search-btn">&times;</button>
         </div>
@@ -394,9 +394,6 @@
     <script src="db.js"></script>
 
     <script>
-      // 注意：不要再这里写 document.addEventListener("DOMContentLoaded"...) 去调用渲染了
-      // 因为 db.js 会在数据准备好后自动调用 renderPerfumes()
-
       // 定义全局变量
       let currentBrandFilter = "all";
       let currentSupplierFilter = "all";
@@ -413,15 +410,12 @@
       const showAllButton = document.getElementById("show-all-btn");
       const supplierButtons = document.querySelectorAll(".supplier-btn");
 
-      // --- 核心渲染函数 (将被 db.js 调用) ---
-      // 必须定义在全局作用域，或者挂载到 window 上，因为 db.js 可能会用到它
+      // --- 核心渲染函数 ---
       window.renderPerfumes = function () {
-        // 安全获取数据：如果还没加载完，就是一个空数组
         const db = window.perfumeDB || [];
 
         perfumeList.innerHTML = "";
 
-        // 如果数据是空的（可能是网络错误或还没加载），显示提示
         if (db.length === 0) {
           perfumeList.innerHTML =
             "<p style='text-align:center; padding:20px;'>Loading products from database...</p>";
@@ -437,8 +431,6 @@
             currentSupplierFilter === "all" ||
             perfume.supplier === currentSupplierFilter;
 
-          // 增加对 SKU 的搜索支持
-          // 注意：从 CSV 读出来的 sku 可能是 undefined，要加防护
           const skuStr = perfume.sku ? String(perfume.sku).toLowerCase() : "";
           const nameStr = perfume.name
             ? String(perfume.name).toLowerCase()
@@ -461,7 +453,6 @@
         filteredPerfumes.forEach((perfume) => {
           const card = document.createElement("div");
           card.className = "product-card";
-          // 注意：CSV 读出来的 stock 可能是字符串 "0" 或数字 0
           if (Number(perfume.stock) === 0) {
             card.classList.add("out-of-stock");
           }
@@ -498,7 +489,7 @@
         renderItemCounts();
       };
 
-      // --- 购物车相关逻辑 (保持不变) ---
+      // --- 购物车相关逻辑 ---
       function loadCartFromLocalStorage() {
         const storedCart = localStorage.getItem("perfumeCart");
         cartItems = storedCart ? JSON.parse(storedCart) : [];
@@ -527,7 +518,6 @@
           badge.style.display = "none";
         });
         cartItems.forEach((item) => {
-          // 注意 id 选择器可能需要转义特殊字符，这里假设 id 是简单的 A01 格式
           const badge = document.getElementById(`count-${item.name}`);
           if (badge) {
             badge.textContent = item.quantity;
@@ -544,7 +534,6 @@
       }
 
       function addItemToCart(productId) {
-        // 关键修改：从 window.perfumeDB 查找
         const db = window.perfumeDB || [];
         const perfumeData = db.find((p) => p.id === productId);
 
@@ -565,7 +554,7 @@
             caption: `${id} - ${name}`,
             img,
             quantity: 1,
-            price: Number(price), // 确保是数字
+            price: Number(price),
             tier: tier,
             sku: sku,
             supplier: supplier,
@@ -577,14 +566,26 @@
         pulseCartButton();
       }
 
-      // --- 事件监听器绑定 (必须在 DOMReady 后执行一次) ---
+      // --- 事件监听器绑定 ---
       document.addEventListener("DOMContentLoaded", () => {
-        // 初始化购物车 (这个不需要等待数据库)
+        // 1. 初始化
         loadCartFromLocalStorage();
 
-        // 绑定搜索事件
+        // 2. 绑定搜索事件 (支持普通搜索 + 订单粘贴)
         searchInput.addEventListener("input", () => {
-          searchTerm = searchInput.value.toLowerCase();
+          const inputValue = searchInput.value;
+
+          // 检测是否为订单文本 (特征: "x *" 且有多行，或者包含特定标题)
+          if (
+            inputValue.includes("*New Order Request*") ||
+            (inputValue.includes(" x *") && inputValue.includes("\n"))
+          ) {
+            handleOrderPaste(inputValue);
+            return;
+          }
+
+          // 普通搜索逻辑
+          searchTerm = inputValue.toLowerCase();
           clearSearchButton.style.display = searchTerm ? "block" : "none";
           renderPerfumes();
         });
@@ -596,7 +597,74 @@
           renderPerfumes();
         });
 
-        // 绑定品牌过滤器
+        // 3. 处理订单粘贴的专用函数
+        function handleOrderPaste(text) {
+          const db = window.perfumeDB || [];
+          if (db.length === 0) {
+            alert("Database not loaded yet. Please wait a second.");
+            return;
+          }
+
+          const lines = text.split("\n");
+          let importedCount = 0;
+          let notFoundList = [];
+
+          // 清空当前购物车 (覆盖模式)
+          cartItems = [];
+
+          // 正则匹配: ID - Name... x *QTY*
+          // 例子: A195 - Bond No. 9 TriBeCa (100ml) x *1*
+          const lineRegex = /^\s*([A-Za-z0-9]+)\s*-\s*.*?x\s*\*(\d+)\*/;
+
+          lines.forEach((line) => {
+            const match = line.match(lineRegex);
+            if (match) {
+              const id = match[1].trim(); // A195
+              const qty = parseInt(match[2]); // 1
+
+              const product = db.find((p) => p.id === id);
+
+              if (product) {
+                // 直接推入数组，不调用 addItemToCart 避免重复动画和保存
+                cartItems.push({
+                  name: product.id,
+                  caption: `${product.id} - ${product.name}`,
+                  img: product.img,
+                  quantity: qty,
+                  price: Number(product.price),
+                  tier: product.tier,
+                  sku: product.sku,
+                  supplier: product.supplier,
+                });
+                importedCount += qty;
+              } else {
+                notFoundList.push(id);
+              }
+            }
+          });
+
+          if (importedCount > 0) {
+            saveCartToLocalStorage();
+            updateCartCount();
+            renderItemCounts(); // 刷新页面上的角标
+
+            // 清理搜索框
+            searchInput.value = "";
+            searchTerm = "";
+            clearSearchButton.style.display = "none";
+
+            // 反馈结果
+            let msg = `✅ Cart Cleared & Updated!\n\nAdded ${importedCount} items from pasted order.`;
+            if (notFoundList.length > 0) {
+              msg += `\n\n⚠️ Warning: These IDs were not found: ${notFoundList.join(
+                ", "
+              )}`;
+            }
+            alert(msg);
+          }
+        }
+
+        // 4. 绑定品牌过滤器
         brandButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentBrandFilter = button.dataset.brand;
@@ -614,7 +682,7 @@
           renderPerfumes();
         });
 
-        // 绑定供应商过滤器
+        // 5. 绑定供应商过滤器
         supplierButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentSupplierFilter = button.dataset.supplier;
@@ -624,7 +692,7 @@
           });
         });
 
-        // 绑定加入购物车事件
+        // 6. 绑定列表点击 (加入购物车)
         perfumeList.addEventListener("click", (e) => {
           if (e.target.classList.contains("add-to-cart-btn")) {
             const productId = e.target.dataset.id;
