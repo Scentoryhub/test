@@ -304,7 +304,7 @@
           <input
             type="text"
             id="search-input"
-            placeholder="Search, or paste order (e.g., A195... x *1*)"
+            placeholder="Search, or paste order (e.g., A195... (x3))"
           />
           <button id="clear-search-btn">&times;</button>
         </div>
@@ -571,15 +571,17 @@
         // 1. 初始化
         loadCartFromLocalStorage();
 
-        // 2. 绑定搜索事件 (支持普通搜索 + 订单粘贴)
+        // 2. 绑定搜索事件 (支持普通搜索 + 双重格式订单粘贴)
         searchInput.addEventListener("input", () => {
           const inputValue = searchInput.value;
 
-          // 检测是否为订单文本 (特征: "x *" 且有多行，或者包含特定标题)
-          if (
-            inputValue.includes("*New Order Request*") ||
-            (inputValue.includes(" x *") && inputValue.includes("\n"))
-          ) {
+          // 判定逻辑升级：检测 "New Order Request" 或者 "(x" (新格式) 或者 "x *" (旧格式)
+          const isOrder =
+            inputValue.includes("New Order Request") ||
+            inputValue.includes("(x") ||
+            inputValue.includes("x *");
+
+          if (isOrder && inputValue.includes("\n")) {
             handleOrderPaste(inputValue);
             return;
           }
@@ -597,7 +599,7 @@
           renderPerfumes();
         });
 
-        // 3. 处理订单粘贴的专用函数
+        // 3. 处理订单粘贴的专用函数 (兼容两种格式)
         function handleOrderPaste(text) {
           const db = window.perfumeDB || [];
           if (db.length === 0) {
@@ -609,23 +611,26 @@
           let importedCount = 0;
           let notFoundList = [];
 
-          // 清空当前购物车 (覆盖模式)
+          // 清空当前购物车
           cartItems = [];
 
-          // 正则匹配: ID - Name... x *QTY*
-          // 例子: A195 - Bond No. 9 TriBeCa (100ml) x *1*
-          const lineRegex = /^\s*([A-Za-z0-9]+)\s*-\s*.*?x\s*\*(\d+)\*/;
+          // 核心正则修改：
+          // 1. (?:-\s*)?  --> 允许行首有 " - "
+          // 2. ([A-Za-z0-9]+) --> 抓取 ID
+          // 3. 结尾支持两种： x *3* 或者 (x3)
+          const lineRegex =
+            /^\s*(?:-\s*)?([A-Za-z0-9]+)\s*-\s*.*?(?:x\s*\*(\d+)\*|\(\s*x\s*(\d+)\s*\))/i;
 
           lines.forEach((line) => {
             const match = line.match(lineRegex);
             if (match) {
-              const id = match[1].trim(); // A195
-              const qty = parseInt(match[2]); // 1
+              const id = match[1].trim();
+              // 数量可能在第2个括号(旧格式)或第3个括号(新格式)
+              const qty = parseInt(match[2] || match[3]);
 
               const product = db.find((p) => p.id === id);
 
               if (product) {
-                // 直接推入数组，不调用 addItemToCart 避免重复动画和保存
                 cartItems.push({
                   name: product.id,
                   caption: `${product.id} - ${product.name}`,
@@ -646,7 +651,7 @@
           if (importedCount > 0) {
             saveCartToLocalStorage();
             updateCartCount();
-            renderItemCounts(); // 刷新页面上的角标
+            renderItemCounts();
 
             // 清理搜索框
             searchInput.value = "";
@@ -654,11 +659,9 @@
             clearSearchButton.style.display = "none";
 
             // 反馈结果
-            let msg = `✅ Cart Cleared & Updated!\n\nAdded ${importedCount} items from pasted order.`;
+            let msg = `✅ Success! Cart cleared & added ${importedCount} items.`;
             if (notFoundList.length > 0) {
-              msg += `\n\n⚠️ Warning: These IDs were not found: ${notFoundList.join(
-                ", "
-              )}`;
+              msg += `\n\n⚠️ ID Not Found: ${notFoundList.join(", ")}`;
             }
             alert(msg);
           }
