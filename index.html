@@ -304,7 +304,7 @@
           <input
             type="text"
             id="search-input"
-            placeholder="Search, or paste order (e.g., A195 ... (x3))"
+            placeholder="Search, or paste full order here..."
           />
           <button id="clear-search-btn">&times;</button>
         </div>
@@ -394,7 +394,6 @@
     <script src="db.js"></script>
 
     <script>
-      // 定义全局变量
       let currentBrandFilter = "all";
       let currentSupplierFilter = "all";
       let searchTerm = "";
@@ -410,12 +409,10 @@
       const showAllButton = document.getElementById("show-all-btn");
       const supplierButtons = document.querySelectorAll(".supplier-btn");
 
-      // --- 核心渲染函数 ---
       window.renderPerfumes = function () {
         const db = window.perfumeDB || [];
 
         perfumeList.innerHTML = "";
-
         if (db.length === 0) {
           perfumeList.innerHTML =
             "<p style='text-align:center; padding:20px;'>Loading products from database...</p>";
@@ -426,11 +423,9 @@
           const matchesBrand =
             currentBrandFilter === "all" ||
             perfume.brand === currentBrandFilter;
-
           const matchesSupplier =
             currentSupplierFilter === "all" ||
             perfume.supplier === currentSupplierFilter;
-
           const skuStr = perfume.sku ? String(perfume.sku).toLowerCase() : "";
           const nameStr = perfume.name
             ? String(perfume.name).toLowerCase()
@@ -438,12 +433,13 @@
           const idStr = perfume.id ? String(perfume.id).toLowerCase() : "";
           const term = searchTerm.toLowerCase();
 
-          const matchesSearch =
-            nameStr.includes(term) ||
-            idStr.includes(term) ||
-            skuStr.includes(term);
-
-          return matchesBrand && matchesSupplier && matchesSearch;
+          return (
+            matchesBrand &&
+            matchesSupplier &&
+            (nameStr.includes(term) ||
+              idStr.includes(term) ||
+              skuStr.includes(term))
+          );
         });
 
         if (filteredPerfumes.length === 0) {
@@ -453,9 +449,7 @@
         filteredPerfumes.forEach((perfume) => {
           const card = document.createElement("div");
           card.className = "product-card";
-          if (Number(perfume.stock) === 0) {
-            card.classList.add("out-of-stock");
-          }
+          if (Number(perfume.stock) === 0) card.classList.add("out-of-stock");
 
           card.innerHTML = `
             <div class="product-image-container">
@@ -483,13 +477,11 @@
               ${Number(perfume.stock) === 0 ? "Out of Stock" : "Add to Cart"}
             </button>
           `;
-
           perfumeList.appendChild(card);
         });
         renderItemCounts();
       };
 
-      // --- 购物车相关逻辑 ---
       function loadCartFromLocalStorage() {
         const storedCart = localStorage.getItem("perfumeCart");
         cartItems = storedCart ? JSON.parse(storedCart) : [];
@@ -537,13 +529,9 @@
         const db = window.perfumeDB || [];
         const perfumeData = db.find((p) => p.id === productId);
 
-        if (!perfumeData) {
-          console.error("Product not found:", productId);
-          return;
-        }
+        if (!perfumeData) return;
 
         const { id, name, img, price, tier, sku, supplier } = perfumeData;
-
         const existingItem = cartItems.find((cartItem) => cartItem.name === id);
 
         if (existingItem) {
@@ -566,30 +554,42 @@
         pulseCartButton();
       }
 
-      // --- 事件监听器绑定 ---
       document.addEventListener("DOMContentLoaded", () => {
-        // 1. 初始化
         loadCartFromLocalStorage();
 
-        // 2. 绑定搜索事件
+        // 1. 普通输入事件 (用于正常打字搜索)
         searchInput.addEventListener("input", () => {
-          const inputValue = searchInput.value;
-
-          // 判定逻辑: 只要包含 "x" 且包含数字，或者包含 "New Order"，就尝试解析
-          // 这样更灵敏
-          const isPotentialOrder =
-            inputValue.includes("New Order") ||
-            /[xX]\s*[*]?\(?\d+/.test(inputValue);
-
-          if (isPotentialOrder && inputValue.includes("\n")) {
-            handleOrderPaste(inputValue);
-            return;
-          }
-
-          // 普通搜索逻辑
-          searchTerm = inputValue.toLowerCase();
+          searchTerm = searchInput.value.toLowerCase();
           clearSearchButton.style.display = searchTerm ? "block" : "none";
           renderPerfumes();
+        });
+
+        // 2. 粘贴事件 (核心修复：拦截粘贴，获取完整文本)
+        searchInput.addEventListener("paste", (e) => {
+          // 阻止默认粘贴，因为默认粘贴会丢失换行符
+          e.preventDefault();
+
+          // 获取剪贴板里的完整文本 (包含换行符)
+          const pastedText = (e.clipboardData || window.clipboardData).getData(
+            "text"
+          );
+
+          // 判定逻辑: 是否包含 "x数字" 或 "New Order"
+          // 支持 x3, x 3, *3*, (x3) 和中文乘号 ×
+          const isOrder =
+            pastedText.includes("New Order") ||
+            /[xX×]\s*[*]?\(?\d+/.test(pastedText);
+
+          if (isOrder && pastedText.includes("\n")) {
+            // 如果像订单，直接处理
+            handleOrderPaste(pastedText);
+          } else {
+            // 如果不像订单，手动把文字插进搜索框，进行普通搜索
+            searchInput.value = pastedText;
+            searchTerm = pastedText.toLowerCase();
+            clearSearchButton.style.display = searchTerm ? "block" : "none";
+            renderPerfumes();
+          }
         });
 
         clearSearchButton.addEventListener("click", () => {
@@ -599,31 +599,23 @@
           renderPerfumes();
         });
 
-        // 3. 处理订单粘贴的专用函数 (超级宽容模式)
+        // 3. 订单处理函数 (Regex 终极版)
         function handleOrderPaste(text) {
           const db = window.perfumeDB || [];
           if (db.length === 0) {
-            alert("Database not loaded yet. Please wait a second.");
+            alert("Database not loaded yet.");
             return;
           }
 
           const lines = text.split("\n");
           let importedCount = 0;
           let notFoundList = [];
-
-          // 缓存旧购物车，以防误操作清空
-          const oldCart = [...cartItems];
           let tempCart = [];
 
-          // 正则逻辑解释：
-          // ^\s*[-*•]?\s* --> 忽略开头的空格、横线、星号或圆点
-          // ([A-Za-z0-9]+)  --> 抓取第一个单词作为 ID
-          // .*?             --> 忽略中间所有内容
-          // [xX]            --> 找到字母 x 或 X
-          // \s*[*]?\(?      --> 忽略 x 后面的空格、星号或左括号
-          // (\d+)           --> 抓取数字
+          // 终极正则：
+          // 忽略开头 -> 抓取ID -> 忽略中间 -> 找 x/X/× -> 忽略符号 -> 抓取数字
           const lineRegex =
-            /^\s*[-*•]?\s*([A-Za-z0-9]+).*?[xX]\s*[*]?\(?(\d+)/i;
+            /^\s*[-*•]?\s*([A-Za-z0-9]+).*?[xX×]\s*[*]?\(?(\d+)/i;
 
           lines.forEach((line) => {
             const match = line.match(lineRegex);
@@ -652,35 +644,30 @@
           });
 
           if (importedCount > 0) {
-            // 只有确实找到了商品，才清空并应用
             cartItems = tempCart;
             saveCartToLocalStorage();
             updateCartCount();
             renderItemCounts();
 
-            // 清理搜索框
             searchInput.value = "";
             searchTerm = "";
             clearSearchButton.style.display = "none";
 
-            // 反馈结果
             let msg = `✅ Success! Added ${importedCount} items.`;
             if (notFoundList.length > 0) {
-              msg += `\n\n⚠️ ID Not Found: ${notFoundList.join(", ")}`;
+              msg += `\n\n⚠️ Skipped (Not in DB): ${notFoundList.join(", ")}`;
             }
             alert(msg);
           } else {
-            // 如果触发了逻辑但没找到任何商品，给个提示方便排查
-            // 但为了不打扰普通搜索，我们只在明显是订单标题时提示
-            if (text.includes("New Order Request")) {
+            // 如果确实粘贴了多行文本，但没识别出任何东西，才报错
+            if (lines.length > 2) {
               alert(
-                "⚠️ Detected order format, but found 0 items.\nPlease check if IDs match your database."
+                "Detected text paste, but found 0 products.\nPlease check if your IDs (e.g. A21) match the Database IDs."
               );
             }
           }
         }
 
-        // 4. 绑定品牌过滤器
         brandButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentBrandFilter = button.dataset.brand;
@@ -698,7 +685,6 @@
           renderPerfumes();
         });
 
-        // 5. 绑定供应商过滤器
         supplierButtons.forEach((button) => {
           button.addEventListener("click", () => {
             currentSupplierFilter = button.dataset.supplier;
@@ -708,7 +694,6 @@
           });
         });
 
-        // 6. 绑定列表点击 (加入购物车)
         perfumeList.addEventListener("click", (e) => {
           if (e.target.classList.contains("add-to-cart-btn")) {
             const productId = e.target.dataset.id;
