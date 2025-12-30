@@ -3,19 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Perfume Catalog</title>
+    <title>Perfume Catalog (Fulfillment)</title>
     <link rel="icon" type="image/png" href="icon/32.png" />
     <link rel="apple-touch-icon" href="icon/180.png" />
     <style>
       :root {
         --primary-color: #007bff;
+        --warning-color: #ff9800; /* 新增：警告色 */
+        --danger-color: #dc3545; /* 新增：危险色 */
       }
       body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
         background-color: #f9f9f9;
         margin: 0;
-        padding-top: 340px;
+        /* 删除固定的 padding-top，改由 JS 动态控制 */
+        padding-top: 20px;
       }
       .header-container {
         position: fixed;
@@ -26,6 +29,7 @@
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         z-index: 1000;
         padding: 0 10px;
+        transition: height 0.2s;
       }
       .search-wrapper {
         display: flex;
@@ -67,12 +71,14 @@
         text-align: center;
         display: none;
       }
+      /* 购物车按钮样式 */
       #cart-button {
         background-color: var(--primary-color);
         color: white;
         border: none;
         padding: 0 12px;
         height: 44px;
+        min-width: 44px;
         border-radius: 22px;
         font-size: 1.5rem;
         cursor: pointer;
@@ -82,7 +88,33 @@
         align-items: center;
         justify-content: center;
         text-decoration: none;
+        transition: background-color 0.2s;
       }
+      #cart-button:hover {
+        background-color: #0056b3;
+      }
+      /* 新增：清空购物车按钮样式 */
+      #reset-cart-btn {
+        background-color: #f8f9fa;
+        color: var(--danger-color);
+        border: 1px solid #ddd;
+        height: 44px;
+        width: 44px;
+        border-radius: 22px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      #reset-cart-btn:hover {
+        background-color: var(--danger-color);
+        color: white;
+        border-color: var(--danger-color);
+      }
+
       #cart-count {
         position: absolute;
         top: -5px;
@@ -196,8 +228,10 @@
         flex-direction: column;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
+      /* 只要库存为0，稍微降低透明度，但不多 */
       .product-card.out-of-stock {
-        opacity: 0.6;
+        opacity: 0.9;
+        border: 1px dashed #ccc;
       }
       .product-card:hover {
         transform: translateY(-3px);
@@ -273,11 +307,15 @@
       .add-to-cart-btn:hover {
         background-color: #e9e9e9;
       }
-      .add-to-cart-btn:disabled {
-        background-color: #f0f0f0;
-        color: #aaa;
-        cursor: not-allowed;
+      /* 新增：缺货但允许添加的样式 */
+      .add-to-cart-btn.oos-allowed {
+        background-color: var(--warning-color);
+        color: white;
       }
+      .add-to-cart-btn.oos-allowed:hover {
+        background-color: #e68900;
+      }
+
       .item-count-badge {
         position: absolute;
         top: 8px;
@@ -304,10 +342,20 @@
           <input
             type="text"
             id="search-input"
-            placeholder="Search, or paste full order here..."
+            placeholder="Search (Press '/' to focus)..."
+            title="Press '/' to focus"
           />
           <button id="clear-search-btn">&times;</button>
         </div>
+
+        <button
+          id="reset-cart-btn"
+          aria-label="Clear Cart"
+          title="Clear entire cart"
+        >
+          🗑️
+        </button>
+
         <a href="cart.html" id="cart-button" aria-label="View Cart">
           🛒
           <span id="cart-count">0</span>
@@ -403,11 +451,21 @@
       const searchInput = document.getElementById("search-input");
       const clearSearchButton = document.getElementById("clear-search-btn");
       const cartButton = document.getElementById("cart-button");
+      const resetCartButton = document.getElementById("reset-cart-btn"); // 新增
       const cartCount = document.getElementById("cart-count");
 
       const brandButtons = document.querySelectorAll(".nav-btn[data-brand]");
       const showAllButton = document.getElementById("show-all-btn");
       const supplierButtons = document.querySelectorAll(".supplier-btn");
+
+      // 1. 动态调整 Padding，防止 Header 遮挡内容
+      const headerContainer = document.querySelector(".header-container");
+      function adjustBodyPadding() {
+        if (headerContainer) {
+          document.body.style.paddingTop =
+            headerContainer.offsetHeight + 15 + "px";
+        }
+      }
 
       window.renderPerfumes = function () {
         const db = window.perfumeDB || [];
@@ -449,7 +507,11 @@
         filteredPerfumes.forEach((perfume) => {
           const card = document.createElement("div");
           card.className = "product-card";
-          if (Number(perfume.stock) === 0) card.classList.add("out-of-stock");
+
+          // 获取库存状态
+          const isOutOfStock = Number(perfume.stock) === 0;
+
+          if (isOutOfStock) card.classList.add("out-of-stock");
 
           card.innerHTML = `
             <div class="product-image-container">
@@ -457,8 +519,9 @@
             perfume.name
           }" class="product-image" loading="lazy">
               ${
-                Number(perfume.stock) === 0
-                  ? '<div class="stock-overlay">Out of Stock</div>'
+                isOutOfStock
+                  ? /* 修改：Stock 0 提示改为红字，背景透明，不完全遮挡 */
+                    '<div class="stock-overlay" style="color:red; background:rgba(255,255,255,0.7);">Stock: 0</div>'
                   : ""
               }
               <div class="item-count-badge" id="count-${perfume.id}"></div>
@@ -471,15 +534,20 @@
                 perfume.supplier || "Unknown"
               }</span>
             </div>
-            <button class="add-to-cart-btn" data-id="${perfume.id}" ${
-            Number(perfume.stock) === 0 ? "disabled" : ""
-          }>
-              ${Number(perfume.stock) === 0 ? "Out of Stock" : "Add to Cart"}
+            
+            <button class="add-to-cart-btn ${
+              isOutOfStock ? "oos-allowed" : ""
+            }" data-id="${perfume.id}">
+              ${isOutOfStock ? "Add (No Stock)" : "Add to Cart"}
             </button>
           `;
           perfumeList.appendChild(card);
         });
+
         renderItemCounts();
+
+        // 渲染完后再次确认 padding，防止高度变化
+        setTimeout(adjustBodyPadding, 50);
       };
 
       function loadCartFromLocalStorage() {
@@ -554,8 +622,34 @@
         pulseCartButton();
       }
 
+      // 新增：清空购物车功能
+      function clearCart() {
+        if (cartItems.length === 0) return;
+        if (confirm("Are you sure you want to clear the cart?")) {
+          cartItems = [];
+          saveCartToLocalStorage();
+          updateCartCount();
+          renderItemCounts();
+        }
+      }
+
       document.addEventListener("DOMContentLoaded", () => {
         loadCartFromLocalStorage();
+
+        // 初始化 Layout
+        adjustBodyPadding();
+        window.addEventListener("resize", adjustBodyPadding);
+
+        // 绑定清空按钮
+        resetCartButton.addEventListener("click", clearCart);
+
+        // 绑定键盘快捷键 "/" 聚焦搜索
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "/" && document.activeElement !== searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+          }
+        });
 
         // 1. 普通输入事件
         searchInput.addEventListener("input", () => {
@@ -564,7 +658,7 @@
           renderPerfumes();
         });
 
-        // 2. 粘贴事件 (拦截并解析)
+        // 2. 粘贴事件
         searchInput.addEventListener("paste", (e) => {
           e.preventDefault();
           const pastedText = (e.clipboardData || window.clipboardData).getData(
@@ -593,7 +687,7 @@
           renderPerfumes();
         });
 
-        // 3. 订单处理函数 (Regex 已修复)
+        // 3. 订单处理函数
         function handleOrderPaste(text) {
           const db = window.perfumeDB || [];
           if (db.length === 0) {
@@ -606,8 +700,7 @@
           let notFoundList = [];
           let tempCart = [];
 
-          // 修复：使用 .* (贪婪匹配) 而不是 .*? (非贪婪匹配)
-          // 这样如果名字里有 x (例如 Vanilla Sex)，它会跳过去，匹配最后面的那个 x
+          // Regex
           const lineRegex =
             /^\s*[-*•]?\s*([A-Za-z0-9]+).*[xX×]\s*[*]?\(?(\d+)/i;
 
