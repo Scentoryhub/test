@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -14,8 +14,9 @@
         --success-color: #28a745; /* 新增成功色 */
       }
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
         background-color: #f9f9f9;
         margin: 0;
         padding-top: 20px;
@@ -71,7 +72,7 @@
         text-align: center;
         display: none;
       }
-      
+
       /* 通用圆形按钮样式 */
       .icon-btn {
         height: 44px;
@@ -146,9 +147,15 @@
         animation: pulse-animation 0.5s ease;
       }
       @keyframes pulse-animation {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.2);
+        }
+        100% {
+          transform: scale(1);
+        }
       }
       .navbar {
         display: flex;
@@ -232,7 +239,9 @@
         overflow: hidden;
         display: flex;
         flex-direction: column;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
       }
       .product-card.out-of-stock {
         opacity: 0.9;
@@ -341,8 +350,11 @@
       /* 【新增】模态框样式 */
       .modal-overlay {
         position: fixed;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.5);
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -364,7 +376,7 @@
         max-height: 80vh;
         display: flex;
         flex-direction: column;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
       }
       .modal-header {
         display: flex;
@@ -404,22 +416,24 @@
         font-weight: bold;
         font-size: 1rem;
       }
-      .modal-btn:hover { background: #0056b3; }
+      .modal-btn:hover {
+        background: #0056b3;
+      }
     </style>
   </head>
   <body>
     <div class="header-container">
       <div class="search-wrapper">
         <div class="search-container">
-          <input
-            type="text"
-            id="search-input"
-            placeholder="Search..."
-          />
+          <input type="text" id="search-input" placeholder="Search..." />
           <button id="clear-search-btn">&times;</button>
         </div>
 
-        <button id="oos-tool-btn" class="icon-btn" title="Copy Supplier 2 Out-of-Stock SKUs">
+        <button
+          id="oos-tool-btn"
+          class="icon-btn"
+          title="Copy Supplier 2 Out-of-Stock SKUs"
+        >
           📋
         </button>
 
@@ -432,7 +446,12 @@
           🗑️
         </button>
 
-        <a href="cart.html" id="cart-button" class="icon-btn" aria-label="View Cart">
+        <a
+          href="cart.html"
+          id="cart-button"
+          class="icon-btn"
+          aria-label="View Cart"
+        >
           🛒
           <span id="cart-count">0</span>
         </a>
@@ -516,14 +535,16 @@
     </div>
 
     <div class="modal-overlay" id="sku-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Supplier 2 Out-of-Stock SKUs</div>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body" id="modal-sku-list"></div>
-            <button class="modal-btn" onclick="copyModalContent()">Copy All & Close</button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">Supplier 2 Out-of-Stock SKUs</div>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
+        <div class="modal-body" id="modal-sku-list"></div>
+        <button class="modal-btn" onclick="copyModalContent()">
+          Copy All & Close
+        </button>
+      </div>
     </div>
 
     <script src="db.js"></script>
@@ -540,9 +561,9 @@
       const cartButton = document.getElementById("cart-button");
       const resetCartButton = document.getElementById("reset-cart-btn");
       const cartCount = document.getElementById("cart-count");
-      
-      const oosToolBtn = document.getElementById("oos-tool-btn"); // 新增
-      const skuModal = document.getElementById("sku-modal"); // 新增
+
+      const oosToolBtn = document.getElementById("oos-tool-btn");
+      const skuModal = document.getElementById("sku-modal");
 
       const brandButtons = document.querySelectorAll(".nav-btn[data-brand]");
       const showAllButton = document.getElementById("show-all-btn");
@@ -556,45 +577,45 @@
         }
       }
 
-      // 【新增】SKU 提取逻辑
+      // SKU 提取逻辑
       oosToolBtn.addEventListener("click", () => {
-          const db = window.perfumeDB || [];
-          // 1. 筛选：供应商二 + 库存为0
-          const targets = db.filter(p => p.supplier === '供应商二' && Number(p.stock) === 0);
-          
-          if (targets.length === 0) {
-              alert("Good news! No out-of-stock items found for 供应商二.");
-              return;
-          }
+        const db = window.perfumeDB || [];
+        // 1. 筛选：供应商二 + 库存为0 (不包含 -1)
+        const targets = db.filter(
+          (p) => p.supplier === "供应商二" && Number(p.stock) === 0,
+        );
 
-          // 2. 提取 SKU (或者 ID，看你文档需要什么)
-          // 假设你需要 sku，如果没有 sku 字段则回退到 id
-          const skus = targets.map(p => p.sku || p.id);
-          const listText = skus.join('\n');
+        if (targets.length === 0) {
+          alert("Good news! No out-of-stock items found for 供应商二.");
+          return;
+        }
 
-          // 3. 显示在模态框里供预览
-          document.getElementById('modal-sku-list').textContent = listText;
-          skuModal.classList.add('open');
+        const skus = targets.map((p) => p.sku || p.id);
+        const listText = skus.join("\n");
 
-          // 4. 自动复制到剪贴板
-          navigator.clipboard.writeText(listText).then(() => {
-              // 可选：显示个小提示
-              // console.log('Copied automatically');
-          }).catch(err => {
-              console.error('Auto-copy failed', err);
+        document.getElementById("modal-sku-list").textContent = listText;
+        skuModal.classList.add("open");
+
+        navigator.clipboard
+          .writeText(listText)
+          .then(() => {
+            // console.log('Copied automatically');
+          })
+          .catch((err) => {
+            console.error("Auto-copy failed", err);
           });
       });
 
       function closeModal() {
-          skuModal.classList.remove('open');
+        skuModal.classList.remove("open");
       }
 
       function copyModalContent() {
-          const text = document.getElementById('modal-sku-list').textContent;
-          navigator.clipboard.writeText(text).then(() => {
-              alert("Copied to clipboard!");
-              closeModal();
-          });
+        const text = document.getElementById("modal-sku-list").textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Copied to clipboard!");
+          closeModal();
+        });
       }
 
       window.renderPerfumes = function () {
@@ -608,6 +629,9 @@
         }
 
         const filteredPerfumes = db.filter((perfume) => {
+          // 【核心修改】如果库存是 -1，直接不显示（但 0 会显示）
+          if (Number(perfume.stock) === -1) return false;
+
           const matchesBrand =
             currentBrandFilter === "all" ||
             perfume.brand === currentBrandFilter;
@@ -644,8 +668,8 @@
           card.innerHTML = `
             <div class="product-image-container">
               <img src="${perfume.img}" alt="${
-            perfume.name
-          }" class="product-image" loading="lazy">
+                perfume.name
+              }" class="product-image" loading="lazy">
               ${
                 isOutOfStock
                   ? '<div class="stock-overlay" style="color:red; background:rgba(255,255,255,0.7);">Stock: 0</div>'
@@ -688,7 +712,7 @@
       function updateCartCount() {
         const totalQuantity = cartItems.reduce(
           (sum, item) => sum + item.quantity,
-          0
+          0,
         );
         if (totalQuantity > 0) {
           cartCount.textContent = totalQuantity;
@@ -779,7 +803,7 @@
         searchInput.addEventListener("paste", (e) => {
           e.preventDefault();
           const pastedText = (e.clipboardData || window.clipboardData).getData(
-            "text"
+            "text",
           );
           const isOrder =
             pastedText.includes("New Order") ||
@@ -861,7 +885,7 @@
           } else {
             if (lines.length > 2) {
               alert(
-                "Detected paste but found 0 products. Check IDs match database."
+                "Detected paste but found 0 products. Check IDs match database.",
               );
             }
           }
