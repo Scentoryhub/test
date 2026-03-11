@@ -805,12 +805,17 @@
           const pastedText = (e.clipboardData || window.clipboardData).getData(
             "text",
           );
-          const isOrder =
-            pastedText.includes("New Order") ||
-            /[xX×]\s*[*]?\(?\d+/.test(pastedText);
+          
+          const isOrder = pastedText.includes("New Order") || /[xX×]\s*[*]?\(?\d+/.test(pastedText);
+          
+          // 【新增】检测是否包含 "名称*数字" 的 SKU 拼接格式
+          const isSkuString = /\S+\*\d+/.test(pastedText);
 
           if (isOrder && pastedText.includes("\n")) {
             handleOrderPaste(pastedText);
+          } else if (isSkuString) {
+            // 如果是 SKU 拼接格式，调用新的处理函数
+            handleSkuStringPaste(pastedText);
           } else {
             searchInput.value = pastedText;
             searchTerm = pastedText.toLowerCase();
@@ -888,6 +893,84 @@
                 "Detected paste but found 0 products. Check IDs match database.",
               );
             }
+          }
+        }
+
+        function handleSkuStringPaste(text) {
+          const db = window.perfumeDB || [];
+          if (db.length === 0) {
+            alert("Database not loaded yet.");
+            return;
+          }
+
+          // 1. 清理诸如 "--- 供应商二 ---" 等干扰性质的表头文本
+          let cleanText = text.replace(/---.*?---/g, '').trim();
+
+          // 2. 支持用加号 (+) 或者换行符 (\n) 分割每个商品
+          const items = cleanText.split(/[+\n]/);
+          let importedCount = 0;
+          let notFoundList = [];
+
+          items.forEach((itemStr) => {
+            // 匹配 "名称*数量" 格式（允许字符前后有空格）
+            const match = itemStr.match(/(.*?)\*(\d+)/);
+            if (match) {
+              const skuName = match[1].trim();
+              const qty = parseInt(match[2], 10);
+              
+              if (!skuName || qty <= 0) return;
+
+              // 3. 智能查找匹配的商品：
+              // 优先精确匹配 SKU -> 其次精确匹配名称 -> 最后尝试模糊包含匹配 SKU 或名称
+              const product = db.find(p => p.sku && p.sku === skuName) ||
+                              db.find(p => p.name && p.name === skuName) ||
+                              db.find(p => (p.sku && p.sku.includes(skuName)) || (p.name && p.name.includes(skuName)));
+
+              if (product) {
+                // 如果库中存在该商品，则加入购物车（如果已有则叠加数量）
+                const existingItem = cartItems.find((cartItem) => cartItem.name === product.id);
+                if (existingItem) {
+                  existingItem.quantity += qty;
+                } else {
+                  cartItems.push({
+                    name: product.id,
+                    caption: `${product.id} - ${product.name}`,
+                    img: product.img,
+                    quantity: qty,
+                    price: Number(product.price),
+                    tier: product.tier,
+                    sku: product.sku,
+                    supplier: product.supplier,
+                  });
+                }
+                importedCount += qty;
+              } else {
+                notFoundList.push(skuName); // 记录未能匹配的 SKU
+              }
+            }
+          });
+
+          // 4. 处理最终结果与反馈
+          if (importedCount > 0) {
+            saveCartToLocalStorage();
+            updateCartCount();
+            renderItemCounts();
+
+            searchInput.value = "";
+            searchTerm = "";
+            clearSearchButton.style.display = "none";
+
+            let msg = `✅ 成功加购 ${importedCount} 件商品！`;
+            if (notFoundList.length > 0) {
+              msg += `\n\n⚠️ 未找到匹配商品(请手动检查拼写或库存):\n${notFoundList.join(" , ")}`;
+            }
+            alert(msg);
+          } else {
+            // 如果解析后发现数量为0，当成普通搜索处理
+            searchInput.value = text;
+            searchTerm = text.toLowerCase();
+            clearSearchButton.style.display = searchTerm ? "block" : "none";
+            renderPerfumes();
           }
         }
 
