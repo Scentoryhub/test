@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -18,8 +18,9 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
         background-color: var(--bg-color);
         margin: 0;
         color: var(--text-main);
@@ -78,7 +79,9 @@
         flex-direction: column;
         padding: 10px;
         position: relative;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
         border: 1px solid rgba(0, 0, 0, 0.02);
       }
       .cart-item:hover {
@@ -86,13 +89,45 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       }
 
-      .item-img {
+      /* 【新增】缺货时的卡片样式 */
+      .cart-item.out-of-stock {
+        opacity: 0.85;
+        border: 1px dashed var(--danger-color);
+      }
+
+      /* 【新增】包裹图片的容器，用于定位缺货遮罩 */
+      .item-img-wrapper {
+        position: relative;
         width: 100%;
         height: 140px;
+        margin-bottom: 10px;
+      }
+
+      .item-img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
         border-radius: 8px;
-        margin-bottom: 10px;
         background-color: #f0f0f0;
+      }
+
+      /* 【新增】缺货遮罩层 */
+      .stock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--danger-color);
+        font-size: 1.1rem;
+        backdrop-filter: blur(2px);
+        border-radius: 8px;
+        z-index: 5;
       }
 
       .item-info {
@@ -492,7 +527,6 @@
             if (items && items.length > 0) {
               allOrderParts.push(`\n--- ${supplierName} ---`);
               const itemParts = items.map((item) => {
-                // 确保使用 SKU，如果实在没有 SKU 才用 ID
                 const sku = item.sku || item.name;
                 return `${sku}*${item.quantity}`;
               });
@@ -510,7 +544,7 @@
         function updatePageState() {
           const totalQty = cartItems.reduce(
             (sum, item) => sum + item.quantity,
-            0
+            0,
           );
           totalQtyDisplay.innerHTML = `${totalQty} <span>items</span>`;
 
@@ -518,28 +552,21 @@
           previewTextarea.value = orderText;
         }
 
-        // ===============================================
-        // 核心修改：修复 renderCart 函数，加入数据自动同步逻辑
-        // ===============================================
         window.renderCart = function () {
-          // 1. 数据同步修复逻辑
-          // 当数据库(db.js)加载完毕后，用最新数据覆盖购物车里的旧缓存
+          // 1. 数据同步修复逻辑：包含同步库存(stock)
           if (window.perfumeDB && window.perfumeDB.length > 0) {
             let dataUpdated = false;
 
             cartItems.forEach((item) => {
-              // 用购物车里的 item.name (ID) 去数据库找最新数据
               const freshProduct = window.perfumeDB.find(
-                (p) => p.id === item.name
+                (p) => p.id === item.name,
               );
 
               if (freshProduct) {
-                // 修复 SKU 缺失问题
                 if (freshProduct.sku && item.sku !== freshProduct.sku) {
                   item.sku = freshProduct.sku;
                   dataUpdated = true;
                 }
-                // 修复 供应商 错误问题
                 if (
                   freshProduct.supplier &&
                   item.supplier !== freshProduct.supplier
@@ -547,21 +574,26 @@
                   item.supplier = freshProduct.supplier;
                   dataUpdated = true;
                 }
-                // 修复 图片 缺失问题
                 if (freshProduct.img && item.img !== freshProduct.img) {
                   item.img = freshProduct.img;
                   dataUpdated = true;
                 }
-                // 修复 标题显示
                 const newCaption = `${freshProduct.id} - ${freshProduct.name}`;
                 if (item.caption !== newCaption) {
                   item.caption = newCaption;
                   dataUpdated = true;
                 }
+                // 【核心修改】同步最新库存数据
+                if (
+                  freshProduct.stock !== undefined &&
+                  item.stock !== freshProduct.stock
+                ) {
+                  item.stock = freshProduct.stock;
+                  dataUpdated = true;
+                }
               }
             });
 
-            // 如果发现了数据更新，重新保存到缓存
             if (dataUpdated) {
               console.log("🔄 Cart data synced with latest database.");
               saveCart();
@@ -587,16 +619,26 @@
             itemEl.className = "cart-item";
             itemEl.dataset.name = item.name;
 
-            // 优先显示 SKU，如果没有 SKU 则显示 Caption，最后才显示 ID
+            // 判断是否缺货 (库存为0或小于0)
+            const isOutOfStock =
+              item.stock !== undefined && Number(item.stock) <= 0;
+
+            // 如果缺货，给卡片增加对应 class
+            if (isOutOfStock) {
+              itemEl.classList.add("out-of-stock");
+            }
+
             const displayName = item.sku || item.caption || item.name;
             const displaySupplier = item.supplier || "Unknown";
 
+            // 【核心修改】增加包裹图片的 wrapper 和缺货遮罩
             itemEl.innerHTML = `
               <button class="remove-btn" title="Remove item">&times;</button>
               
-              <img src="${
-                item.img
-              }" alt="${displayName}" class="item-img" onerror="this.src='placeholder.png'" />
+              <div class="item-img-wrapper">
+                <img src="${item.img}" alt="${displayName}" class="item-img" onerror="this.src='placeholder.png'" />
+                ${isOutOfStock ? '<div class="stock-overlay">缺货 (Stock: 0)</div>' : ""}
+              </div>
               
               <div class="item-info">
                 <p class="item-name" title="${displayName}">${displayName}</p>
