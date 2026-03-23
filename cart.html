@@ -89,13 +89,11 @@
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
       }
 
-      /* 【新增】缺货时的卡片样式 */
       .cart-item.out-of-stock {
         opacity: 0.85;
         border: 1px dashed var(--danger-color);
       }
 
-      /* 【新增】包裹图片的容器，用于定位缺货遮罩 */
       .item-img-wrapper {
         position: relative;
         width: 100%;
@@ -111,7 +109,6 @@
         background-color: #f0f0f0;
       }
 
-      /* 【新增】缺货遮罩层 */
       .stock-overlay {
         position: absolute;
         top: 0;
@@ -277,7 +274,7 @@
       }
       #order-preview-text {
         width: 100%;
-        height: 140px;
+        height: 180px;
         padding: 12px;
         box-sizing: border-box;
         border: 2px solid #f2f2f7;
@@ -500,6 +497,7 @@
           localStorage.setItem("perfumeCart", JSON.stringify(cartItems));
         }
 
+        // --- 【核心修改】自动追加总数和总金额 ---
         function generateOrderString() {
           if (cartItems.length === 0) return "";
 
@@ -512,12 +510,20 @@
           ];
 
           const groupedBySupplier = {};
+          let totalQty = 0;
+          let totalAmount = 0;
+
           cartItems.forEach((item) => {
             const supplier = item.supplier || "供应商二";
             if (!groupedBySupplier[supplier]) {
               groupedBySupplier[supplier] = [];
             }
             groupedBySupplier[supplier].push(item);
+
+            // 累加总数量
+            totalQty += item.quantity;
+            // 累加总金额
+            totalAmount += (item.price || 0) * item.quantity;
           });
 
           let allOrderParts = [];
@@ -525,7 +531,7 @@
           supplierOrder.forEach((supplierName) => {
             const items = groupedBySupplier[supplierName];
             if (items && items.length > 0) {
-              allOrderParts.push(`\n--- ${supplierName} ---`);
+              allOrderParts.push(`--- ${supplierName} ---`);
               const itemParts = items.map((item) => {
                 const sku = item.sku || item.name;
                 return `${sku}*${item.quantity}`;
@@ -534,11 +540,13 @@
             }
           });
 
-          let orderText = allOrderParts.join("\n");
-          if (orderText.startsWith("\n")) {
-            orderText = orderText.substring(1);
-          }
-          return orderText;
+          // 在末尾追加客户的格式
+          allOrderParts.push(""); // 加一个空行分隔
+          allOrderParts.push(`Total Quantity: ${totalQty} pcs`);
+          allOrderParts.push(`----------------------------`);
+          allOrderParts.push(`Total Amount: $${totalAmount.toFixed(2)}`);
+
+          return allOrderParts.join("\n");
         }
 
         function updatePageState() {
@@ -553,7 +561,6 @@
         }
 
         window.renderCart = function () {
-          // 1. 数据同步修复逻辑：包含同步库存(stock)
           if (window.perfumeDB && window.perfumeDB.length > 0) {
             let dataUpdated = false;
 
@@ -578,12 +585,18 @@
                   item.img = freshProduct.img;
                   dataUpdated = true;
                 }
+                if (
+                  freshProduct.price !== undefined &&
+                  item.price !== freshProduct.price
+                ) {
+                  item.price = Number(freshProduct.price);
+                  dataUpdated = true;
+                }
                 const newCaption = `${freshProduct.id} - ${freshProduct.name}`;
                 if (item.caption !== newCaption) {
                   item.caption = newCaption;
                   dataUpdated = true;
                 }
-                // 【核心修改】同步最新库存数据
                 if (
                   freshProduct.stock !== undefined &&
                   item.stock !== freshProduct.stock
@@ -600,7 +613,6 @@
             }
           }
 
-          // 2. 正常的页面渲染逻辑
           cartContainer.innerHTML = "";
 
           if (cartItems.length === 0) {
@@ -619,11 +631,9 @@
             itemEl.className = "cart-item";
             itemEl.dataset.name = item.name;
 
-            // 判断是否缺货 (库存为0或小于0)
             const isOutOfStock =
               item.stock !== undefined && Number(item.stock) <= 0;
 
-            // 如果缺货，给卡片增加对应 class
             if (isOutOfStock) {
               itemEl.classList.add("out-of-stock");
             }
@@ -631,7 +641,6 @@
             const displayName = item.sku || item.caption || item.name;
             const displaySupplier = item.supplier || "Unknown";
 
-            // 【核心修改】增加包裹图片的 wrapper 和缺货遮罩
             itemEl.innerHTML = `
               <button class="remove-btn" title="Remove item">&times;</button>
               
