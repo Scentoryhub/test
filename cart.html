@@ -497,7 +497,7 @@
           localStorage.setItem("perfumeCart", JSON.stringify(cartItems));
         }
 
-        // --- 【核心修改】自动追加总数和总金额 ---
+        // --- 【核心修改】计算含有阶梯折扣的最终总价 ---
         function generateOrderString() {
           if (cartItems.length === 0) return "";
 
@@ -511,7 +511,7 @@
 
           const groupedBySupplier = {};
           let totalQty = 0;
-          let totalAmount = 0;
+          let subtotalAmount = 0;
 
           cartItems.forEach((item) => {
             const supplier = item.supplier || "供应商二";
@@ -522,9 +522,30 @@
 
             // 累加总数量
             totalQty += item.quantity;
-            // 累加总金额
-            totalAmount += (item.price || 0) * item.quantity;
+            // 累加商品原总价
+            subtotalAmount += (item.price || 0) * item.quantity;
           });
+
+          // 阶梯折扣规则计算逻辑
+          const tiers = [
+            { min: 1, max: 1, percent: 0 },
+            { min: 2, max: 2, percent: 0.03 },
+            { min: 3, max: 4, percent: 0.05 },
+            { min: 5, max: 9, percent: 0.08 },
+            { min: 10, max: 19, percent: 0.14 },
+            { min: 20, max: 29, percent: 0.24 },
+            { min: 30, max: 49, percent: 0.26 },
+            { min: 50, max: 79, percent: 0.29 },
+            { min: 80, max: 100, percent: 0.32 },
+            { min: 101, max: Infinity, percent: 0.35 },
+          ];
+
+          const tier = tiers.find(
+            (t) => totalQty >= t.min && totalQty <= t.max,
+          ) || { percent: 0 };
+          const discountVal = subtotalAmount * tier.percent;
+          // 折扣后四舍五入到最近的整数，和客户版的结账逻辑保持完美一致
+          const finalAmount = Math.round(subtotalAmount - discountVal);
 
           let allOrderParts = [];
 
@@ -540,11 +561,11 @@
             }
           });
 
-          // 在末尾追加客户的格式
+          // 在末尾追加含有最终整数金额的客户格式
           allOrderParts.push(""); // 加一个空行分隔
           allOrderParts.push(`Total Quantity: ${totalQty} pcs`);
           allOrderParts.push(`----------------------------`);
-          allOrderParts.push(`Total Amount: $${totalAmount.toFixed(2)}`);
+          allOrderParts.push(`Total Amount: $${finalAmount.toFixed(2)}`);
 
           return allOrderParts.join("\n");
         }
